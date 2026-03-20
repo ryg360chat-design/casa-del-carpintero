@@ -1,0 +1,280 @@
+import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
+import CancelarPedidoBtn from "@/components/CancelarPedidoBtn";
+
+const ESTADO_STYLE: Record<string, string> = {
+  "En cola":       "bg-zinc-100 text-zinc-600",
+  "En corte":      "bg-zinc-900 text-white",
+  "En tapacantos": "bg-zinc-700 text-white",
+  "Listo":         "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  "Cancelado":     "bg-red-50 text-red-600 border border-red-200",
+  "Pausado":       "bg-yellow-50 text-yellow-700 border border-yellow-200",
+};
+
+const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo"];
+
+export default async function PedidoDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: pedido } = await supabase
+    .from("pedidos")
+    .select("*, cliente:clientes(nombre, telefono, email)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!pedido) notFound();
+
+  const { data: historial } = await supabase
+    .from("pedido_historial")
+    .select("*")
+    .eq("pedido_id", id)
+    .order("created_at", { ascending: false });
+
+  const estado = pedido.estado as string;
+  const badgeClass = ESTADO_STYLE[estado] ?? "bg-zinc-100 text-zinc-600";
+  const isUrgente = pedido.prioridad === "urgente";
+  const estaActivo = ["En cola", "En corte", "En tapacantos"].includes(estado);
+  const cliente = pedido.cliente as Record<string, unknown> | null;
+
+  const fechaIngreso = new Date(pedido.fecha_ingreso).toLocaleDateString("es", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
+  const horaIngreso = new Date(pedido.fecha_ingreso).toLocaleTimeString("es", {
+    hour: "2-digit", minute: "2-digit",
+  });
+
+  const pasoActual = ESTADOS_FLUJO.indexOf(estado);
+  const esListo = estado === "Listo";
+  const esCancelado = estado === "Cancelado";
+
+  return (
+    <div className="p-8 max-w-4xl mx-auto animate-fade-in">
+      {/* Back */}
+      <Link
+        href="/pedidos"
+        className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-900 transition-colors mb-6 group animate-fade-in-down"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-transform group-hover:-translate-x-0.5">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Volver a Pedidos
+      </Link>
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-6 animate-fade-in-up">
+        <div>
+          <div className="flex items-center gap-3 mb-1.5">
+            <h1 className="text-2xl font-bold text-zinc-900">
+              {cliente?.nombre as string ?? "Sin cliente"}
+            </h1>
+            {isUrgente && (
+              <span className="animate-badge-pop text-xs font-bold border border-zinc-900 bg-zinc-900 text-white px-2 py-0.5 rounded-md tracking-wide">
+                ⚡ URGENTE
+              </span>
+            )}
+          </div>
+          <p className="text-zinc-400 text-sm">
+            <span className="capitalize">{fechaIngreso}</span>
+            {" · "}
+            <span>{horaIngreso}</span>
+            {" · "}
+            <span className="font-medium text-zinc-500">{pedido.maquina_asignada ?? "Sin máquina"}</span>
+          </p>
+        </div>
+        <span className={`animate-badge-pop text-sm font-bold px-3 py-1.5 rounded-full ${badgeClass}`}>
+          {estado}
+        </span>
+      </div>
+
+      {/* Progress stepper */}
+      {!esCancelado && (
+        <div className="animate-fade-in-up delay-100 bg-white border border-zinc-200 rounded-xl p-6 mb-5">
+          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-5">Progreso del pedido</p>
+
+          <div className="flex items-center">
+            {ESTADOS_FLUJO.map((s, idx) => {
+              const done = esListo ? true : idx < pasoActual;
+              const current = !esListo && idx === pasoActual;
+              const isLast = idx === ESTADOS_FLUJO.length - 1;
+
+              return (
+                <div key={s} className="flex items-center flex-1 last:flex-none">
+                  {/* Step */}
+                  <div className="flex flex-col items-center">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                      done
+                        ? "bg-zinc-900 border-zinc-900 text-white shadow-sm"
+                        : current
+                        ? "bg-white border-zinc-900 text-zinc-900 shadow-[0_0_0_4px_rgba(24,24,27,0.08)]"
+                        : "bg-white border-zinc-200 text-zinc-300"
+                    }`}>
+                      {done ? (
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      ) : (
+                        <span>{idx + 1}</span>
+                      )}
+                    </div>
+                    <span className={`text-xs mt-2 font-medium whitespace-nowrap ${
+                      done || current ? "text-zinc-700" : "text-zinc-400"
+                    }`}>
+                      {s}
+                    </span>
+                    {current && (
+                      <span className="text-[10px] text-zinc-400 mt-0.5 font-medium">Actual</span>
+                    )}
+                  </div>
+
+                  {/* Connector */}
+                  {!isLast && (
+                    <div className="flex-1 relative h-0.5 mx-2 mb-5 bg-zinc-100 overflow-hidden rounded-full">
+                      {done && (
+                        <div className="absolute inset-0 bg-zinc-900 rounded-full" />
+                      )}
+                      {current && (
+                        <div
+                          className="absolute inset-0 bg-zinc-900 rounded-full"
+                          style={{ width: "50%" }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {estaActivo && (
+            <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
+              <CancelarPedidoBtn pedidoId={pedido.id} />
+              <AvanzarEstadoBtn pedidoId={pedido.id} estadoActual={estado} showLabel />
+            </div>
+          )}
+        </div>
+      )}
+
+      {esCancelado && (
+        <div className="animate-fade-in-up delay-100 bg-red-50 border border-red-200 rounded-xl p-4 mb-5 flex items-center gap-3">
+          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5">
+              <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <p className="text-sm font-semibold text-red-700">Pedido cancelado</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-5 mb-5">
+        {/* Material */}
+        <div className="animate-fade-in-up delay-150 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
+          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4">Material y Corte</p>
+          <div className="grid grid-cols-2 gap-y-4 gap-x-4">
+            {[
+              { label: "Tipo", value: pedido.tipo_tablero },
+              { label: "Marca", value: pedido.marca_melamina || "—" },
+              { label: "Planchas", value: pedido.cant_planchas },
+              { label: "Piezas", value: pedido.cant_piezas },
+              { label: "Mts. canto", value: `${pedido.metros_canto} m` },
+              { label: "Ranuras", value: pedido.ranuras ? "Sí" : "No" },
+            ].map(({ label, value }) => (
+              <div key={label}>
+                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">{label}</p>
+                <p className="text-sm font-bold text-zinc-900">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Cliente + Fechas */}
+        <div className="flex flex-col gap-5">
+          <div className="animate-fade-in-up delay-200 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Cliente</p>
+            <p className="font-bold text-zinc-900 text-sm">{cliente?.nombre as string ?? "—"}</p>
+            {cliente?.telefono as string && (
+              <p className="text-sm text-zinc-500 mt-1.5 flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                {cliente?.telefono as string}
+              </p>
+            )}
+            {cliente?.email as string && (
+              <p className="text-sm text-zinc-500 mt-1 flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                {cliente?.email as string}
+              </p>
+            )}
+          </div>
+
+          <div className="animate-fade-in-up delay-250 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Fechas</p>
+            <div className="flex flex-col gap-2.5">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-zinc-400">Ingreso</span>
+                <span className="text-xs font-semibold text-zinc-900">
+                  {new Date(pedido.fecha_ingreso).toLocaleDateString("es", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-zinc-400">Entrega estimada</span>
+                <span className="text-xs font-semibold text-zinc-900">
+                  {pedido.fecha_entrega_estimada
+                    ? new Date(pedido.fecha_entrega_estimada).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })
+                    : "—"}
+                </span>
+              </div>
+              {pedido.fecha_entrega_real && (
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-zinc-400">Entrega real</span>
+                  <span className="text-xs font-semibold text-emerald-700">
+                    {new Date(pedido.fecha_entrega_real).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Notas */}
+      {pedido.notas && (
+        <div className="animate-fade-in-up delay-300 bg-white border border-zinc-200 rounded-xl p-5 mb-5">
+          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">Notas</p>
+          <p className="text-sm text-zinc-700 whitespace-pre-wrap leading-relaxed">{pedido.notas}</p>
+        </div>
+      )}
+
+      {/* Historial */}
+      {(historial ?? []).length > 0 && (
+        <div className="animate-fade-in-up delay-300 bg-white border border-zinc-200 rounded-xl p-5">
+          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4">Historial de cambios</p>
+          <div className="flex flex-col gap-0">
+            {(historial ?? []).map((h: Record<string, unknown>, idx: number) => (
+              <div
+                key={h.id as string}
+                className="flex items-center gap-3 py-2.5 border-b border-zinc-50 last:border-0"
+                style={{ animationDelay: `${idx * 40}ms` }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0" />
+                <span className="text-xs text-zinc-400 whitespace-nowrap min-w-[100px]">
+                  {new Date(h.created_at as string).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}
+                </span>
+                <span className="text-xs font-medium text-zinc-400 line-through">{h.estado_anterior as string}</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                <span className="text-xs font-bold text-zinc-900">{h.estado_nuevo as string}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
