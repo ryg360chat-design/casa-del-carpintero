@@ -12,22 +12,13 @@ const PAGE_META: Record<string, { title: string; breadcrumb?: string }> = {
   "/ajustes":    { title: "Ajustes", breadcrumb: "Sistema" },
 };
 
-function getGreeting(hour: number) {
-  if (hour < 12) return "Buenos días";
-  if (hour < 19) return "Buenas tardes";
-  return "Buenas noches";
-}
-
 export default function TopBar({ canCreatePedido = true }: { canCreatePedido?: boolean }) {
   const pathname = usePathname();
   const [time, setTime] = useState<string>("");
-  const [greeting, setGreeting] = useState<string>("");
 
   useEffect(() => {
     function update() {
       const now = new Date();
-      const h = now.getHours();
-      setGreeting(getGreeting(h));
       setTime(
         now.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })
       );
@@ -80,13 +71,6 @@ export default function TopBar({ canCreatePedido = true }: { canCreatePedido?: b
           </span>
         )}
       </div>
-
-      {/* Greeting (only on dashboard) */}
-      {pathname === "/dashboard" && greeting && (
-        <span className="text-sm text-zinc-500 hidden md:block">
-          {greeting}, Jefe de Taller
-        </span>
-      )}
 
       <div className="flex-1" />
 
