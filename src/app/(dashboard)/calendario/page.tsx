@@ -51,7 +51,7 @@ export default async function CalendarioPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         {[
           { label: "Pendientes", value: totalPendientes },
           { label: "Entregan hoy", value: entregasHoy },

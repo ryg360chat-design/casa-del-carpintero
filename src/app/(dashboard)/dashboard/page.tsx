@@ -41,10 +41,10 @@ function StatCard({
       className="animate-fade-in-up bg-white border border-zinc-200 rounded-xl p-5 flex flex-col gap-3 card-hover"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{label}</span>
+      <div className="flex items-start justify-between">
+        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider leading-tight">{label}</span>
         {icon && (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: iconBg }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ml-2" style={{ background: iconBg }}>
             {icon}
           </div>
         )}

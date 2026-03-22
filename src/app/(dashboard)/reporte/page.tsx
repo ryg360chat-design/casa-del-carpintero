@@ -81,7 +81,7 @@ export default async function ReportePage() {
         <div className="bg-zinc-900 text-white rounded-2xl p-8 mb-6 relative overflow-hidden print:rounded-none print:mb-4">
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style={{ background: "radial-gradient(circle, #f97316, transparent 70%)", transform: "translate(30%, -30%)" }} />
           <div className="relative">
-            <div className="flex items-start justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
@@ -103,17 +103,17 @@ export default async function ReportePage() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4">
               {[
-                { label: "Ingresados hoy", value: pedidosHoy?.length ?? 0, color: "text-blue-400" },
+                { label: "Hoy", value: pedidosHoy?.length ?? 0, color: "text-blue-400" },
                 { label: "En cola", value: enCola ?? 0, color: "text-orange-400" },
                 { label: "En corte", value: enCorte ?? 0, color: "text-zinc-300" },
-                { label: "Listos hoy", value: listos ?? 0, color: "text-emerald-400" },
+                { label: "Listos", value: listos ?? 0, color: "text-emerald-400" },
                 { label: "Cancelados", value: cancelados ?? 0, color: "text-red-400" },
               ].map(({ label, value, color }) => (
-                <div key={label} className="bg-white/10 rounded-xl p-4 text-center">
-                  <p className={`text-3xl font-bold ${color}`}>{value}</p>
-                  <p className="text-xs text-zinc-400 mt-1 font-medium">{label}</p>
+                <div key={label} className="bg-white/10 rounded-xl p-3 sm:p-4 text-center">
+                  <p className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</p>
+                  <p className="text-[10px] sm:text-xs text-zinc-400 mt-1 font-medium">{label}</p>
                 </div>
               ))}
             </div>
@@ -121,7 +121,7 @@ export default async function ReportePage() {
         </div>
 
         {/* Resumen de volumen */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           {[
             {
               label: "Total planchas hoy",

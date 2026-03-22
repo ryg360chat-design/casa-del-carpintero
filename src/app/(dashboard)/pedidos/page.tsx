@@ -111,19 +111,19 @@ export default async function PedidosPage({
             <thead>
               <tr className="border-b border-zinc-100 bg-zinc-50/40">
                 {[
-                  { label: "#" },
-                  { label: "Cliente" },
-                  { label: "Material" },
-                  { label: "Planchas", center: true },
-                  { label: "Piezas", center: true },
-                  { label: "Máquina" },
-                  { label: "Estado" },
-                  { label: "Entrega" },
-                  { label: "" },
+                  { label: "#", cls: "" },
+                  { label: "Cliente", cls: "" },
+                  { label: "Material", cls: "hidden md:table-cell" },
+                  { label: "Planchas", center: true, cls: "hidden sm:table-cell" },
+                  { label: "Piezas", center: true, cls: "hidden sm:table-cell" },
+                  { label: "Máquina", cls: "hidden sm:table-cell" },
+                  { label: "Estado", cls: "" },
+                  { label: "Entrega", cls: "" },
+                  { label: "", cls: "" },
                 ].map((h) => (
                   <th
                     key={h.label}
-                    className={`px-4 py-3 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider whitespace-nowrap ${h.center ? "text-center" : "text-left"}`}
+                    className={`px-3 py-3 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider whitespace-nowrap ${h.center ? "text-center" : "text-left"} ${h.cls}`}
                   >
                     {h.label}
                   </th>
@@ -158,8 +158,8 @@ export default async function PedidosPage({
 
                 return (
                   <tr key={p.id as string} className="border-b border-zinc-50 hover:bg-zinc-50/80 transition-colors group">
-                    <td className="px-4 py-3.5 text-xs text-zinc-400 font-mono">{numero}</td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-3 py-3.5 text-xs text-zinc-400 font-mono">{numero}</td>
+                    <td className="px-3 py-3.5">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-zinc-900 text-sm">{cliente}</span>
                         {isUrgente && (
@@ -167,26 +167,26 @@ export default async function PedidosPage({
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-zinc-500">
+                    <td className="hidden md:table-cell px-3 py-3.5 text-sm text-zinc-500">
                       <span className="font-medium text-zinc-700">{p.tipo_tablero as string}</span>
                       {p.marca_melamina ? <span className="text-zinc-400"> · {p.marca_melamina as string}</span> : null}
                     </td>
-                    <td className="px-4 py-3.5 text-sm font-semibold text-zinc-700 text-center tabular-nums">{p.cant_planchas as string}</td>
-                    <td className="px-4 py-3.5 text-sm font-semibold text-zinc-700 text-center tabular-nums">{p.cant_piezas as string}</td>
-                    <td className="px-4 py-3.5">
+                    <td className="hidden sm:table-cell px-3 py-3.5 text-sm font-semibold text-zinc-700 text-center tabular-nums">{p.cant_planchas as string}</td>
+                    <td className="hidden sm:table-cell px-3 py-3.5 text-sm font-semibold text-zinc-700 text-center tabular-nums">{p.cant_piezas as string}</td>
+                    <td className="hidden sm:table-cell px-3 py-3.5">
                       <span className="text-xs font-bold text-zinc-500 bg-zinc-100 px-2 py-1 rounded-md">{(p.maquina_asignada as string) ?? "—"}</span>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-3 py-3.5">
                       {style ? (
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${style.bg}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                          {estadoPedido}
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${style.bg}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} />
+                          <span className="truncate max-w-[70px] sm:max-w-none">{estadoPedido}</span>
                         </span>
                       ) : (
                         <span className="text-xs text-zinc-500">{estadoPedido}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-3 py-3.5">
                       {hora ? (
                         <div>
                           <p className="text-xs font-semibold text-zinc-700">{entrega}</p>
@@ -196,10 +196,10 @@ export default async function PedidosPage({
                         <span className="text-sm text-zinc-400">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-3 py-3.5">
                       <Link
                         href={`/pedidos/${p.id as string}`}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 hover:text-zinc-900 transition-colors group-hover:text-zinc-600 px-2.5 py-1.5 rounded-lg hover:bg-zinc-100"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 hover:text-zinc-900 transition-colors group-hover:text-zinc-600 px-2 py-1.5 rounded-lg hover:bg-zinc-100"
                       >
                         Ver
                         <svg className="transition-transform group-hover:translate-x-0.5" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
