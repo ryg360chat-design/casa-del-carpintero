@@ -74,6 +74,16 @@ const navItems = [
     ),
   },
   {
+    label: "Dev",
+    href: "/dev",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="16 18 22 12 16 6"/>
+        <polyline points="8 6 2 12 8 18"/>
+      </svg>
+    ),
+  },
+  {
     label: "Ajustes",
     href: "/ajustes",
     icon: (
@@ -89,10 +99,12 @@ export default function Sidebar({
   userEmail,
   userRole = "viewer",
   isAdmin = false,
+  isDeveloper = false,
 }: {
   userEmail: string;
   userRole?: string;
   isAdmin?: boolean;
+  isDeveloper?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -107,11 +119,13 @@ export default function Sidebar({
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
 
   const visibleItems = navItems.filter((item) => {
+    if (item.href === "/dev") return isDeveloper;
     if (item.href === "/ajustes" || item.href === "/admin/invitar") return isAdmin;
     return true;
   });
 
   const ROLE_LABEL: Record<string, string> = {
+    developer: "Desarrollador",
     admin: "Administrador",
     ventas: "Ventas",
     produccion: "Jefe de Producción",
