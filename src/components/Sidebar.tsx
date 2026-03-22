@@ -127,9 +127,9 @@ export default function Sidebar({
         <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" }}>
           <span className="text-white font-black text-[13px] tracking-tight">CC</span>
         </div>
-        <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75 whitespace-nowrap">
-          <p className="text-white text-[11px] font-bold leading-tight tracking-wider">COMERCIAL CASA DEL CARPINTERO</p>
-          <p className="text-[9px] font-semibold tracking-[0.18em] uppercase" style={{ color: "#f97316" }}>PRODUCTION OS</p>
+        <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75">
+          <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap">CASA DEL CARPINTERO</p>
+          <p className="text-[9px] font-semibold tracking-[0.14em] uppercase whitespace-nowrap" style={{ color: "#f97316" }}>COMERCIAL SAC · PRODUCTION OS</p>
         </div>
       </div>
 

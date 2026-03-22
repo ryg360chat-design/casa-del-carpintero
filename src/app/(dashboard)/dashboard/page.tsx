@@ -143,27 +143,27 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
-        <div className="flex items-center gap-1.5 text-zinc-400">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-          </svg>
-          <span className="text-xs font-medium">
-            {isUrgente ? "⚡ Prioritario" : entregaStr ?? "Sin fecha"}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
+      <div className="pt-2 border-t border-zinc-100 flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-zinc-400">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span className="text-xs font-medium">
+              {isUrgente ? "⚡ Prioritario" : entregaStr ?? "Sin fecha"}
+            </span>
+          </div>
           <Link
             href={`/pedidos/${pedido.id as string}`}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-all px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 group/link"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 hover:text-zinc-900 transition-all px-2 py-1 rounded-lg hover:bg-zinc-100 group/link"
           >
-            Detalle
+            Ver detalle
             <svg className="transition-transform group-hover/link:translate-x-0.5" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </Link>
-          <AvanzarEstadoBtn pedidoId={pedido.id as string} estadoActual={estado} canAdvance={canAdvance} />
         </div>
+        <AvanzarEstadoBtn pedidoId={pedido.id as string} estadoActual={estado} canAdvance={canAdvance} showLabel />
       </div>
     </div>
   );
@@ -246,7 +246,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 animate-fade-in min-h-full" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.45) 0%, rgba(244,244,245,0) 35%)" }}>
-      <GreetingHeader />
+      <GreetingHeader userRole={role} />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">

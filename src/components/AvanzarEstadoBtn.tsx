@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { avanzarEstado } from "@/app/actions";
 
 const SIGUIENTE: Record<string, string> = {
@@ -44,6 +45,7 @@ export default function AvanzarEstadoBtn({
   showLabel?: boolean;
   canAdvance?: boolean;
 }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const siguiente = SIGUIENTE[estadoActual];
@@ -55,9 +57,10 @@ export default function AvanzarEstadoBtn({
     if (loading || done) return;
     setLoading(true);
     await avanzarEstado(pedidoId, estadoActual);
-    setLoading(false);
     setDone(true);
-    setTimeout(() => setDone(false), 1200);
+    setLoading(false);
+    router.refresh();
+    setTimeout(() => setDone(false), 1500);
   }
 
   const isMarcarListo = estadoActual === "En tapacantos";
