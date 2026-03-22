@@ -90,7 +90,7 @@ export default function NuevoPedidoPage() {
   const [ranuras, setRanuras] = useState(false);
   const [perforaciones, setPerforaciones] = useState(false);
   const [corte45, setCorte45] = useState(false);
-  const [cortesEspeciales, setCortesEspeciales] = useState("");
+  const [cortesEspeciales, setCortesEspeciales] = useState(false);
   const [prioridad, setPrioridad] = useState<"normal" | "urgente" | "vip">("normal");
   const [turnoManual, setTurnoManual] = useState<"mañana" | "tarde" | "auto">("auto");
   const [notas, setNotas] = useState("");
@@ -153,7 +153,7 @@ export default function NuevoPedidoPage() {
       const horasExtra =
         (ranuras ? 1 : 0) +
         ((parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0")) > 0 ? 1 : 0) +
-        ((corte45 || cortesEspeciales.trim()) ? 0.5 : 0);
+        ((corte45 || cortesEspeciales) ? 0.5 : 0);
       const horasEspera = cMaquina * 2; // 2h promedio por pedido en cola
       const totalHoras = horasCorte + horasExtra + horasEspera;
 
@@ -234,7 +234,7 @@ export default function NuevoPedidoPage() {
         ranuras,
         perforaciones,
         corte_45: corte45,
-        cortes_especiales: cortesEspeciales.trim() || null,
+        cortes_especiales: cortesEspeciales,
         prioridad,
         notas: notas || null,
         turno,
@@ -275,7 +275,7 @@ export default function NuevoPedidoPage() {
     entregaLabel = `~${partes.join(" ")} de proceso`;
     if (ranuras) entregaLabel += " · +1h ranuras";
     if ((parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0")) > 0) entregaLabel += " · +1h enchape";
-    if (corte45 || cortesEspeciales.trim()) entregaLabel += " · +30min especiales";
+    if (corte45 || cortesEspeciales) entregaLabel += " · +30min especiales";
   }
 
   return (
@@ -468,7 +468,7 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>4</span>
             <h2 className="font-bold text-zinc-900">Servicios Adicionales</h2>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
               <label className={LABEL}>Ranuras</label>
               <Toggle value={ranuras} onChange={setRanuras} />
@@ -481,16 +481,10 @@ export default function NuevoPedidoPage() {
               <label className={LABEL}>Corte 45°</label>
               <Toggle value={corte45} onChange={setCorte45} />
             </div>
-          </div>
-          <div>
-            <label className={LABEL}>Cortes especiales (descripción)</label>
-            <input
-              type="text"
-              value={cortesEspeciales}
-              onChange={(e) => setCortesEspeciales(e.target.value)}
-              placeholder="Ej: Radio en esquinas, corte en L..."
-              className={INPUT}
-            />
+            <div>
+              <label className={LABEL}>Corte especial</label>
+              <Toggle value={cortesEspeciales} onChange={setCortesEspeciales} />
+            </div>
           </div>
         </div>
 
