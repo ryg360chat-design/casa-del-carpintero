@@ -5,6 +5,7 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 import GreetingHeader from "@/components/GreetingHeader";
 import Link from "next/link";
 import React from "react";
+import { limaTime, esHoyLima, esMañanaLima } from "@/lib/time";
 
 const ESTADO_PROGRESS: Record<string, number> = {
   "En cola": 20,
@@ -71,12 +72,11 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
     ? new Date(pedido.fecha_entrega_estimada as string)
     : null;
 
-  const esHoy = entregaDate
-    ? entregaDate.toDateString() === new Date().toDateString()
-    : false;
+  const esHoy = entregaDate ? esHoyLima(entregaDate) : false;
+  const esMañana = entregaDate ? esMañanaLima(entregaDate) : false;
 
   const entregaStr = entregaDate
-    ? `${esHoy ? "Hoy" : "Mañana"} ${entregaDate.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })}`
+    ? `${esHoy ? "Hoy" : esMañana ? "Mañana" : limaDate(entregaDate, { day: "2-digit", month: "2-digit" })} ${limaTime(entregaDate)}`
     : null;
 
   return (
@@ -160,7 +160,7 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
                   <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
                 </svg>
                 <span className="text-[10px] font-medium">
-                  Ingresado {new Date(pedido.created_at as string).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })}
+                  Ingresado {limaTime(pedido.created_at as string)}
                 </span>
               </div>
             )}

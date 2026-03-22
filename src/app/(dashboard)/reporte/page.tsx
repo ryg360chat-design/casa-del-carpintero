@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import ImprimirBtn from "@/components/ImprimirBtn";
 import GuardarReporteBtn from "@/components/GuardarReporteBtn";
+import { limaTime, limaDate } from "@/lib/time";
+import Link from "next/link";
 
 const ESTADO_LABEL: Record<string, string> = {
   "En cola":       "En Cola",
@@ -51,18 +53,11 @@ export default async function ReportePage() {
   const fechaHoy = hoy.toLocaleDateString("es", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
-  const horaGenera = new Date().toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+  const horaGenera = limaTime(new Date());
 
   const totalPlanchas = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + (p.cant_planchas as number ?? 0), 0);
   const totalPiezas = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + (p.cant_piezas as number ?? 0), 0);
   const totalMetros = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + ((p.metros_canto as number) ?? 0), 0);
-
-  // Historial de reportes guardados
-  const { data: reportesGuardados } = await supabase
-    .from("reportes_guardados")
-    .select("id, fecha, stats, created_at")
-    .order("fecha", { ascending: false })
-    .limit(30);
 
   const statsHoy = {
     pedidosHoy: pedidosHoy?.length ?? 0,
@@ -97,6 +92,15 @@ export default async function ReportePage() {
           </div>
           <div className="flex items-center gap-2">
             <GuardarReporteBtn stats={statsHoy} />
+            <Link
+              href="/reporte/historial"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/>
+              </svg>
+              Ver historial
+            </Link>
             <ImprimirBtn />
           </div>
         </div>
@@ -311,41 +315,6 @@ export default async function ReportePage() {
           <span className="print:block">Generado el {fechaHoy} a las {horaGenera}</span>
         </div>
 
-        {/* ── HISTORIAL DE REPORTES GUARDADOS ── */}
-        {(reportesGuardados ?? []).length > 0 && (
-          <div className="mt-10 print:hidden">
-            <h2 className="text-base font-bold text-zinc-900 mb-4">Historial de reportes guardados</h2>
-            <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-100 bg-zinc-50">
-                    {["Fecha", "Ingresados", "En cola", "En corte", "Listos", "Cancelados", "Planchas", "Piezas"].map((h) => (
-                      <th key={h} className="text-left px-4 py-3 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {(reportesGuardados ?? []).map((r: Record<string, unknown>, idx: number) => {
-                    const s = r.stats as Record<string, number>;
-                    const fechaStr = new Date(r.fecha as string + "T12:00:00").toLocaleDateString("es", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-                    return (
-                      <tr key={r.id as string} className={`border-b border-zinc-50 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-zinc-50/40"}`}>
-                        <td className="px-4 py-3 font-semibold text-zinc-800 capitalize">{fechaStr}</td>
-                        <td className="px-4 py-3 font-bold text-zinc-900">{s.pedidosHoy ?? 0}</td>
-                        <td className="px-4 py-3 text-orange-600 font-semibold">{s.enCola ?? 0}</td>
-                        <td className="px-4 py-3 text-zinc-600 font-semibold">{s.enCorte ?? 0}</td>
-                        <td className="px-4 py-3 text-emerald-600 font-semibold">{s.listos ?? 0}</td>
-                        <td className="px-4 py-3 text-red-500 font-semibold">{s.cancelados ?? 0}</td>
-                        <td className="px-4 py-3 text-zinc-600">{(s.totalPlanchas ?? 0).toFixed(1)}</td>
-                        <td className="px-4 py-3 text-zinc-600">{s.totalPiezas ?? 0}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );

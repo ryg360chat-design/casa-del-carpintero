@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
 import PedidosFiltros from "@/components/PedidosFiltros";
+import { limaDate, limaTime } from "@/lib/time";
 
 const ESTADO_STYLE: Record<string, { bg: string; dot: string }> = {
   "En cola":       { bg: "bg-zinc-100 text-zinc-500", dot: "bg-zinc-400" },
@@ -150,8 +151,8 @@ export default async function PedidosPage({
                 const estadoPedido = p.estado as string;
                 const style = ESTADO_STYLE[estadoPedido];
                 const entregaDate = p.fecha_entrega_estimada ? new Date(p.fecha_entrega_estimada as string) : null;
-                const entrega = entregaDate?.toLocaleDateString("es", { day: "2-digit", month: "2-digit" }) ?? "—";
-                const hora = entregaDate?.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" }) ?? null;
+                const entrega = entregaDate ? limaDate(entregaDate, { day: "2-digit", month: "2-digit" }) : "—";
+                const hora = entregaDate ? limaTime(entregaDate) : null;
                 const numero = String(from + i + 101).padStart(3, "0");
                 const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
                 const isUrgente = p.prioridad === "urgente";

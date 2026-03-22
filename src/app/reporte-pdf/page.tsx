@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import PrintButton from "@/components/PrintButton";
+import { limaTime } from "@/lib/time";
 
 export const metadata = {
   title: "Reporte Diario — Casa del Carpintero",
@@ -152,11 +153,23 @@ const STYLES = `
   }
 `;
 
-export default async function ReportePDFPage() {
+export default async function ReportePDFPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ fecha?: string }>;
+}) {
+  const { fecha: fechaParam } = await searchParams;
   const supabase = await createClient();
 
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
+  // Si viene ?fecha=YYYY-MM-DD usamos esa fecha, si no, hoy en Lima
+  let hoy: Date;
+  if (fechaParam && /^\d{4}-\d{2}-\d{2}$/.test(fechaParam)) {
+    hoy = new Date(fechaParam + "T00:00:00-05:00"); // Lima UTC-5
+  } else {
+    // Medianoche en Lima
+    const limaStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/Lima" });
+    hoy = new Date(limaStr + "T00:00:00-05:00");
+  }
   const manana = new Date(hoy);
   manana.setDate(manana.getDate() + 1);
 
@@ -192,7 +205,7 @@ export default async function ReportePDFPage() {
   const fechaHoy = hoy.toLocaleDateString("es", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
-  const horaGenera = new Date().toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+  const horaGenera = limaTime(new Date());
 
   const totalPlanchas = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + ((p.cant_planchas as number) ?? 0), 0);
   const totalPiezas = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + ((p.cant_piezas as number) ?? 0), 0);
