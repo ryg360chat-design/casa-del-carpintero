@@ -22,6 +22,6 @@ export async function invitarUsuario(email: string) {
 
     return { success: true };
   } catch {
-    return { error: "Error del servidor. Verificá la configuración del service role key." };
+    return { error: "Error del servidor. Contacta al administrador." };
   }
 }
