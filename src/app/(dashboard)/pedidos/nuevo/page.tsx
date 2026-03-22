@@ -10,6 +10,37 @@ const STEP_NUM = "w-7 h-7 text-white rounded-full flex items-center justify-cent
 const INPUT = "w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white";
 const LABEL = "block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5";
 
+const AREAS = ["Ventas", "Produccion", "Almacenes", "Cortes especiales", "Administracion", "Logistica"] as const;
+type Area = typeof AREAS[number];
+
+const AREA_COLORS: Record<Area, string> = {
+  "Ventas":           "bg-blue-50 text-blue-700 border-blue-200",
+  "Produccion":       "bg-orange-50 text-orange-700 border-orange-200",
+  "Almacenes":        "bg-yellow-50 text-yellow-700 border-yellow-200",
+  "Cortes especiales":"bg-purple-50 text-purple-700 border-purple-200",
+  "Administracion":   "bg-zinc-50 text-zinc-700 border-zinc-300",
+  "Logistica":        "bg-emerald-50 text-emerald-700 border-emerald-200",
+};
+
+function Toggle({ value, onChange, label }: { value: boolean; onChange: (v: boolean) => void; label?: string }) {
+  return (
+    <div className="flex border border-zinc-200 rounded-lg overflow-hidden">
+      {[{ label: "Sí", val: true }, { label: "No", val: false }].map(({ label: l, val }) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => onChange(val)}
+          className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+            value === val ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"
+          }`}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function NuevoPedidoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -17,12 +48,17 @@ export default function NuevoPedidoPage() {
 
   // Form state
   const [clienteNombre, setClienteNombre] = useState("");
+  const [area, setArea] = useState<Area>("Ventas");
   const [tipoTablero, setTipoTablero] = useState<"MDF" | "Melamina" | "Triplay">("MDF");
   const [marca, setMarca] = useState("");
   const [planchas, setPlanchas] = useState("");
   const [piezas, setPiezas] = useState("");
   const [metrosCanto, setMetrosCanto] = useState("");
+  const [tipoCanto, setTipoCanto] = useState<"delgado" | "grueso">("delgado");
   const [ranuras, setRanuras] = useState(false);
+  const [perforaciones, setPerforaciones] = useState(false);
+  const [corte45, setCorte45] = useState(false);
+  const [cortesEspeciales, setCortesEspeciales] = useState("");
   const [prioridad, setPrioridad] = useState<"normal" | "urgente" | "vip">("normal");
   const [turnoManual, setTurnoManual] = useState<"mañana" | "tarde" | "auto">("auto");
   const [notas, setNotas] = useState("");
@@ -56,12 +92,11 @@ export default function NuevoPedidoPage() {
         }
       }
 
-      // 2. Calcular asignación y entrega (lógica simple para MVP)
+      // 2. Calcular asignación y entrega
       const ahora = new Date();
       const hora = ahora.getHours();
       const turno = turnoManual === "auto" ? (hora < 12 ? "mañana" : "tarde") : turnoManual;
 
-      // Contar pedidos por máquina
       const { count: cM1 } = await supabase
         .from("pedidos")
         .select("*", { count: "exact", head: true })
@@ -94,8 +129,9 @@ export default function NuevoPedidoPage() {
       if (parseFloat(metrosCanto || "0") > 0) {
         entrega.setTime(entrega.getTime() + 60 * 60 * 1000);
       }
-
-      // Ajuste almuerzo
+      if (corte45 || cortesEspeciales.trim()) {
+        entrega.setTime(entrega.getTime() + 30 * 60 * 1000);
+      }
       if (entrega.getHours() >= 13 && entrega.getHours() < 14) {
         entrega.setHours(14, 30, 0, 0);
       }
@@ -103,12 +139,17 @@ export default function NuevoPedidoPage() {
       // 3. Insertar pedido
       const { error: insertError } = await supabase.from("pedidos").insert({
         cliente_id: clienteId,
+        area,
         tipo_tablero: tipoTablero,
         marca_melamina: marca.trim() || "",
         cant_planchas: parseFloat(planchas || "0"),
         cant_piezas: parseInt(piezas || "0"),
         metros_canto: parseFloat(metrosCanto || "0"),
+        tipo_canto: tipoCanto,
         ranuras,
+        perforaciones,
+        corte_45: corte45,
+        cortes_especiales: cortesEspeciales.trim() || null,
         prioridad,
         notas: notas || null,
         turno,
@@ -142,9 +183,8 @@ export default function NuevoPedidoPage() {
     } else {
       entregaLabel = turnoPreview === "mañana" ? "Mañana 10:00 AM" : "Pasado mañana 4:00 PM";
     }
-    if (parseFloat(metrosCanto || "0") > 0) {
-      entregaLabel += " (+1h enchape)";
-    }
+    if (parseFloat(metrosCanto || "0") > 0) entregaLabel += " (+1h enchape)";
+    if (corte45 || cortesEspeciales.trim()) entregaLabel += " (+30min especiales)";
   }
 
   return (
@@ -156,22 +196,39 @@ export default function NuevoPedidoPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-        {/* 1. Cliente */}
+        {/* 1. Cliente + Área */}
         <div className={SECTION}>
           <div className="flex items-center gap-3">
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>1</span>
-            <h2 className="font-bold text-zinc-900">Cliente</h2>
+            <h2 className="font-bold text-zinc-900">Cliente y Área</h2>
           </div>
           <div>
-            <label className={LABEL}>Buscar o seleccionar cliente</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={clienteNombre}
-                onChange={(e) => setClienteNombre(e.target.value)}
-                placeholder="Escribe el nombre del cliente..."
-                className={INPUT}
-              />
+            <label className={LABEL}>Nombre del cliente</label>
+            <input
+              type="text"
+              value={clienteNombre}
+              onChange={(e) => setClienteNombre(e.target.value)}
+              placeholder="Escribe el nombre del cliente..."
+              className={INPUT}
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Área responsable</label>
+            <div className="flex flex-wrap gap-2">
+              {AREAS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setArea(a)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                    area === a
+                      ? AREA_COLORS[a]
+                      : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -221,7 +278,7 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>3</span>
             <h2 className="font-bold text-zinc-900">Datos del Corte</h2>
           </div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className={LABEL}>Planchas</label>
               <input type="number" min="0" step="0.5" value={planchas} onChange={(e) => setPlanchas(e.target.value)} placeholder="0" className={INPUT} />
@@ -231,33 +288,71 @@ export default function NuevoPedidoPage() {
               <input type="number" min="0" value={piezas} onChange={(e) => setPiezas(e.target.value)} placeholder="0" className={INPUT} />
             </div>
             <div>
-              <label className={LABEL}>Metros Canto</label>
+              <label className={LABEL}>Metros de Canto</label>
               <input type="number" min="0" step="0.1" value={metrosCanto} onChange={(e) => setMetrosCanto(e.target.value)} placeholder="0.00" className={INPUT} />
             </div>
+          </div>
+
+          {/* Tipo de canto (solo visible si hay metros de canto) */}
+          {parseFloat(metrosCanto || "0") > 0 && (
             <div>
-              <label className={LABEL}>Ranuras</label>
-              <div className="flex border border-zinc-200 rounded-lg overflow-hidden">
-                {[{ label: "Sí", val: true }, { label: "No", val: false }].map(({ label, val }) => (
+              <label className={LABEL}>Tipo de canto</label>
+              <div className="flex gap-2">
+                {(["delgado", "grueso"] as const).map((tc) => (
                   <button
-                    key={label}
+                    key={tc}
                     type="button"
-                    onClick={() => setRanuras(val)}
-                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-                      ranuras === val ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"
+                    onClick={() => setTipoCanto(tc)}
+                    className={`flex-1 py-2.5 text-sm font-semibold border rounded-lg transition-colors capitalize ${
+                      tipoCanto === tc
+                        ? "bg-zinc-900 text-white border-zinc-900"
+                        : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50"
                     }`}
                   >
-                    {label}
+                    {tc === "delgado" ? "Canto Delgado" : "Canto Grueso"}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* 4. Prioridad y Turno */}
+        {/* 4. Servicios adicionales */}
         <div className={SECTION}>
           <div className="flex items-center gap-3">
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>4</span>
+            <h2 className="font-bold text-zinc-900">Servicios Adicionales</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className={LABEL}>Ranuras</label>
+              <Toggle value={ranuras} onChange={setRanuras} />
+            </div>
+            <div>
+              <label className={LABEL}>Perforaciones</label>
+              <Toggle value={perforaciones} onChange={setPerforaciones} />
+            </div>
+            <div>
+              <label className={LABEL}>Corte 45°</label>
+              <Toggle value={corte45} onChange={setCorte45} />
+            </div>
+          </div>
+          <div>
+            <label className={LABEL}>Cortes especiales (descripción)</label>
+            <input
+              type="text"
+              value={cortesEspeciales}
+              onChange={(e) => setCortesEspeciales(e.target.value)}
+              placeholder="Ej: Radio en esquinas, corte en L..."
+              className={INPUT}
+            />
+          </div>
+        </div>
+
+        {/* 5. Prioridad y Turno */}
+        <div className={SECTION}>
+          <div className="flex items-center gap-3">
+            <span className={STEP_NUM} style={STEP_NUM_STYLE}>5</span>
             <h2 className="font-bold text-zinc-900">Prioridad y Turno</h2>
           </div>
           <div className="grid grid-cols-2 gap-4">

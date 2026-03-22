@@ -13,6 +13,15 @@ const ESTADO_STYLE: Record<string, string> = {
   "Pausado":       "bg-yellow-50 text-yellow-700 border border-yellow-200",
 };
 
+const AREA_COLORS: Record<string, string> = {
+  "Ventas":           "bg-blue-50 text-blue-700 border-blue-200",
+  "Produccion":       "bg-orange-50 text-orange-700 border-orange-200",
+  "Almacenes":        "bg-yellow-50 text-yellow-700 border-yellow-200",
+  "Cortes especiales":"bg-purple-50 text-purple-700 border-purple-200",
+  "Administracion":   "bg-zinc-50 text-zinc-600 border-zinc-200",
+  "Logistica":        "bg-emerald-50 text-emerald-700 border-emerald-200",
+};
+
 const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo"];
 
 export default async function PedidoDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,7 +44,8 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
   const estado = pedido.estado as string;
   const badgeClass = ESTADO_STYLE[estado] ?? "bg-zinc-100 text-zinc-600";
-  const isUrgente = pedido.prioridad === "urgente";
+  const prioridad = pedido.prioridad as string;
+  const area = pedido.area as string | null;
   const estaActivo = ["En cola", "En corte", "En tapacantos"].includes(estado);
   const cliente = pedido.cliente as Record<string, unknown> | null;
 
@@ -49,6 +59,13 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   const pasoActual = ESTADOS_FLUJO.indexOf(estado);
   const esListo = estado === "Listo";
   const esCancelado = estado === "Cancelado";
+
+  // Servicios adicionales activos
+  const servicios = [
+    pedido.ranuras && "Ranuras",
+    pedido.perforaciones && "Perforaciones",
+    pedido.corte_45 && "Corte 45°",
+  ].filter(Boolean) as string[];
 
   return (
     <div className="p-8 max-w-4xl mx-auto animate-fade-in">
@@ -66,13 +83,23 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
       {/* Header */}
       <div className="flex items-start justify-between mb-6 animate-fade-in-up">
         <div>
-          <div className="flex items-center gap-3 mb-1.5">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <h1 className="text-2xl font-bold text-zinc-900">
               {cliente?.nombre as string ?? "Sin cliente"}
             </h1>
-            {isUrgente && (
+            {prioridad === "urgente" && (
               <span className="animate-badge-pop text-xs font-bold border border-zinc-900 bg-zinc-900 text-white px-2 py-0.5 rounded-md tracking-wide">
                 ⚡ URGENTE
+              </span>
+            )}
+            {prioridad === "vip" && (
+              <span className="animate-badge-pop text-xs font-bold border border-orange-400 bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md tracking-wide">
+                ★ VIP
+              </span>
+            )}
+            {area && (
+              <span className={`animate-badge-pop text-[10px] font-bold border px-2 py-0.5 rounded-md tracking-wide uppercase ${AREA_COLORS[area] ?? "bg-zinc-50 text-zinc-600 border-zinc-200"}`}>
+                {area}
               </span>
             )}
           </div>
@@ -102,7 +129,6 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
               return (
                 <div key={s} className="flex items-center flex-1 last:flex-none">
-                  {/* Step */}
                   <div className="flex flex-col items-center">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
                       done
@@ -119,9 +145,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                         <span>{idx + 1}</span>
                       )}
                     </div>
-                    <span className={`text-xs mt-2 font-medium whitespace-nowrap ${
-                      done || current ? "text-zinc-700" : "text-zinc-400"
-                    }`}>
+                    <span className={`text-xs mt-2 font-medium whitespace-nowrap ${done || current ? "text-zinc-700" : "text-zinc-400"}`}>
                       {s}
                     </span>
                     {current && (
@@ -129,18 +153,10 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                     )}
                   </div>
 
-                  {/* Connector */}
                   {!isLast && (
                     <div className="flex-1 relative h-0.5 mx-2 mb-5 bg-zinc-100 overflow-hidden rounded-full">
-                      {done && (
-                        <div className="absolute inset-0 bg-zinc-900 rounded-full" />
-                      )}
-                      {current && (
-                        <div
-                          className="absolute inset-0 bg-zinc-900 rounded-full"
-                          style={{ width: "50%" }}
-                        />
-                      )}
+                      {done && <div className="absolute inset-0 bg-zinc-900 rounded-full" />}
+                      {current && <div className="absolute inset-0 bg-zinc-900 rounded-full" style={{ width: "50%" }} />}
                     </div>
                   )}
                 </div>
@@ -169,7 +185,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
       )}
 
       <div className="grid grid-cols-2 gap-5 mb-5">
-        {/* Material */}
+        {/* Material y Corte */}
         <div className="animate-fade-in-up delay-150 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
           <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4">Material y Corte</p>
           <div className="grid grid-cols-2 gap-y-4 gap-x-4">
@@ -179,7 +195,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               { label: "Planchas", value: pedido.cant_planchas },
               { label: "Piezas", value: pedido.cant_piezas },
               { label: "Mts. canto", value: `${pedido.metros_canto} m` },
-              { label: "Ranuras", value: pedido.ranuras ? "Sí" : "No" },
+              { label: "Tipo canto", value: pedido.tipo_canto ? (pedido.tipo_canto === "grueso" ? "Grueso" : "Delgado") : "—" },
             ].map(({ label, value }) => (
               <div key={label}>
                 <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">{label}</p>
@@ -187,6 +203,28 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               </div>
             ))}
           </div>
+
+          {/* Servicios adicionales */}
+          {(servicios.length > 0 || pedido.cortes_especiales) && (
+            <div className="mt-4 pt-4 border-t border-zinc-100">
+              <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2">Servicios adicionales</p>
+              <div className="flex flex-wrap gap-1.5">
+                {servicios.map((s) => (
+                  <span key={s} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 text-zinc-700 border border-zinc-200">
+                    {s === "Corte 45°" && "◇ "}
+                    {s === "Ranuras" && "≡ "}
+                    {s === "Perforaciones" && "● "}
+                    {s}
+                  </span>
+                ))}
+                {pedido.cortes_especiales && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                    ✦ {pedido.cortes_especiales}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Cliente + Fechas */}
@@ -194,7 +232,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
           <div className="animate-fade-in-up delay-200 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
             <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Cliente</p>
             <p className="font-bold text-zinc-900 text-sm">{cliente?.nombre as string ?? "—"}</p>
-            {cliente?.telefono as string && (
+            {(cliente?.telefono as string) && (
               <p className="text-sm text-zinc-500 mt-1.5 flex items-center gap-1.5">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
@@ -202,7 +240,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                 {cliente?.telefono as string}
               </p>
             )}
-            {cliente?.email as string && (
+            {(cliente?.email as string) && (
               <p className="text-sm text-zinc-500 mt-1 flex items-center gap-1.5">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
@@ -237,6 +275,10 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                   </span>
                 </div>
               )}
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-zinc-400">Turno</span>
+                <span className="text-xs font-semibold text-zinc-900 capitalize">{pedido.turno ?? "—"}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -244,9 +286,14 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
       {/* Notas */}
       {pedido.notas && (
-        <div className="animate-fade-in-up delay-300 bg-white border border-zinc-200 rounded-xl p-5 mb-5">
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">Notas</p>
-          <p className="text-sm text-zinc-700 whitespace-pre-wrap leading-relaxed">{pedido.notas}</p>
+        <div className="animate-fade-in-up delay-300 bg-amber-50 border border-amber-200 rounded-xl p-5 mb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest">Notas</p>
+          </div>
+          <p className="text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">{pedido.notas}</p>
         </div>
       )}
 
