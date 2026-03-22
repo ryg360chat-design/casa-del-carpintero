@@ -18,7 +18,7 @@ function getGreeting(hour: number) {
   return "Buenas noches";
 }
 
-export default function TopBar() {
+export default function TopBar({ canCreatePedido = true }: { canCreatePedido?: boolean }) {
   const pathname = usePathname();
   const [time, setTime] = useState<string>("");
   const [greeting, setGreeting] = useState<string>("");
@@ -105,7 +105,7 @@ export default function TopBar() {
       <div className="h-5 w-px bg-zinc-200 hidden sm:block" />
 
       {/* Quick action */}
-      {!isNuevo && (
+      {!isNuevo && canCreatePedido && (
         <Link
           href="/pedidos/nuevo"
           className="btn-accent inline-flex items-center gap-1.5 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition-all press-effect"

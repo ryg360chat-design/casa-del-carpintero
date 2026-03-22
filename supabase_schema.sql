@@ -19,7 +19,7 @@ create type estado_pedido as enum (
 
 create type prioridad_pedido as enum ('normal', 'urgente');
 create type turno_tipo as enum ('mañana', 'tarde');
-create type tipo_tablero as enum ('MDF', 'Melamina');
+create type tipo_tablero as enum ('MDF', 'Melamina', 'Triplay', 'OSB', 'Laminados', 'Aglomerado', 'Otros');
 create type rol_usuario as enum ('vendedor', 'admin');
 
 -- 3. TABLA: profiles (vinculada a auth.users)
@@ -80,6 +80,7 @@ create table pedidos (
   -- Material
   tipo_tablero tipo_tablero not null default 'Melamina',
   marca_melamina text not null default '',
+  espesor text,
 
   -- Datos del corte (del optimizador Lepton)
   cant_planchas numeric(10,2) not null default 0,

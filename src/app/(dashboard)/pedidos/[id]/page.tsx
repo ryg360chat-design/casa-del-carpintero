@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
@@ -27,6 +28,9 @@ const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo"];
 export default async function PedidoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const role = await getUserRole();
+  const canAdvance = CAN_ADVANCE_STATE.includes(role);
+  const canCancel = CAN_CREATE_PEDIDO.includes(role);
 
   const { data: pedido } = await supabase
     .from("pedidos")
@@ -164,10 +168,10 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
             })}
           </div>
 
-          {estaActivo && (
+          {estaActivo && (canAdvance || canCancel) && (
             <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
-              <CancelarPedidoBtn pedidoId={pedido.id} />
-              <AvanzarEstadoBtn pedidoId={pedido.id} estadoActual={estado} showLabel />
+              {canCancel && <CancelarPedidoBtn pedidoId={pedido.id} />}
+              <AvanzarEstadoBtn pedidoId={pedido.id} estadoActual={estado} showLabel canAdvance={canAdvance} />
             </div>
           )}
         </div>

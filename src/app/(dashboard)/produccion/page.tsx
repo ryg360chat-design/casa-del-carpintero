@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO } from "@/lib/auth";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 
@@ -9,7 +10,7 @@ const ESTADO_BADGE: Record<string, string> = {
   "En tapacantos": "bg-zinc-800 text-white text-xs font-semibold px-3 py-1 rounded-full",
 };
 
-function PedidoCard({ pedido }: { pedido: Record<string, unknown> }) {
+function PedidoCard({ pedido, canAdvance = true }: { pedido: Record<string, unknown>; canAdvance?: boolean }) {
   const estado = pedido.estado as string;
   const prioridad = pedido.prioridad as string;
   const isUrgente = prioridad === "urgente";
@@ -80,7 +81,7 @@ function PedidoCard({ pedido }: { pedido: Record<string, unknown> }) {
             <span className="text-sm text-zinc-400">Sin fecha estimada</span>
           )}
         </div>
-        <AvanzarEstadoBtn pedidoId={pedido.id as string} estadoActual={estado} />
+        <AvanzarEstadoBtn pedidoId={pedido.id as string} estadoActual={estado} canAdvance={canAdvance} />
       </div>
     </div>
   );
@@ -88,6 +89,9 @@ function PedidoCard({ pedido }: { pedido: Record<string, unknown> }) {
 
 export default async function ProduccionPage() {
   const supabase = await createClient();
+  const role = await getUserRole();
+  const canAdvance = CAN_ADVANCE_STATE.includes(role);
+  const canCreatePedido = CAN_CREATE_PEDIDO.includes(role);
 
   const [
     { data: pedidosM1, error: e1 },
@@ -130,15 +134,17 @@ export default async function ProduccionPage() {
             </span>
           </p>
         </div>
-        <Link
-          href="/pedidos/nuevo"
-          className="flex items-center gap-2 bg-zinc-900 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-zinc-800 transition-colors"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M5 12h14M12 5v14"/>
-          </svg>
-          Nueva Orden
-        </Link>
+        {canCreatePedido && (
+          <Link
+            href="/pedidos/nuevo"
+            className="flex items-center gap-2 bg-zinc-900 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-zinc-800 transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M5 12h14M12 5v14"/>
+            </svg>
+            Nueva Orden
+          </Link>
+        )}
       </div>
 
       {/* Columnas de máquinas */}
@@ -164,7 +170,7 @@ export default async function ProduccionPage() {
                   </div>
                 ) : (
                   pedidos.map((p: Record<string, unknown>) => (
-                    <PedidoCard key={p.id as string} pedido={p} />
+                    <PedidoCard key={p.id as string} pedido={p} canAdvance={canAdvance} />
                   ))
                 )}
               </div>

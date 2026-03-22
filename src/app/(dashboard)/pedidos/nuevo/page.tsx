@@ -10,6 +10,36 @@ const STEP_NUM = "w-7 h-7 text-white rounded-full flex items-center justify-cent
 const INPUT = "w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white";
 const LABEL = "block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5";
 
+const TIPOS_TABLERO = ["Melamina", "MDF", "Triplay", "OSB", "Laminados", "Aglomerado", "Otros"] as const;
+type TipoTablero = typeof TIPOS_TABLERO[number];
+
+const MARCAS_POR_TIPO: Record<TipoTablero, string[]> = {
+  "Melamina":   ["Masisa", "Pelikano", "Tas", "Kronospan", "Duraplac", "Finss", "Merino"],
+  "MDF":        ["Masisa", "Pelikano", "Kronospan"],
+  "Triplay":    [],
+  "OSB":        [],
+  "Laminados":  [],
+  "Aglomerado": [],
+  "Otros":      [],
+};
+
+const FORMATOS_MARCA: Record<string, string[]> = {
+  "Masisa":    ["6×8", "7×8"],
+  "Pelikano":  ["2.44×2.44"],
+  "Tas":       ["2.135×2.44", "1.22×2.44"],
+  "Kronospan": ["2.07×2.80"],
+  "Duraplac":  ["2.15×2.44"],
+  "Finss":     ["2.15×2.44"],
+  "Merino":    ["1.23×2.745"],
+};
+
+const FORMATOS_TIPO: Record<string, string[]> = {
+  "Triplay": ["1.22×2.44"],
+  "OSB":     ["1.22×2.44"],
+};
+
+const ESPESORES = ["2.5", "3", "4", "5.5", "9", "12", "15", "18", "25", "30"] as const;
+
 const AREAS = ["Ventas", "Produccion", "Almacenes", "Cortes especiales", "Administracion", "Logistica"] as const;
 type Area = typeof AREAS[number];
 
@@ -49,8 +79,9 @@ export default function NuevoPedidoPage() {
   // Form state
   const [clienteNombre, setClienteNombre] = useState("");
   const [area, setArea] = useState<Area>("Ventas");
-  const [tipoTablero, setTipoTablero] = useState<"MDF" | "Melamina" | "Triplay">("MDF");
+  const [tipoTablero, setTipoTablero] = useState<TipoTablero>("Melamina");
   const [marca, setMarca] = useState("");
+  const [espesor, setEspesor] = useState("");
   const [planchas, setPlanchas] = useState("");
   const [piezas, setPiezas] = useState("");
   const [metrosCanto, setMetrosCanto] = useState("");
@@ -109,32 +140,67 @@ export default function NuevoPedidoPage() {
         .eq("maquina_asignada", "M2")
         .not("estado", "in", '("Listo","Cancelado")');
 
+      const cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? cM1 ?? 0 : cM2 ?? 0;
       const maquina = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";
 
-      const esPequeno = parseFloat(planchas || "0") <= 1.5 || parseInt(piezas || "0") <= 40;
-      const entrega = new Date(ahora);
+      // === Algoritmo de tiempo real ===
+      // Base: 6 planchas/hora
+      // +1h si ranuras, +1h si enchape, +30min si corte45/especiales
+      // +2h por cada pedido en cola en la misma máquina
+      const cantPlanchasNum = parseFloat(planchas || "0");
+      const horasCorte = cantPlanchasNum > 0 ? cantPlanchasNum / 6 : 0.5;
+      const horasExtra =
+        (ranuras ? 1 : 0) +
+        (parseFloat(metrosCanto || "0") > 0 ? 1 : 0) +
+        ((corte45 || cortesEspeciales.trim()) ? 0.5 : 0);
+      const horasEspera = cMaquina * 2; // 2h promedio por pedido en cola
+      const totalHoras = horasCorte + horasExtra + horasEspera;
 
-      if (esPequeno) {
-        if (turno === "mañana") {
-          entrega.setHours(16, 0, 0, 0);
-        } else {
-          entrega.setDate(entrega.getDate() + 1);
-          entrega.setHours(10, 0, 0, 0);
+      // Horario laboral: 8:00-13:00, 14:30-19:00 (10h efectivas/día)
+      const INICIO = 8;   // 8:00 AM
+      const ALMUERZO_IN = 13;
+      const ALMUERZO_OUT = 14.5;
+      const FIN = 19;     // 7:00 PM
+      const HORAS_DIA = (ALMUERZO_IN - INICIO) + (FIN - ALMUERZO_OUT); // 10.5h
+
+      function addWorkHours(base: Date, horas: number): Date {
+        const result = new Date(base);
+        let remaining = horas;
+        // Ajustar al siguiente horario laboral si estamos fuera
+        if (result.getHours() < INICIO) result.setHours(INICIO, 0, 0, 0);
+        if (result.getHours() >= FIN || (result.getHours() === FIN - 1 && result.getMinutes() >= 0)) {
+          result.setDate(result.getDate() + 1);
+          result.setHours(INICIO, 0, 0, 0);
         }
-      } else {
-        entrega.setDate(entrega.getDate() + 1);
-        entrega.setHours(turno === "mañana" ? 10 : 16, 0, 0, 0);
+        // Skip weekend (domingo=0, sábado=6)
+        while (result.getDay() === 0 || result.getDay() === 6) {
+          result.setDate(result.getDate() + 1);
+          result.setHours(INICIO, 0, 0, 0);
+        }
+        while (remaining > 0) {
+          const h = result.getHours() + result.getMinutes() / 60;
+          const horaFin = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + remaining) : Math.min(FIN, h + remaining);
+          const avance = horaFin - h;
+          remaining -= avance;
+          const newH = Math.floor(horaFin);
+          const newM = Math.round((horaFin - newH) * 60);
+          result.setHours(newH, newM, 0, 0);
+          if (remaining > 0) {
+            if (result.getHours() >= ALMUERZO_IN && result.getHours() < ALMUERZO_OUT) {
+              result.setHours(Math.floor(ALMUERZO_OUT), 30, 0, 0);
+            } else {
+              result.setDate(result.getDate() + 1);
+              result.setHours(INICIO, 0, 0, 0);
+              while (result.getDay() === 0 || result.getDay() === 6) {
+                result.setDate(result.getDate() + 1);
+              }
+            }
+          }
+        }
+        return result;
       }
 
-      if (parseFloat(metrosCanto || "0") > 0) {
-        entrega.setTime(entrega.getTime() + 60 * 60 * 1000);
-      }
-      if (corte45 || cortesEspeciales.trim()) {
-        entrega.setTime(entrega.getTime() + 30 * 60 * 1000);
-      }
-      if (entrega.getHours() >= 13 && entrega.getHours() < 14) {
-        entrega.setHours(14, 30, 0, 0);
-      }
+      const entrega = addWorkHours(ahora, totalHoras);
 
       // 3. Insertar pedido
       const { error: insertError } = await supabase.from("pedidos").insert({
@@ -142,6 +208,7 @@ export default function NuevoPedidoPage() {
         area,
         tipo_tablero: tipoTablero,
         marca_melamina: marca.trim() || "",
+        espesor: espesor || null,
         cant_planchas: parseFloat(planchas || "0"),
         cant_piezas: parseInt(piezas || "0"),
         metros_canto: parseFloat(metrosCanto || "0"),
@@ -170,21 +237,27 @@ export default function NuevoPedidoPage() {
   }
 
   const cantPlanchas = parseFloat(planchas || "0");
-  const cantPiezas = parseInt(piezas || "0");
-  const esPequeno = cantPlanchas > 0 && cantPiezas > 0 && (cantPlanchas <= 1.5 || cantPiezas <= 40);
-  const tieneEntrega = cantPlanchas > 0 || cantPiezas > 0;
-
+  const tieneEntrega = cantPlanchas > 0;
   const hora = new Date().getHours();
-  const turnoPreview = turnoManual === "auto" ? (hora < 12 ? "mañana" : "tarde") : turnoManual;
+
+  // Preview del tiempo estimado (sin contar la cola — se actualiza al guardar)
   let entregaLabel = "";
   if (tieneEntrega) {
-    if (esPequeno) {
-      entregaLabel = turnoPreview === "mañana" ? "Hoy 4:00 PM" : "Mañana 10:00 AM";
-    } else {
-      entregaLabel = turnoPreview === "mañana" ? "Mañana 10:00 AM" : "Pasado mañana 4:00 PM";
-    }
-    if (parseFloat(metrosCanto || "0") > 0) entregaLabel += " (+1h enchape)";
-    if (corte45 || cortesEspeciales.trim()) entregaLabel += " (+30min especiales)";
+    const horasCortePreview = cantPlanchas / 6;
+    const extrasPreview =
+      (ranuras ? 1 : 0) +
+      (parseFloat(metrosCanto || "0") > 0 ? 1 : 0) +
+      ((corte45 || cortesEspeciales.trim()) ? 0.5 : 0);
+    const totalPreview = horasCortePreview + extrasPreview;
+    const hDecimal = Math.floor(totalPreview);
+    const mDecimal = Math.round((totalPreview - hDecimal) * 60);
+    const partes: string[] = [];
+    if (hDecimal > 0) partes.push(`${hDecimal}h`);
+    if (mDecimal > 0) partes.push(`${mDecimal}min`);
+    entregaLabel = `~${partes.join(" ")} de proceso`;
+    if (ranuras) entregaLabel += " · +1h ranuras";
+    if (parseFloat(metrosCanto || "0") > 0) entregaLabel += " · +1h enchape";
+    if (corte45 || cortesEspeciales.trim()) entregaLabel += " · +30min especiales";
   }
 
   return (
@@ -239,35 +312,96 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>2</span>
             <h2 className="font-bold text-zinc-900">Material</h2>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={LABEL}>Tipo de tablero</label>
-              <div className="flex">
-                {(["MDF", "Melamina", "Triplay"] as const).map((tipo) => (
-                  <button
-                    key={tipo}
-                    type="button"
-                    onClick={() => setTipoTablero(tipo)}
-                    className={`flex-1 py-2.5 text-sm font-semibold border transition-colors first:rounded-l-lg last:rounded-r-lg ${
-                      tipoTablero === tipo
-                        ? "bg-zinc-900 text-white border-zinc-900"
-                        : "bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50"
-                    }`}
-                  >
-                    {tipo}
-                  </button>
-                ))}
-              </div>
+
+          {/* Tipo de tablero */}
+          <div>
+            <label className={LABEL}>Tipo de tablero</label>
+            <div className="flex flex-wrap gap-2">
+              {TIPOS_TABLERO.map((tipo) => (
+                <button
+                  key={tipo}
+                  type="button"
+                  onClick={() => { setTipoTablero(tipo); setMarca(""); setEspesor(""); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                    tipoTablero === tipo
+                      ? "bg-zinc-900 text-white border-zinc-900"
+                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300"
+                  }`}
+                >
+                  {tipo}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* Marca (solo si el tipo tiene marcas) */}
+          {MARCAS_POR_TIPO[tipoTablero].length > 0 && (
             <div>
-              <label className={LABEL}>Marca / Referencia</label>
-              <input
-                type="text"
-                value={marca}
-                onChange={(e) => setMarca(e.target.value)}
-                placeholder="Ej: Arauco Roble"
-                className={INPUT}
-              />
+              <label className={LABEL}>Marca</label>
+              <div className="flex flex-wrap gap-2">
+                {MARCAS_POR_TIPO[tipoTablero].map((m) => {
+                  const formatos = FORMATOS_MARCA[m];
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setMarca(marca === m ? "" : m)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                        marca === m
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300"
+                      }`}
+                    >
+                      {m}
+                      {formatos && marca !== m && (
+                        <span className="text-zinc-400 font-normal">{formatos[0]}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Formato info */}
+              {marca && FORMATOS_MARCA[marca] && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">Formatos disponibles:</span>
+                  <div className="flex gap-1.5">
+                    {FORMATOS_MARCA[marca].map((f) => (
+                      <span key={f} className="text-[11px] font-bold text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Formatos fijos para Triplay/OSB */}
+          {FORMATOS_TIPO[tipoTablero] && (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">Formato estándar:</span>
+              {FORMATOS_TIPO[tipoTablero].map((f) => (
+                <span key={f} className="text-[11px] font-bold text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded">{f}</span>
+              ))}
+            </div>
+          )}
+
+          {/* Espesor */}
+          <div>
+            <label className={LABEL}>Espesor</label>
+            <div className="flex flex-wrap gap-2">
+              {ESPESORES.map((e) => (
+                <button
+                  key={e}
+                  type="button"
+                  onClick={() => setEspesor(espesor === e ? "" : e)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                    espesor === e
+                      ? "bg-zinc-900 text-white border-zinc-900"
+                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300"
+                  }`}
+                >
+                  {e} mm
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -426,17 +560,10 @@ export default function NuevoPedidoPage() {
         {/* Preview entrega */}
         {tieneEntrega && (
           <div className="border-2 border-zinc-900 rounded-xl p-4 bg-zinc-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-0.5">Asignación estimada</p>
-                <p className="text-sm font-bold text-zinc-900">
-                  Máquina: {(cantPlanchas <= 1.5 || cantPiezas <= 40) ? "Calculando..." : "M1 o M2"}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-0.5">Entrega estimada</p>
-                <p className="text-sm font-bold text-zinc-900">{entregaLabel}</p>
-              </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Tiempo de proceso estimado</p>
+              <p className="text-sm font-bold text-zinc-900">{entregaLabel}</p>
+              <p className="text-[11px] text-zinc-400">Base: 6 planchas/hora · La entrega final se calcula al registrar (incluye cola de máquina)</p>
             </div>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, CAN_ADVANCE_STATE } from "@/lib/auth";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 import GreetingHeader from "@/components/GreetingHeader";
@@ -59,7 +60,7 @@ function StatCard({
   );
 }
 
-function OrderCard({ pedido, delay = 0 }: { pedido: Record<string, unknown>; delay?: number }) {
+function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<string, unknown>; delay?: number; canAdvance?: boolean }) {
   const estado = pedido.estado as string;
   const prioridad = pedido.prioridad as string;
   const badgeClass = ESTADO_BADGE[estado] ?? "bg-zinc-100 text-zinc-600";
@@ -161,7 +162,7 @@ function OrderCard({ pedido, delay = 0 }: { pedido: Record<string, unknown>; del
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </Link>
-          <AvanzarEstadoBtn pedidoId={pedido.id as string} estadoActual={estado} />
+          <AvanzarEstadoBtn pedidoId={pedido.id as string} estadoActual={estado} canAdvance={canAdvance} />
         </div>
       </div>
     </div>
@@ -170,6 +171,8 @@ function OrderCard({ pedido, delay = 0 }: { pedido: Record<string, unknown>; del
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  const role = await getUserRole();
+  const canAdvance = CAN_ADVANCE_STATE.includes(role);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -302,6 +305,7 @@ export default async function DashboardPage() {
                       key={p.id as string}
                       pedido={p as Record<string, unknown>}
                       delay={300 + colIdx * 80 + idx * 50}
+                      canAdvance={canAdvance}
                     />
                   ))
                 )}

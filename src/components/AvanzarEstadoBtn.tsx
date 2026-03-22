@@ -37,17 +37,19 @@ export default function AvanzarEstadoBtn({
   pedidoId,
   estadoActual,
   showLabel = false,
+  canAdvance = true,
 }: {
   pedidoId: string;
   estadoActual: string;
   showLabel?: boolean;
+  canAdvance?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const siguiente = SIGUIENTE[estadoActual];
   const label = LABEL[estadoActual];
 
-  if (!siguiente) return null;
+  if (!siguiente || !canAdvance) return null;
 
   async function handleClick() {
     if (loading || done) return;

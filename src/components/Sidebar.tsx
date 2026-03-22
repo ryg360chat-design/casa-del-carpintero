@@ -85,7 +85,15 @@ const navItems = [
   },
 ];
 
-export default function Sidebar({ userEmail }: { userEmail: string }) {
+export default function Sidebar({
+  userEmail,
+  userRole = "viewer",
+  isAdmin = false,
+}: {
+  userEmail: string;
+  userRole?: string;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -98,6 +106,19 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
 
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
 
+  const visibleItems = navItems.filter((item) => {
+    if (item.href === "/ajustes" || item.href === "/admin/invitar") return isAdmin;
+    return true;
+  });
+
+  const ROLE_LABEL: Record<string, string> = {
+    admin: "Administrador",
+    ventas: "Ventas",
+    produccion: "Jefe de Producción",
+    almacenes: "Almacenes",
+    viewer: "Visualizador",
+  };
+
   return (
     <aside className="group/nav relative w-[60px] hover:w-[220px] transition-[width] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] bg-zinc-900 flex flex-col h-full shrink-0 overflow-hidden z-30 select-none">
 
@@ -107,7 +128,7 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
           <span className="text-white font-black text-[13px] tracking-tight">CC</span>
         </div>
         <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75 whitespace-nowrap">
-          <p className="text-white text-[11px] font-bold leading-tight tracking-wider">CASA DEL CARPINTERO</p>
+          <p className="text-white text-[11px] font-bold leading-tight tracking-wider">COMERCIAL CASA DEL CARPINTERO</p>
           <p className="text-[9px] font-semibold tracking-[0.18em] uppercase" style={{ color: "#f97316" }}>PRODUCTION OS</p>
         </div>
       </div>
@@ -125,7 +146,7 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5 overflow-hidden">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive =
             pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -165,7 +186,7 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
             <span className="text-white text-[11px] font-bold">{initials}</span>
           </div>
           <div className="flex-1 min-w-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75 overflow-hidden">
-            <p className="text-white text-xs font-semibold truncate whitespace-nowrap">Jefe de Taller</p>
+            <p className="text-white text-xs font-semibold truncate whitespace-nowrap">{ROLE_LABEL[userRole] ?? "Usuario"}</p>
             <p className="text-zinc-500 text-[10px] truncate whitespace-nowrap">{userEmail}</p>
           </div>
           <button
