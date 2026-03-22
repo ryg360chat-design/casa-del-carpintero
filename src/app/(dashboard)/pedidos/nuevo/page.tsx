@@ -84,6 +84,7 @@ export default function NuevoPedidoPage() {
   const [espesor, setEspesor] = useState("");
   const [planchas, setPlanchas] = useState("");
   const [piezas, setPiezas] = useState("");
+  const [colorMaterial, setColorMaterial] = useState("");
   const [metrosDelgado, setMetrosDelgado] = useState("");
   const [metrosGrueso, setMetrosGrueso] = useState("");
   const [ranuras, setRanuras] = useState(false);
@@ -222,6 +223,7 @@ export default function NuevoPedidoPage() {
         area,
         tipo_tablero: tipoTablero,
         marca_melamina: marca.trim() || "",
+        color_material: colorMaterial.trim() || null,
         espesor: espesor || null,
         cant_planchas: parseFloat(planchas || "0"),
         cant_piezas: parseInt(piezas || "0"),
@@ -419,6 +421,18 @@ export default function NuevoPedidoPage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Color */}
+          <div>
+            <label className={LABEL}>Color del material</label>
+            <input
+              type="text"
+              value={colorMaterial}
+              onChange={(e) => setColorMaterial(e.target.value)}
+              placeholder="Ej: Blanco Nieve, Roble Natural, Negro Carbón..."
+              className={INPUT}
+            />
           </div>
         </div>
 

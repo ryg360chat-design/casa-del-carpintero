@@ -5,7 +5,7 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 import GreetingHeader from "@/components/GreetingHeader";
 import Link from "next/link";
 import React from "react";
-import { limaTime, esHoyLima, esMañanaLima } from "@/lib/time";
+import { limaTime, limaDate, esHoyLima, esMañanaLima } from "@/lib/time";
 
 const ESTADO_PROGRESS: Record<string, number> = {
   "En cola": 20,
