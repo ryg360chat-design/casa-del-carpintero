@@ -154,7 +154,7 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
                 {isUrgente ? "⚡ Prioritario" : entregaStr ?? "Sin fecha"}
               </span>
             </div>
-            {pedido.created_at && (
+            {!!(pedido.created_at as string) && (
               <div className="flex items-center gap-1.5 text-zinc-400">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>

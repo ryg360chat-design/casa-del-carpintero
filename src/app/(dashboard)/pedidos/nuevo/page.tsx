@@ -84,8 +84,8 @@ export default function NuevoPedidoPage() {
   const [espesor, setEspesor] = useState("");
   const [planchas, setPlanchas] = useState("");
   const [piezas, setPiezas] = useState("");
-  const [metrosCanto, setMetrosCanto] = useState("");
-  const [tipoCanto, setTipoCanto] = useState<"delgado" | "grueso">("delgado");
+  const [metrosDelgado, setMetrosDelgado] = useState("");
+  const [metrosGrueso, setMetrosGrueso] = useState("");
   const [ranuras, setRanuras] = useState(false);
   const [perforaciones, setPerforaciones] = useState(false);
   const [corte45, setCorte45] = useState(false);
@@ -151,7 +151,7 @@ export default function NuevoPedidoPage() {
       const horasCorte = cantPlanchasNum > 0 ? cantPlanchasNum / 6 : 0.5;
       const horasExtra =
         (ranuras ? 1 : 0) +
-        (parseFloat(metrosCanto || "0") > 0 ? 1 : 0) +
+        ((parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0")) > 0 ? 1 : 0) +
         ((corte45 || cortesEspeciales.trim()) ? 0.5 : 0);
       const horasEspera = cMaquina * 2; // 2h promedio por pedido en cola
       const totalHoras = horasCorte + horasExtra + horasEspera;
@@ -225,8 +225,10 @@ export default function NuevoPedidoPage() {
         espesor: espesor || null,
         cant_planchas: parseFloat(planchas || "0"),
         cant_piezas: parseInt(piezas || "0"),
-        metros_canto: parseFloat(metrosCanto || "0"),
-        tipo_canto: tipoCanto,
+        metros_canto: parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0"),
+        tipo_canto: (parseFloat(metrosDelgado || "0") > 0 && parseFloat(metrosGrueso || "0") > 0)
+          ? "ambos"
+          : parseFloat(metrosGrueso || "0") > 0 ? "grueso" : "delgado",
         ranuras,
         perforaciones,
         corte_45: corte45,
@@ -260,7 +262,7 @@ export default function NuevoPedidoPage() {
     const horasCortePreview = cantPlanchas / 6;
     const extrasPreview =
       (ranuras ? 1 : 0) +
-      (parseFloat(metrosCanto || "0") > 0 ? 1 : 0) +
+      ((parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0")) > 0 ? 1 : 0) +
       ((corte45 || cortesEspeciales.trim()) ? 0.5 : 0);
     const totalPreview = horasCortePreview + extrasPreview;
     const hDecimal = Math.floor(totalPreview);
@@ -270,7 +272,7 @@ export default function NuevoPedidoPage() {
     if (mDecimal > 0) partes.push(`${mDecimal}min`);
     entregaLabel = `~${partes.join(" ")} de proceso`;
     if (ranuras) entregaLabel += " · +1h ranuras";
-    if (parseFloat(metrosCanto || "0") > 0) entregaLabel += " · +1h enchape";
+    if ((parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0")) > 0) entregaLabel += " · +1h enchape";
     if (corte45 || cortesEspeciales.trim()) entregaLabel += " · +30min especiales";
   }
 
@@ -426,7 +428,7 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>3</span>
             <h2 className="font-bold text-zinc-900">Datos del Corte</h2>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
               <label className={LABEL}>Planchas</label>
               <input type="number" min="0" step="0.5" value={planchas} onChange={(e) => setPlanchas(e.target.value)} placeholder="0" className={INPUT} />
@@ -436,33 +438,14 @@ export default function NuevoPedidoPage() {
               <input type="number" min="0" value={piezas} onChange={(e) => setPiezas(e.target.value)} placeholder="0" className={INPUT} />
             </div>
             <div>
-              <label className={LABEL}>Metros de Canto</label>
-              <input type="number" min="0" step="0.1" value={metrosCanto} onChange={(e) => setMetrosCanto(e.target.value)} placeholder="0.00" className={INPUT} />
+              <label className={LABEL}>Canto Delgado (m)</label>
+              <input type="number" min="0" step="0.1" value={metrosDelgado} onChange={(e) => setMetrosDelgado(e.target.value)} placeholder="0.00" className={INPUT} />
+            </div>
+            <div>
+              <label className={LABEL}>Canto Grueso (m)</label>
+              <input type="number" min="0" step="0.1" value={metrosGrueso} onChange={(e) => setMetrosGrueso(e.target.value)} placeholder="0.00" className={INPUT} />
             </div>
           </div>
-
-          {/* Tipo de canto (solo visible si hay metros de canto) */}
-          {parseFloat(metrosCanto || "0") > 0 && (
-            <div>
-              <label className={LABEL}>Tipo de canto</label>
-              <div className="flex gap-2">
-                {(["delgado", "grueso"] as const).map((tc) => (
-                  <button
-                    key={tc}
-                    type="button"
-                    onClick={() => setTipoCanto(tc)}
-                    className={`flex-1 py-2.5 text-sm font-semibold border rounded-lg transition-colors capitalize ${
-                      tipoCanto === tc
-                        ? "bg-zinc-900 text-white border-zinc-900"
-                        : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50"
-                    }`}
-                  >
-                    {tc === "delgado" ? "Canto Delgado" : "Canto Grueso"}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* 4. Servicios adicionales */}
