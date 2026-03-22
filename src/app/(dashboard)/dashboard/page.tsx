@@ -109,15 +109,15 @@ function OrderCard({ pedido, delay = 0 }: { pedido: Record<string, unknown>; del
       </div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-3 gap-1.5 mb-3">
+      <div className="grid grid-cols-3 gap-1 mb-3">
         {[
           { label: "Planchas", value: pedido.cant_planchas },
           { label: "Piezas", value: pedido.cant_piezas },
-          { label: "Mts. canto", value: pedido.metros_canto },
+          { label: "Canto", value: pedido.metros_canto },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-zinc-50 rounded-lg px-2 py-2 text-center">
-            <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wide">{label}</p>
-            <p className="text-lg font-bold text-zinc-900 leading-tight">{value as string}</p>
+          <div key={label} className="bg-zinc-50 rounded-lg px-1.5 py-2 text-center">
+            <p className="text-[8px] font-semibold text-zinc-400 uppercase tracking-wide">{label}</p>
+            <p className="text-base font-bold text-zinc-900 leading-tight">{value as string}</p>
           </div>
         ))}
       </div>
@@ -246,14 +246,14 @@ export default async function DashboardPage() {
       <GreetingHeader />
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
         {stats.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} delay={s.delay} icon={s.icon} iconBg={s.iconBg} sub={s.sub} />
         ))}
       </div>
 
       {/* Machines */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {maquinasData.map(({ id, label, pedidos }, colIdx) => {
           const activa = maquinaMap[id] !== false;
           return (

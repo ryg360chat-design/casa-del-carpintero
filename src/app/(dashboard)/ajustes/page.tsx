@@ -56,7 +56,7 @@ export default async function AjustesPage() {
             </div>
             <div className="mt-4 pt-4 border-t border-zinc-50 flex flex-col gap-2">
               {[
-                { label: "Versión", value: "0.5.0 — pre-alpha" },
+                { label: "Versión", value: "1.0.0" },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between text-sm">
                   <span className="text-zinc-500">{label}</span>

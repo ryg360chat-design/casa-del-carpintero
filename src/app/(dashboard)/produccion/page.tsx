@@ -52,15 +52,15 @@ function PedidoCard({ pedido }: { pedido: Record<string, unknown> }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-3 gap-2 mb-4">
         {[
           { label: "PLANCHAS", value: pedido.cant_planchas },
           { label: "PIEZAS", value: pedido.cant_piezas },
-          { label: "MTS CANTO", value: pedido.metros_canto },
+          { label: "CANTO", value: pedido.metros_canto },
         ].map(({ label, value }) => (
           <div key={label} className="text-center">
-            <p className="text-xs text-zinc-500 font-medium mb-0.5">{label}</p>
-            <p className="text-2xl font-bold text-zinc-900">{value as string}</p>
+            <p className="text-[9px] text-zinc-400 font-semibold tracking-wide mb-0.5">{label}</p>
+            <p className="text-xl font-bold text-zinc-900">{value as string}</p>
           </div>
         ))}
       </div>
@@ -142,7 +142,7 @@ export default async function ProduccionPage() {
       </div>
 
       {/* Columnas de máquinas */}
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {[
           { maquina: m1, id: "M1", pedidos: pedidosM1 ?? [], label: "MÁQUINA 1" },
           { maquina: m2, id: "M2", pedidos: pedidosM2 ?? [], label: "MÁQUINA 2" },
