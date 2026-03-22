@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
+import GreetingHeader from "@/components/GreetingHeader";
 import Link from "next/link";
 import React from "react";
 
@@ -216,14 +217,6 @@ export default async function DashboardPage() {
     (maquinas ?? []).map((m: { id: number; activa: boolean }) => [m.id === 1 ? "M1" : "M2", m.activa])
   );
 
-  const ahora = new Date();
-  const hora = ahora.getHours();
-  const saludo = hora < 12 ? "Buenos días" : hora < 19 ? "Buenas tardes" : "Buenas noches";
-
-  const fechaHoy = ahora.toLocaleDateString("es", {
-    weekday: "long", day: "numeric", month: "long",
-  });
-
   const stats = [
     {
       label: "Ingresados hoy", value: pedidosHoy ?? 0, delay: 0, sub: "pedidos nuevos",
@@ -254,11 +247,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 animate-fade-in min-h-full" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.45) 0%, rgba(244,244,245,0) 35%)" }}>
-      {/* Greeting */}
-      <div className="mb-6 animate-fade-in-down">
-        <p className="text-xs text-zinc-400 uppercase tracking-widest font-semibold">{fechaHoy}</p>
-        <h1 className="text-xl font-bold text-zinc-900 mt-0.5">{saludo}, Jefe de Taller</h1>
-      </div>
+      <GreetingHeader />
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-8">
