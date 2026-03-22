@@ -129,7 +129,11 @@ export default function Sidebar({
         </div>
         <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75">
           <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap">CASA DEL CARPINTERO</p>
-          <p className="text-[9px] font-semibold tracking-[0.14em] uppercase whitespace-nowrap" style={{ color: "#f97316" }}>COMERCIAL SAC · PRODUCTION OS</p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap" style={{ color: "#f97316" }}>COMERCIAL SAC</span>
+            <span className="text-zinc-600 text-[8px]">·</span>
+            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap text-zinc-500">PRODUCTION OS</span>
+          </div>
         </div>
       </div>
 

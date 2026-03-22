@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import ImprimirBtn from "@/components/ImprimirBtn";
+import GuardarReporteBtn from "@/components/GuardarReporteBtn";
 
 const ESTADO_LABEL: Record<string, string> = {
   "En cola":       "En Cola",
@@ -54,6 +55,26 @@ export default async function ReportePage() {
 
   const totalPlanchas = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + (p.cant_planchas as number ?? 0), 0);
   const totalPiezas = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + (p.cant_piezas as number ?? 0), 0);
+  const totalMetros = (pedidosHoy ?? []).reduce((acc: number, p: Record<string, unknown>) => acc + ((p.metros_canto as number) ?? 0), 0);
+
+  // Historial de reportes guardados
+  const { data: reportesGuardados } = await supabase
+    .from("reportes_guardados")
+    .select("id, fecha, stats, created_at")
+    .order("fecha", { ascending: false })
+    .limit(30);
+
+  const statsHoy = {
+    pedidosHoy: pedidosHoy?.length ?? 0,
+    enCola: enCola ?? 0,
+    enCorte: enCorte ?? 0,
+    enTapacantos: enTapacantos ?? 0,
+    listos: listos ?? 0,
+    cancelados: cancelados ?? 0,
+    totalPlanchas,
+    totalPiezas,
+    totalMetros,
+  };
 
   return (
     <>
@@ -74,7 +95,10 @@ export default async function ReportePage() {
             <h1 className="text-2xl font-bold text-zinc-900">Reporte Diario</h1>
             <p className="text-zinc-500 text-sm mt-0.5 capitalize">{fechaHoy}</p>
           </div>
-          <ImprimirBtn />
+          <div className="flex items-center gap-2">
+            <GuardarReporteBtn stats={statsHoy} />
+            <ImprimirBtn />
+          </div>
         </div>
 
         {/* ── ENCABEZADO DEL REPORTE (visible en PDF) ── */}
@@ -286,6 +310,42 @@ export default async function ReportePage() {
           <span>© 2026 RyG SaaS · Casa del Carpintero</span>
           <span className="print:block">Generado el {fechaHoy} a las {horaGenera}</span>
         </div>
+
+        {/* ── HISTORIAL DE REPORTES GUARDADOS ── */}
+        {(reportesGuardados ?? []).length > 0 && (
+          <div className="mt-10 print:hidden">
+            <h2 className="text-base font-bold text-zinc-900 mb-4">Historial de reportes guardados</h2>
+            <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-zinc-100 bg-zinc-50">
+                    {["Fecha", "Ingresados", "En cola", "En corte", "Listos", "Cancelados", "Planchas", "Piezas"].map((h) => (
+                      <th key={h} className="text-left px-4 py-3 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(reportesGuardados ?? []).map((r: Record<string, unknown>, idx: number) => {
+                    const s = r.stats as Record<string, number>;
+                    const fechaStr = new Date(r.fecha as string + "T12:00:00").toLocaleDateString("es", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+                    return (
+                      <tr key={r.id as string} className={`border-b border-zinc-50 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-zinc-50/40"}`}>
+                        <td className="px-4 py-3 font-semibold text-zinc-800 capitalize">{fechaStr}</td>
+                        <td className="px-4 py-3 font-bold text-zinc-900">{s.pedidosHoy ?? 0}</td>
+                        <td className="px-4 py-3 text-orange-600 font-semibold">{s.enCola ?? 0}</td>
+                        <td className="px-4 py-3 text-zinc-600 font-semibold">{s.enCorte ?? 0}</td>
+                        <td className="px-4 py-3 text-emerald-600 font-semibold">{s.listos ?? 0}</td>
+                        <td className="px-4 py-3 text-red-500 font-semibold">{s.cancelados ?? 0}</td>
+                        <td className="px-4 py-3 text-zinc-600">{(s.totalPlanchas ?? 0).toFixed(1)}</td>
+                        <td className="px-4 py-3 text-zinc-600">{s.totalPiezas ?? 0}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -145,13 +145,25 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
       {/* Footer */}
       <div className="pt-2 border-t border-zinc-100 flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-zinc-400">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span className="text-xs font-medium">
-              {isUrgente ? "⚡ Prioritario" : entregaStr ?? "Sin fecha"}
-            </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5 text-zinc-400">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span className="text-[10px] font-medium">
+                {isUrgente ? "⚡ Prioritario" : entregaStr ?? "Sin fecha"}
+              </span>
+            </div>
+            {pedido.created_at && (
+              <div className="flex items-center gap-1.5 text-zinc-400">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
+                </svg>
+                <span className="text-[10px] font-medium">
+                  Ingresado {new Date(pedido.created_at as string).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            )}
           </div>
           <Link
             href={`/pedidos/${pedido.id as string}`}

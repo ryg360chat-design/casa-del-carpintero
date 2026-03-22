@@ -46,6 +46,27 @@ export async function toggleMaquina(maquinaId: string, activa: boolean) {
   return { ok: true };
 }
 
+export async function guardarReporte(stats: {
+  pedidosHoy: number;
+  enCola: number;
+  enCorte: number;
+  enTapacantos: number;
+  listos: number;
+  cancelados: number;
+  totalPlanchas: number;
+  totalPiezas: number;
+  totalMetros: number;
+}) {
+  const supabase = await createClient();
+  const fecha = new Date().toISOString().split("T")[0];
+  const { error } = await supabase
+    .from("reportes_guardados")
+    .upsert({ fecha, stats }, { onConflict: "fecha" });
+  if (error) return { error: error.message };
+  revalidatePath("/reporte");
+  return { ok: true };
+}
+
 export async function cancelarPedido(pedidoId: string) {
   const supabase = await createClient();
 
