@@ -265,7 +265,7 @@ export default function NuevoPedidoPage() {
     const extrasPreview =
       (ranuras ? 1 : 0) +
       ((parseFloat(metrosDelgado || "0") + parseFloat(metrosGrueso || "0")) > 0 ? 1 : 0) +
-      ((corte45 || cortesEspeciales.trim()) ? 0.5 : 0);
+      ((corte45 || cortesEspeciales) ? 0.5 : 0);
     const totalPreview = horasCortePreview + extrasPreview;
     const hDecimal = Math.floor(totalPreview);
     const mDecimal = Math.round((totalPreview - hDecimal) * 60);
