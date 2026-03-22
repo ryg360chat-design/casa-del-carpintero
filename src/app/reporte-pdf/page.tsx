@@ -15,9 +15,12 @@ const STYLES = `
   }
   .page {
     max-width: 900px;
-    margin: 0 auto;
+    margin: 24px auto;
     background: white;
     min-height: 100vh;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
   .header {
     background: #18181b;
@@ -144,7 +147,7 @@ const STYLES = `
   @media print {
     .print-bar { display: none !important; }
     body { background: white; }
-    .page { max-width: 100%; }
+    .page { max-width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
     @page { margin: 15mm; size: A4; }
   }
 `;
