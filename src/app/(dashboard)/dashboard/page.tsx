@@ -80,17 +80,13 @@ function OrderCard({ pedido, delay = 0 }: { pedido: Record<string, unknown>; del
 
   return (
     <div
-      className={`animate-fade-in-up bg-white border rounded-xl p-4 relative card-hover ${
+      className={`animate-fade-in-up bg-white border rounded-xl p-4 card-hover ${
         isUrgente
-          ? "border-zinc-300 ring-1 ring-zinc-200"
+          ? "border-zinc-200 border-l-[3px] border-l-orange-500"
           : "border-zinc-200"
       }`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      {/* Urgente stripe */}
-      {isUrgente && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl" style={{ background: "linear-gradient(90deg, #f97316, #fb923c)" }} />
-      )}
 
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
@@ -133,12 +129,12 @@ function OrderCard({ pedido, delay = 0 }: { pedido: Record<string, unknown>; del
             <span className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wide">Progreso</span>
             <span className="text-[9px] font-bold text-zinc-500">{ESTADO_PROGRESS[estado] ?? 0}%</span>
           </div>
-          <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+          <div className="h-1 bg-zinc-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
                 width: `${ESTADO_PROGRESS[estado] ?? 0}%`,
-                background: estado === "Listo" ? "#22c55e" : "linear-gradient(90deg, #f97316, #fb923c)",
+                background: estado === "Listo" ? "#22c55e" : estado === "En corte" ? "#3b82f6" : estado === "En tapacantos" ? "#a855f7" : "#94a3b8",
               }}
             />
           </div>

@@ -30,7 +30,7 @@ function PedidoCard({ pedido }: { pedido: Record<string, unknown> }) {
   const numeroOrden = `#${String(pedido.id as string).slice(-4).toUpperCase()}`;
 
   return (
-    <div className={`bg-white border border-zinc-200 rounded-xl p-5 ${isUrgente ? "border-l-4 border-l-zinc-900" : ""}`}>
+    <div className={`bg-white border border-zinc-200 rounded-xl p-5 relative ${isUrgente ? "border-l-[3px] border-l-orange-500" : ""}`}>
       <div className="flex items-center justify-between mb-3">
         <span className="font-bold text-zinc-900 text-base">{numeroOrden}</span>
         <span className={badgeClass}>{estado.toUpperCase()}</span>
@@ -150,7 +150,7 @@ export default async function ProduccionPage() {
           const activa = maquina?.activa ?? false;
           return (
             <div key={id}>
-              <div className="flex items-center justify-between mb-5 pb-4 border-b-2 border-zinc-900">
+              <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-200">
                 <h2 className="text-base font-extrabold text-zinc-900 uppercase tracking-wider">{label}</h2>
                 <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${activa ? "bg-zinc-900 text-white" : "border border-zinc-300 text-zinc-500"}`}>
                   {activa ? "ACTIVA" : "INACTIVA"}
