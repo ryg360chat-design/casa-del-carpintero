@@ -156,44 +156,58 @@ export default function NuevoPedidoPage() {
       const horasEspera = cMaquina * 2; // 2h promedio por pedido en cola
       const totalHoras = horasCorte + horasExtra + horasEspera;
 
-      // Horario laboral: 8:00-13:00, 14:30-19:00 (10h efectivas/día)
-      const INICIO = 8;   // 8:00 AM
-      const ALMUERZO_IN = 13;
-      const ALMUERZO_OUT = 14.5;
-      const FIN = 19;     // 7:00 PM
-      const HORAS_DIA = (ALMUERZO_IN - INICIO) + (FIN - ALMUERZO_OUT); // 10.5h
+      // Horario laboral real: 8:00-12:00, refrigerio 12:00-13:00, 13:00-17:30
+      const INICIO       = 8;     // 8:00 AM
+      const ALMUERZO_IN  = 12;    // 12:00 PM
+      const ALMUERZO_OUT = 13;    // 1:00 PM
+      const FIN          = 17.5;  // 5:30 PM
+      // Horas efectivas por día: 4h mañana + 4.5h tarde = 8.5h
+
+      function hFrac(d: Date) { return d.getHours() + d.getMinutes() / 60; }
+      function setHFrac(d: Date, h: number) {
+        d.setHours(Math.floor(h), Math.round((h % 1) * 60), 0, 0);
+      }
+      function skipWeekend(d: Date) {
+        while (d.getDay() === 0 || d.getDay() === 6) {
+          d.setDate(d.getDate() + 1);
+          setHFrac(d, INICIO);
+        }
+      }
 
       function addWorkHours(base: Date, horas: number): Date {
         const result = new Date(base);
         let remaining = horas;
-        // Ajustar al siguiente horario laboral si estamos fuera
-        if (result.getHours() < INICIO) result.setHours(INICIO, 0, 0, 0);
-        if (result.getHours() >= FIN || (result.getHours() === FIN - 1 && result.getMinutes() >= 0)) {
+
+        // Snap al próximo periodo laboral si estamos fuera
+        const h0 = hFrac(result);
+        if (h0 < INICIO) {
+          setHFrac(result, INICIO);
+        } else if (h0 >= FIN) {
           result.setDate(result.getDate() + 1);
-          result.setHours(INICIO, 0, 0, 0);
+          setHFrac(result, INICIO);
+        } else if (h0 >= ALMUERZO_IN && h0 < ALMUERZO_OUT) {
+          setHFrac(result, ALMUERZO_OUT);
         }
-        // Skip weekend (domingo=0, sábado=6)
-        while (result.getDay() === 0 || result.getDay() === 6) {
-          result.setDate(result.getDate() + 1);
-          result.setHours(INICIO, 0, 0, 0);
-        }
+        skipWeekend(result);
+
         while (remaining > 0) {
-          const h = result.getHours() + result.getMinutes() / 60;
-          const horaFin = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + remaining) : Math.min(FIN, h + remaining);
-          const avance = horaFin - h;
+          const h = hFrac(result);
+          // Avanzar hasta el próximo tope (almuerzo o fin de jornada)
+          const tope = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + remaining) : Math.min(FIN, h + remaining);
+          const avance = tope - h;
           remaining -= avance;
-          const newH = Math.floor(horaFin);
-          const newM = Math.round((horaFin - newH) * 60);
-          result.setHours(newH, newM, 0, 0);
+          setHFrac(result, tope);
+
           if (remaining > 0) {
-            if (result.getHours() >= ALMUERZO_IN && result.getHours() < ALMUERZO_OUT) {
-              result.setHours(Math.floor(ALMUERZO_OUT), 30, 0, 0);
+            const hNow = hFrac(result);
+            if (hNow >= ALMUERZO_IN && hNow < ALMUERZO_OUT) {
+              // Reanudar tras el refrigerio
+              setHFrac(result, ALMUERZO_OUT);
             } else {
+              // Fin de jornada → siguiente día hábil
               result.setDate(result.getDate() + 1);
-              result.setHours(INICIO, 0, 0, 0);
-              while (result.getDay() === 0 || result.getDay() === 6) {
-                result.setDate(result.getDate() + 1);
-              }
+              setHFrac(result, INICIO);
+              skipWeekend(result);
             }
           }
         }
