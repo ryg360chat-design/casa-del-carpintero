@@ -40,11 +40,18 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
   if (!pedido) notFound();
 
-  const { data: historial } = await supabase
-    .from("pedido_historial")
-    .select("*")
-    .eq("pedido_id", id)
-    .order("created_at", { ascending: false });
+  const [{ data: historial }, { data: lineas }] = await Promise.all([
+    supabase
+      .from("pedido_historial")
+      .select("*")
+      .eq("pedido_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("pedido_lineas")
+      .select("*")
+      .eq("pedido_id", id)
+      .order("orden", { ascending: true }),
+  ]);
 
   const estado = pedido.estado as string;
   const badgeClass = ESTADO_STYLE[estado] ?? "bg-zinc-100 text-zinc-600";
@@ -196,22 +203,81 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
       <div className="grid grid-cols-2 gap-5 mb-5">
         {/* Material y Corte */}
         <div className="animate-fade-in-up delay-150 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4">Material y Corte</p>
-          <div className="grid grid-cols-2 gap-y-4 gap-x-4">
-            {[
-              { label: "Tipo", value: pedido.tipo_tablero },
-              { label: "Marca", value: pedido.marca_melamina || "—" },
-              { label: "Planchas", value: pedido.cant_planchas },
-              { label: "Piezas", value: pedido.cant_piezas },
-              { label: "Mts. canto", value: `${pedido.metros_canto} m` },
-              { label: "Tipo canto", value: pedido.tipo_canto ? (pedido.tipo_canto === "grueso" ? "Grueso" : "Delgado") : "—" },
-            ].map(({ label, value }) => (
-              <div key={label}>
-                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">{label}</p>
-                <p className="text-sm font-bold text-zinc-900">{value}</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">
+              {lineas && lineas.length > 0 ? "Materiales" : "Material y Corte"}
+            </p>
+            {lineas && lineas.length > 1 && (
+              <span className="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">
+                {lineas.length} materiales
+              </span>
+            )}
           </div>
+
+          {/* Multi-line materials (new orders) */}
+          {lineas && lineas.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {lineas.map((linea: Record<string, unknown>, idx: number) => (
+                <div key={linea.id as string} className={`${lineas.length > 1 ? "border border-zinc-100 rounded-lg p-3 bg-zinc-50/50" : ""}`}>
+                  {lineas.length > 1 && (
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
+                      Material {idx + 1}
+                    </p>
+                  )}
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                    {[
+                      { label: "Tipo", value: linea.tipo_tablero as string },
+                      { label: "Marca", value: (linea.marca_melamina as string) || "—" },
+                      { label: "Espesor", value: (linea.espesor as string) || "—" },
+                      { label: "Color", value: (linea.color_material as string) || "—" },
+                      { label: "Planchas", value: String(linea.cant_planchas) },
+                      { label: "Piezas", value: String(linea.cant_piezas) },
+                      { label: "Canto delgado", value: `${linea.metros_canto_delgado} m` },
+                      { label: "Canto grueso", value: `${linea.metros_canto_grueso} m` },
+                    ].map(({ label, value }) => (
+                      <div key={label}>
+                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">{label}</p>
+                        <p className="text-sm font-bold text-zinc-900">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Totals row when multi-line */}
+              {lineas.length > 1 && (
+                <div className="border-t border-zinc-200 pt-3 grid grid-cols-3 gap-3">
+                  {[
+                    { label: "Total planchas", value: lineas.reduce((s, l) => s + Number((l as Record<string,unknown>).cant_planchas ?? 0), 0) },
+                    { label: "Total piezas", value: lineas.reduce((s, l) => s + Number((l as Record<string,unknown>).cant_piezas ?? 0), 0) },
+                    { label: "Total canto", value: `${lineas.reduce((s, l) => s + Number((l as Record<string,unknown>).metros_canto_delgado ?? 0) + Number((l as Record<string,unknown>).metros_canto_grueso ?? 0), 0).toFixed(1)} m` },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="bg-zinc-100 rounded-lg p-2 text-center">
+                      <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wider">{label}</p>
+                      <p className="text-sm font-black text-zinc-900 mt-0.5">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Legacy single-material (old orders) */
+            <div className="grid grid-cols-2 gap-y-4 gap-x-4">
+              {[
+                { label: "Tipo", value: pedido.tipo_tablero },
+                { label: "Marca", value: pedido.marca_melamina || "—" },
+                { label: "Planchas", value: pedido.cant_planchas },
+                { label: "Piezas", value: pedido.cant_piezas },
+                { label: "Mts. canto", value: `${pedido.metros_canto} m` },
+                { label: "Tipo canto", value: pedido.tipo_canto ? (pedido.tipo_canto === "grueso" ? "Grueso" : "Delgado") : "—" },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">{label}</p>
+                  <p className="text-sm font-bold text-zinc-900">{value}</p>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Servicios adicionales */}
           {(servicios.length > 0 || pedido.cortes_especiales) && (
