@@ -244,7 +244,7 @@ export default async function ReportePage() {
                 const dash = (m.cargaActual / totalLoad) * CIRC;
                 return (
                   <div key={m.id} className="flex flex-col items-center gap-1">
-                    <svg viewBox="0 0 120 120" width="110" height="110">
+                    <svg viewBox="0 0 120 120" width="150" height="150">
                       {/* Track */}
                       <circle cx="60" cy="60" r="44" fill="none" stroke="#f4f4f5" strokeWidth="12"/>
                       {/* Progress */}
