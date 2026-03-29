@@ -96,7 +96,7 @@ export default async function DevPage() {
         <p className={SECTION_TITLE}>Usuarios registrados ({usuarios?.length ?? 0})</p>
         <div className="flex flex-col gap-2">
           {usuarios?.map((u: Record<string, unknown>) => (
-            <div key={u.id} className="flex items-center justify-between text-sm py-1.5 border-b border-zinc-100 last:border-0">
+            <div key={u.id as string} className="flex items-center justify-between text-sm py-1.5 border-b border-zinc-100 last:border-0">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-600">
                   {(u.nombre as string)?.[0]?.toUpperCase() ?? "?"}
