@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const SECTION = "flex flex-col gap-4 bg-white border border-zinc-200 rounded-2xl p-6";
-const STEP_NUM_STYLE = { background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" };
+const STEP_NUM_STYLE = { background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" };
 const STEP_NUM = "w-7 h-7 text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0";
 const INPUT = "w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white";
 const LABEL = "block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5";
@@ -78,7 +78,31 @@ export default function NuevoPedidoPage() {
 
   // Form state
   const [clienteNombre, setClienteNombre] = useState("");
+  const [clienteCodigo, setClienteCodigo] = useState<string | null>(null);
+  const [clienteStatus, setClienteStatus] = useState<"idle" | "found" | "new">("idle");
   const [area, setArea] = useState<Area>("Ventas");
+
+  // Búsqueda de cliente con debounce 400ms
+  useEffect(() => {
+    setClienteCodigo(null);
+    setClienteStatus("idle");
+    if (!clienteNombre.trim() || clienteNombre.trim().length < 2) return;
+    const timer = setTimeout(async () => {
+      const sb = createClient();
+      const { data } = await sb
+        .from("clientes")
+        .select("id, codigo")
+        .ilike("nombre", `%${clienteNombre.trim()}%`)
+        .maybeSingle();
+      if (data) {
+        setClienteCodigo(data.codigo ?? null);
+        setClienteStatus("found");
+      } else {
+        setClienteStatus("new");
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [clienteNombre]);
   const [tipoTablero, setTipoTablero] = useState<TipoTablero>("Melamina");
   const [marca, setMarca] = useState("");
   const [espesor, setEspesor] = useState("");
@@ -302,6 +326,17 @@ export default function NuevoPedidoPage() {
               placeholder="Escribe el nombre del cliente..."
               className={INPUT}
             />
+            {clienteStatus === "found" && (
+              <div className="mt-2 flex items-center gap-2">
+                <span className="font-mono text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  {clienteCodigo ?? "—"}
+                </span>
+                <span className="text-xs text-emerald-600 font-medium">✓ Cliente existente</span>
+              </div>
+            )}
+            {clienteStatus === "new" && clienteNombre.trim().length >= 2 && (
+              <p className="mt-2 text-xs text-blue-600 font-medium">✦ Se registrará como nuevo cliente</p>
+            )}
           </div>
           <div>
             <label className={LABEL}>Área responsable</label>

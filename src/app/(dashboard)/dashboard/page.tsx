@@ -15,12 +15,21 @@ const ESTADO_PROGRESS: Record<string, number> = {
 };
 
 const ESTADO_BADGE: Record<string, string> = {
-  "En cola":       "border border-zinc-700 text-zinc-400 bg-transparent",
-  "En corte":      "bg-zinc-100 text-zinc-900",
-  "En tapacantos": "bg-zinc-200 text-zinc-700",
-  "Listo":         "bg-zinc-900 text-white",
-  "Cancelado":     "bg-red-100 text-red-600",
-  "Pausado":       "bg-yellow-100 text-yellow-700",
+  "En cola":       "bg-slate-100 text-slate-500 border border-slate-200",
+  "En corte":      "bg-blue-500 text-white",
+  "En tapacantos": "bg-violet-500 text-white",
+  "Listo":         "bg-emerald-500 text-white",
+  "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
+  "Pausado":       "bg-amber-100 text-amber-700",
+};
+
+const CARD_LEFT_BORDER: Record<string, string> = {
+  "En cola":       "border-l-slate-300",
+  "En corte":      "border-l-blue-500",
+  "En tapacantos": "border-l-violet-500",
+  "Listo":         "border-l-emerald-500",
+  "Cancelado":     "border-l-red-400",
+  "Pausado":       "border-l-amber-400",
 };
 
 function StatCard({
@@ -30,6 +39,7 @@ function StatCard({
   icon,
   iconBg,
   sub,
+  accentColor,
 }: {
   label: string;
   value: number | string;
@@ -37,11 +47,12 @@ function StatCard({
   icon?: React.ReactNode;
   iconBg?: string;
   sub?: string;
+  accentColor?: string;
 }) {
   return (
     <div
-      className="animate-fade-in-up bg-white border border-zinc-200 rounded-xl p-5 flex flex-col gap-3 card-hover"
-      style={{ animationDelay: `${delay}ms` }}
+      className="animate-fade-in-up bg-white border border-zinc-200 border-t-[3px] rounded-xl p-5 flex flex-col gap-3 card-hover"
+      style={{ animationDelay: `${delay}ms`, borderTopColor: accentColor ?? "#e4e4e7" }}
     >
       <div className="flex items-start justify-between">
         <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider leading-tight">{label}</span>
@@ -65,7 +76,9 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
   const estado = pedido.estado as string;
   const prioridad = pedido.prioridad as string;
   const badgeClass = ESTADO_BADGE[estado] ?? "bg-zinc-100 text-zinc-600";
+  const leftBorder = CARD_LEFT_BORDER[estado] ?? "border-l-zinc-200";
   const isUrgente = prioridad === "urgente";
+  const isVip = prioridad === "vip";
   const cliente = (pedido.cliente as Record<string, unknown>)?.nombre as string ?? "—";
 
   const entregaDate = pedido.fecha_entrega_estimada
@@ -81,11 +94,7 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
 
   return (
     <div
-      className={`animate-fade-in-up bg-white border rounded-xl p-4 card-hover ${
-        isUrgente
-          ? "border-zinc-200 border-l-[3px] border-l-orange-500"
-          : "border-zinc-200"
-      }`}
+      className={`animate-fade-in-up bg-white border border-zinc-200 border-l-[3px] rounded-xl p-4 card-hover ${leftBorder}`}
       style={{ animationDelay: `${delay}ms` }}
     >
 
@@ -95,8 +104,13 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
           <div className="flex items-center gap-2 mb-0.5">
             <p className="font-bold text-zinc-900 text-sm truncate">{cliente}</p>
             {isUrgente && (
-              <span className="animate-badge-pop shrink-0 text-[9px] font-bold text-white px-1.5 py-0.5 rounded tracking-wide" style={{ background: "#f97316" }}>
+              <span className="animate-badge-pop shrink-0 text-[9px] font-bold text-white px-1.5 py-0.5 rounded tracking-wide" style={{ background: "linear-gradient(135deg,#f97316,#dc2626)", boxShadow: "0 0 8px rgba(249,115,22,0.45)" }}>
                 ⚡ URGENTE
+              </span>
+            )}
+            {isVip && (
+              <span className="animate-badge-pop shrink-0 text-[9px] font-bold text-white px-1.5 py-0.5 rounded tracking-wide" style={{ background: "linear-gradient(135deg,#f59e0b,#f97316)", boxShadow: "0 0 8px rgba(245,158,11,0.45)" }}>
+                ★ VIP
               </span>
             )}
           </div>
@@ -231,21 +245,25 @@ export default async function DashboardPage() {
   const stats = [
     {
       label: "Ingresados hoy", value: pedidosHoy ?? 0, delay: 0, sub: "pedidos nuevos",
+      accentColor: "#3b82f6",
       iconBg: "rgba(59,130,246,0.12)",
       icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
     },
     {
       label: "En cola", value: enCola ?? 0, delay: 60, sub: "esperando corte",
-      iconBg: "rgba(249,115,22,0.12)",
-      icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+      accentColor: "#CC5238",
+      iconBg: "rgba(204,82,56,0.10)",
+      icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#CC5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
     },
     {
       label: "En corte", value: enCorte ?? 0, delay: 120, sub: "en proceso ahora",
-      iconBg: "rgba(113,113,122,0.10)",
-      icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#52525b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" x2="8.12" y1="4" y2="15.88"/><line x1="14.47" x2="20" y1="14.48" y2="20"/><line x1="8.12" x2="12" y1="8.12" y2="12"/></svg>,
+      accentColor: "#3b82f6",
+      iconBg: "rgba(59,130,246,0.10)",
+      icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" x2="8.12" y1="4" y2="15.88"/><line x1="14.47" x2="20" y1="14.48" y2="20"/><line x1="8.12" x2="12" y1="8.12" y2="12"/></svg>,
     },
     {
       label: "Listos hoy", value: listos ?? 0, delay: 180, sub: "para retirar",
+      accentColor: "#22c55e",
       iconBg: "rgba(34,197,94,0.12)",
       icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
     },
@@ -263,7 +281,7 @@ export default async function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
         {stats.map((s) => (
-          <StatCard key={s.label} label={s.label} value={s.value} delay={s.delay} icon={s.icon} iconBg={s.iconBg} sub={s.sub} />
+          <StatCard key={s.label} label={s.label} value={s.value} delay={s.delay} icon={s.icon} iconBg={s.iconBg} sub={s.sub} accentColor={s.accentColor} />
         ))}
       </div>
 

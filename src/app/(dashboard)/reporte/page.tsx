@@ -107,12 +107,12 @@ export default async function ReportePage() {
 
         {/* ── ENCABEZADO DEL REPORTE (visible en PDF) ── */}
         <div className="bg-zinc-900 text-white rounded-2xl p-8 mb-6 relative overflow-hidden print:rounded-none print:mb-4">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style={{ background: "radial-gradient(circle, #f97316, transparent 70%)", transform: "translate(30%, -30%)" }} />
+          <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style={{ background: "radial-gradient(circle, #1957A6, transparent 70%)", transform: "translate(30%, -30%)" }} />
           <div className="relative">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                       <polyline points="9 22 9 12 15 12 15 22"/>
@@ -162,8 +162,8 @@ export default async function ReportePage() {
               label: "Total piezas hoy",
               value: totalPiezas,
               icon: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
-              color: "rgba(249,115,22,0.1)",
-              iconColor: "#f97316",
+              color: "rgba(38,122,140,0.1)",
+              iconColor: "#267A8C",
             },
             {
               label: "Órdenes activas ahora",

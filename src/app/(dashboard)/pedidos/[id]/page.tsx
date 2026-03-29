@@ -6,12 +6,12 @@ import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import CancelarPedidoBtn from "@/components/CancelarPedidoBtn";
 
 const ESTADO_STYLE: Record<string, string> = {
-  "En cola":       "bg-zinc-100 text-zinc-600",
-  "En corte":      "bg-zinc-900 text-white",
-  "En tapacantos": "bg-zinc-700 text-white",
-  "Listo":         "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  "Cancelado":     "bg-red-50 text-red-600 border border-red-200",
-  "Pausado":       "bg-yellow-50 text-yellow-700 border border-yellow-200",
+  "En cola":       "bg-slate-100 text-slate-600 border border-slate-200",
+  "En corte":      "bg-blue-500 text-white",
+  "En tapacantos": "bg-violet-500 text-white",
+  "Listo":         "bg-emerald-500 text-white",
+  "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
+  "Pausado":       "bg-amber-100 text-amber-700 border border-amber-200",
 };
 
 const AREA_COLORS: Record<string, string> = {
@@ -34,7 +34,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
   const { data: pedido } = await supabase
     .from("pedidos")
-    .select("*, cliente:clientes(nombre, telefono, email)")
+    .select("*, cliente:clientes(nombre, telefono, email, codigo)")
     .eq("id", id)
     .maybeSingle();
 
@@ -91,13 +91,18 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
             <h1 className="text-2xl font-bold text-zinc-900">
               {cliente?.nombre as string ?? "Sin cliente"}
             </h1>
+            {(cliente?.codigo as string | null) && (
+              <span className="font-mono text-xs font-bold bg-zinc-100 text-zinc-500 border border-zinc-200 px-2 py-0.5 rounded-full">
+                {cliente!.codigo as string}
+              </span>
+            )}
             {prioridad === "urgente" && (
-              <span className="animate-badge-pop text-xs font-bold border border-zinc-900 bg-zinc-900 text-white px-2 py-0.5 rounded-md tracking-wide">
+              <span className="animate-badge-pop text-xs font-bold text-white px-2.5 py-0.5 rounded-md tracking-wide" style={{ background: "linear-gradient(135deg,#f97316,#dc2626)", boxShadow: "0 0 10px rgba(249,115,22,0.4)" }}>
                 ⚡ URGENTE
               </span>
             )}
             {prioridad === "vip" && (
-              <span className="animate-badge-pop text-xs font-bold border border-orange-400 bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md tracking-wide">
+              <span className="animate-badge-pop text-xs font-bold text-white px-2.5 py-0.5 rounded-md tracking-wide" style={{ background: "linear-gradient(135deg,#f59e0b,#f97316)", boxShadow: "0 0 10px rgba(245,158,11,0.4)" }}>
                 ★ VIP
               </span>
             )}
@@ -136,9 +141,9 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                   <div className="flex flex-col items-center">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
                       done
-                        ? "bg-zinc-900 border-zinc-900 text-white shadow-sm"
+                        ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
                         : current
-                        ? "bg-white border-zinc-900 text-zinc-900 shadow-[0_0_0_4px_rgba(24,24,27,0.08)]"
+                        ? "bg-white border-blue-500 text-blue-600 shadow-[0_0_0_4px_rgba(59,130,246,0.12)]"
                         : "bg-white border-zinc-200 text-zinc-300"
                     }`}>
                       {done ? (

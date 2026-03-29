@@ -138,13 +138,13 @@ export default function Sidebar({
 
       {/* Logo */}
       <div className="h-[57px] flex items-center px-[14px] border-b border-zinc-800/80 overflow-hidden gap-3">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" }}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
           <span className="text-white font-black text-[13px] tracking-tight">CC</span>
         </div>
         <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75">
           <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap">CASA DEL CARPINTERO</p>
           <div className="flex items-center gap-1 mt-0.5">
-            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap" style={{ color: "#f97316" }}>COMERCIAL SAC</span>
+            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap" style={{ color: "#CC5238" }}>COMERCIAL SAC</span>
             <span className="text-zinc-600 text-[8px]">·</span>
             <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap text-zinc-500">PRODUCTION OS</span>
           </div>
@@ -176,12 +176,12 @@ export default function Sidebar({
               className={clsx(
                 "relative flex items-center gap-3 pl-[11px] pr-3 py-2.5 rounded-lg transition-all duration-150 overflow-hidden",
                 isActive
-                  ? "text-orange-400 bg-orange-500/10 border border-orange-500/20"
+                  ? "text-blue-300 bg-blue-500/15 border border-blue-500/20"
                   : "text-zinc-400 hover:text-white hover:bg-white/8"
               )}
             >
               {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full" style={{ background: "#f97316", boxShadow: "0 0 8px rgba(249,115,22,0.6)" }} />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full" style={{ background: "#1957A6", boxShadow: "0 0 8px rgba(25,87,166,0.6)" }} />
               )}
               <span className="shrink-0 transition-all duration-150">
                 {item.icon}

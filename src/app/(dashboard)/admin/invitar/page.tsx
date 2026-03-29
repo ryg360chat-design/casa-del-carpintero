@@ -56,7 +56,7 @@ export default function InvitarUsuarioPage() {
                 placeholder="nombre@empresa.com"
                 required
                 className="w-full pl-9 pr-3 py-2.5 border border-zinc-200 rounded-xl text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 bg-white"
-                style={{ "--tw-ring-color": "#f97316" } as React.CSSProperties}
+                style={{ "--tw-ring-color": "#1957A6" } as React.CSSProperties}
               />
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function InvitarUsuarioPage() {
             type="submit"
             disabled={loading || !email}
             className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all press-effect disabled:opacity-40 flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}
+            style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
           >
             {loading ? (
               <>

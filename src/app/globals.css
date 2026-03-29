@@ -6,8 +6,13 @@
   --color-surface: #ffffff;
   --color-border: #e4e4e7;
   --color-muted: #71717a;
-  --color-accent: #f97316;
-  --color-accent-muted: rgba(249, 115, 22, 0.1);
+
+  /* ── CDC Brand Palette ───────────────────────────── */
+  --color-accent:       #1957A6; /* CDC Blue  */
+  --color-accent-muted: rgba(25, 87, 166, 0.1);
+  --color-cdc-coral:    #CC5238; /* Coral     */
+  --color-cdc-teal:     #267A8C; /* Teal      */
+  --color-cdc-sage:     #889B86; /* Sage      */
 }
 
 * {
@@ -253,9 +258,9 @@
   );
 }
 
-/* Accent (orange) button with glass shimmer */
+/* Accent (CDC blue) button with glass shimmer */
 .btn-accent {
-  background: #f97316;
+  background: #1957A6;
   position: relative;
   overflow: hidden;
 }
@@ -272,7 +277,7 @@
   pointer-events: none;
 }
 .btn-accent:hover {
-  background: #ea6c0a;
+  background: #1248A0;
 }
 .btn-accent:hover::before {
   background: linear-gradient(
@@ -290,9 +295,9 @@
   border-radius: 99px;
   font-size: 10px;
   font-weight: 600;
-  background: rgba(249, 115, 22, 0.08);
-  color: #ea580c;
-  border: 1px solid rgba(249, 115, 22, 0.18);
+  background: rgba(25, 87, 166, 0.07);
+  color: #1957A6;
+  border: 1px solid rgba(25, 87, 166, 0.18);
   letter-spacing: 0.01em;
 }
 

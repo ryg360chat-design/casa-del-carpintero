@@ -128,7 +128,7 @@ export default async function ReporteHistorialPage({
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
                   </Link>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                    <Link key={p} href={buildUrl(p)} className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${p === currentPage ? "text-white" : "text-zinc-600 hover:bg-zinc-200"}`} style={p === currentPage ? { background: "#f97316" } : {}}>
+                    <Link key={p} href={buildUrl(p)} className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${p === currentPage ? "text-white" : "text-zinc-600 hover:bg-zinc-200"}`} style={p === currentPage ? { background: "#1957A6" } : {}}>
                       {p}
                     </Link>
                   ))}

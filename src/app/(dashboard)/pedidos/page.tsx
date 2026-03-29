@@ -5,12 +5,12 @@ import PedidosFiltros from "@/components/PedidosFiltros";
 import { limaDate, limaTime } from "@/lib/time";
 
 const ESTADO_STYLE: Record<string, { bg: string; dot: string }> = {
-  "En cola":       { bg: "bg-zinc-100 text-zinc-500", dot: "bg-zinc-400" },
-  "En corte":      { bg: "bg-zinc-900 text-white", dot: "bg-white" },
-  "En tapacantos": { bg: "bg-zinc-700 text-white", dot: "bg-zinc-300" },
-  "Listo":         { bg: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
-  "Cancelado":     { bg: "bg-red-50 text-red-600", dot: "bg-red-500" },
-  "Pausado":       { bg: "bg-yellow-50 text-yellow-700", dot: "bg-yellow-500" },
+  "En cola":       { bg: "bg-slate-100 text-slate-600 border border-slate-200", dot: "bg-slate-400" },
+  "En corte":      { bg: "bg-blue-500 text-white", dot: "bg-blue-200" },
+  "En tapacantos": { bg: "bg-violet-500 text-white", dot: "bg-violet-200" },
+  "Listo":         { bg: "bg-emerald-500 text-white", dot: "bg-emerald-200" },
+  "Cancelado":     { bg: "bg-red-100 text-red-600 border border-red-200", dot: "bg-red-400" },
+  "Pausado":       { bg: "bg-amber-100 text-amber-700 border border-amber-200", dot: "bg-amber-400" },
 };
 
 const PAGE_SIZE = 15;
@@ -35,7 +35,7 @@ export default async function PedidosPage({
   // Build data query
   let dataQuery = supabase
     .from("pedidos")
-    .select("*, cliente:clientes(nombre)", { count: "exact" })
+    .select("*, cliente:clientes(nombre, codigo)", { count: "exact" })
     .order("fecha_ingreso", { ascending: false })
     .range(from, to);
   if (estado) dataQuery = dataQuery.eq("estado", estado);
@@ -155,16 +155,20 @@ export default async function PedidosPage({
                 const hora = entregaDate ? limaTime(entregaDate) : null;
                 const numero = String(from + i + 101).padStart(3, "0");
                 const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
+                const clienteCodigo = (p.cliente as Record<string, unknown>)?.codigo as string | null;
                 const isUrgente = p.prioridad === "urgente";
 
                 return (
                   <tr key={p.id as string} className="border-b border-zinc-50 hover:bg-zinc-50/80 transition-colors group">
                     <td className="px-3 py-3.5 text-xs text-zinc-400 font-mono">{numero}</td>
                     <td className="px-3 py-3.5">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-zinc-900 text-sm">{cliente}</span>
+                        {clienteCodigo && (
+                          <span className="font-mono text-[9px] font-bold text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">{clienteCodigo}</span>
+                        )}
                         {isUrgente && (
-                          <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded tracking-wide" style={{ background: "#f97316" }}>⚡</span>
+                          <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded tracking-wide" style={{ background: "linear-gradient(135deg,#f97316,#dc2626)" }}>⚡</span>
                         )}
                       </div>
                     </td>
@@ -258,7 +262,7 @@ export default async function PedidosPage({
                           ? "text-white"
                           : "text-zinc-600 hover:bg-zinc-200"
                       }`}
-                      style={p === currentPage ? { background: "#f97316" } : {}}
+                      style={p === currentPage ? { background: "#1957A6" } : {}}
                     >
                       {p}
                     </Link>
