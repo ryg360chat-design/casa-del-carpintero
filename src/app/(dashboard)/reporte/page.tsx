@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import ImprimirBtn from "@/components/ImprimirBtn";
 import GuardarReporteBtn from "@/components/GuardarReporteBtn";
+import AutoRefresh from "@/components/AutoRefresh";
 import { limaTime } from "@/lib/time";
 import Link from "next/link";
 
@@ -87,6 +88,11 @@ export default async function ReportePage() {
     totalMetros,
   };
 
+  // Auto-guardar snapshot del día en cada carga (upsert → nunca se pierde un día)
+  await supabase
+    .from("reportes_guardados")
+    .upsert({ fecha: hoy.toISOString().slice(0, 10), stats: statsHoy }, { onConflict: "fecha" });
+
   // ── Chart data (últimos 7 días) ───────────────────────────────────────
   const diasSemana = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(hace7dias);
@@ -137,6 +143,7 @@ export default async function ReportePage() {
 
   return (
     <>
+      <AutoRefresh intervalMs={30000} />
       <style>{`
         @media print {
           body { background: white !important; }
