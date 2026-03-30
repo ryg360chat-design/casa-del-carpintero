@@ -248,9 +248,9 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               {lineas.length > 1 && (
                 <div className="border-t border-zinc-200 pt-3 grid grid-cols-3 gap-3">
                   {[
-                    { label: "Total planchas", value: lineas.reduce((s: number, l) => s + Number((l as Record<string,unknown>).cant_planchas ?? 0), 0) },
-                    { label: "Total piezas", value: lineas.reduce((s: number, l) => s + Number((l as Record<string,unknown>).cant_piezas ?? 0), 0) },
-                    { label: "Total canto", value: `${lineas.reduce((s: number, l) => s + Number((l as Record<string,unknown>).metros_canto_delgado ?? 0) + Number((l as Record<string,unknown>).metros_canto_grueso ?? 0), 0).toFixed(1)} m` },
+                    { label: "Total planchas", value: lineas.reduce((s: number, l: Record<string,unknown>) => s + Number(l.cant_planchas ?? 0), 0) },
+                    { label: "Total piezas", value: lineas.reduce((s: number, l: Record<string,unknown>) => s + Number(l.cant_piezas ?? 0), 0) },
+                    { label: "Total canto", value: `${lineas.reduce((s: number, l: Record<string,unknown>) => s + Number(l.metros_canto_delgado ?? 0) + Number(l.metros_canto_grueso ?? 0), 0).toFixed(1)} m` },
                   ].map(({ label, value }) => (
                     <div key={label} className="bg-zinc-100 rounded-lg p-2 text-center">
                       <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wider">{label}</p>
