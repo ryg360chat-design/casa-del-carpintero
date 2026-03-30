@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Manual de Usuario — Casa del Carpintero Production OS</title>
+<style>
+  :root {
+    --blue:   #1957A6;
+    --teal:   #267A8C;
+    --coral:  #CC5238;
+    --sage:   #889B86;
+    --orange: #f97316;
+    --bg:     #f8f9fb;
+    --sidebar-w: 260px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: #1a1a2e; line-height: 1.6; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+    background: #0f172a; color: #cbd5e1; overflow-y: auto; z-index: 100;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-brand {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .sidebar-brand .logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 15px; color: #fff; margin-bottom: 10px;
+  }
+  .sidebar-brand h2 { font-size: 12px; font-weight: 800; color: #f1f5f9; letter-spacing: 0.05em; text-transform: uppercase; }
+  .sidebar-brand p  { font-size: 10px; color: #64748b; margin-top: 2px; }
+  .sidebar-search {
+    margin: 12px 14px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 7px 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-search input {
+    background: none; border: none; outline: none; color: #e2e8f0;
+    font-size: 12px; width: 100%; placeholder-color: #64748b;
+  }
+  .sidebar-search input::placeholder { color: #475569; }
+  .sidebar-section { padding: 8px 0; }
+  .sidebar-section-title {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: #475569; padding: 6px 20px 4px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px; font-size: 12.5px; color: #94a3b8;
+    cursor: pointer; border-left: 2px solid transparent;
+    transition: all 0.15s; text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
+  .nav-item.active { background: rgba(25,87,166,0.15); color: #93c5fd; border-left-color: var(--blue); }
+  .nav-item .icon { font-size: 14px; width: 18px; text-align: center; }
+  .sidebar-footer {
+    margin-top: auto; padding: 14px 20px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-size: 10px; color: #475569;
+  }
+
+  /* ── MAIN ── */
+  .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+  .hero {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+    color: white; padding: 60px 56px 48px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .hero h1 { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+  .hero p  { font-size: 16px; opacity: 0.85; max-width: 560px; }
+  .hero-meta { display: flex; gap: 32px; margin-top: 32px; }
+  .hero-meta div { font-size: 12px; opacity: 0.7; }
+  .hero-meta strong { display: block; font-size: 22px; font-weight: 800; opacity: 1; }
+
+  .content { padding: 48px 56px; max-width: 960px; }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 64px; scroll-margin-top: 24px; }
+  .section-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+    padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;
+  }
+  .section-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 22px; font-weight: 800; color: #0f172a; }
+  .section-header p  { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+    padding: 24px; margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .card p, .card li { font-size: 13.5px; color: #475569; line-height: 1.7; }
+  .card ul, .card ol { padding-left: 20px; }
+  .card li { margin-bottom: 4px; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── BADGES / CHIPS ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    border: 1px solid transparent;
+  }
+  .badge-blue   { background: #eff6ff; color: var(--blue);   border-color: #bfdbfe; }
+  .badge-teal   { background: #f0fdf9; color: var(--teal);   border-color: #99f6e4; }
+  .badge-coral  { background: #fff1ee; color: var(--coral);  border-color: #fecaca; }
+  .badge-orange { background: #fff7ed; color: var(--orange); border-color: #fed7aa; }
+  .badge-green  { background: #f0fdf4; color: #16a34a;       border-color: #bbf7d0; }
+  .badge-zinc   { background: #f4f4f5; color: #52525b;       border-color: #d4d4d8; }
+  .badge-purple { background: #faf5ff; color: #7c3aed;       border-color: #ddd6fe; }
+  .badge-amber  { background: #fffbeb; color: #d97706;       border-color: #fde68a; }
+
+  /* ── ROLE TABLE ── */
+  .role-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .role-table th {
+    background: #f8fafc; color: #64748b; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 10px 14px; text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .role-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #374151; }
+  .role-table tr:last-child td { border-bottom: none; }
+  .role-table tr:hover td { background: #f8fafc; }
+  .check { color: #16a34a; font-size: 14px; }
+  .cross { color: #dc2626; font-size: 14px; }
+
+  /* ── STATE FLOW ── */
+  .state-flow { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+  .state-node {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .state-circle {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; border: 2px solid;
+  }
+  .state-label { font-size: 11px; font-weight: 600; color: #475569; text-align: center; max-width: 64px; }
+  .state-arrow { font-size: 20px; color: #94a3b8; margin: 0 4px; padding-bottom: 20px; }
+
+  /* ── STEP BOXES ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff;
+    font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content h4 { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+  .step-content p  { font-size: 13px; color: #64748b; }
+
+  /* ── TIP BOX ── */
+  .tip {
+    display: flex; gap: 12px; background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 10px; padding: 14px 16px; margin: 16px 0;
+  }
+  .tip-icon { font-size: 18px; flex-shrink: 0; }
+  .tip p { font-size: 13px; color: #1d4ed8; line-height: 1.6; }
+  .tip strong { display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px; color: #1e40af; }
+
+  .warning {
+    display: flex; gap: 12px; background: #fff7ed; border: 1px solid #fed7aa;
+    border-radius: 10px; padding: 14px 16px; margin: 16px 0;
+  }
+  .warning p { font-size: 13px; color: #c2410c; }
+  .warning strong { display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px; color: #9a3412; }
+
+  /* ── ACCORDION ── */
+  .accordion { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+  .accordion-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; background: #fff; cursor: pointer;
+    font-size: 13.5px; font-weight: 600; color: #0f172a;
+    user-select: none; transition: background 0.15s;
+  }
+  .accordion-header:hover { background: #f8fafc; }
+  .accordion-header .chevron { transition: transform 0.2s; font-size: 12px; color: #94a3b8; }
+  .accordion-header.open .chevron { transform: rotate(180deg); }
+  .accordion-body { display: none; padding: 0 20px 20px; font-size: 13px; color: #475569; line-height: 1.7; border-top: 1px solid #f1f5f9; }
+  .accordion-body.open { display: block; }
+  .accordion-body ul { padding-left: 18px; margin-top: 10px; }
+  .accordion-body li { margin-bottom: 5px; }
+
+  /* ── MOCK UI ── */
+  .mock-ui {
+    background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 20px; margin: 16px 0; font-family: monospace;
+  }
+  .mock-topbar {
+    background: #fff; border-radius: 8px; padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; border: 1px solid #e2e8f0;
+  }
+  .mock-stat {
+    background: #fff; border-radius: 8px; padding: 14px 16px; border: 1px solid #e2e8f0;
+    text-align: center;
+  }
+  .mock-stat .val { font-size: 24px; font-weight: 800; color: #0f172a; font-family: -apple-system, sans-serif; }
+  .mock-stat .lbl { font-size: 10px; color: #94a3b8; font-family: -apple-system, sans-serif; margin-top: 2px; }
+  .mock-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: -apple-system, sans-serif; }
+
+  /* ── KEYBOARD ── */
+  kbd {
+    display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1;
+    border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace;
+    box-shadow: 0 1px 0 #cbd5e1; color: #374151;
+  }
+
+  /* ── SCROLLBAR ── */
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+  /* ── PRINT ── */
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero { padding: 32px; }
+    .content { padding: 24px; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero { padding: 32px 24px; }
+    .content { padding: 24px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .hero-meta { flex-wrap: wrap; gap: 16px; }
+  }
+
+  /* ── HIGHLIGHT ── */
+  mark { background: #fef9c3; border-radius: 3px; padding: 1px 4px; }
+  code { background: #f1f5f9; border-radius: 4px; padding: 2px 6px; font-size: 12px; color: #0f172a; font-family: monospace; }
+
+  /* Progress bar mock */
+  .prog-track { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .prog-fill   { height: 100%; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ SIDEBAR ══════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">CC</div>
+    <h2>Casa del Carpintero</h2>
+    <p>Manual de Usuario · v1.0</p>
+  </div>
+
+  <div class="sidebar-search">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="Buscar en el manual..." oninput="filterNav(this.value)" />
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Introducción</div>
+    <a class="nav-item active" onclick="scrollTo('inicio')"><span class="icon">🏠</span> Inicio</a>
+    <a class="nav-item" onclick="scrollTo('roles')"><span class="icon">👥</span> Roles y permisos</a>
+    <a class="nav-item" onclick="scrollTo('acceso')"><span class="icon">🔐</span> Acceso al sistema</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Módulos principales</div>
+    <a class="nav-item" onclick="scrollTo('dashboard')"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" onclick="scrollTo('pedidos')"><span class="icon">📋</span> Pedidos</a>
+    <a class="nav-item" onclick="scrollTo('nuevo-pedido')"><span class="icon">➕</span> Crear pedido</a>
+    <a class="nav-item" onclick="scrollTo('produccion')"><span class="icon">⚙️</span> Producción</a>
+    <a class="nav-item" onclick="scrollTo('calendario')"><span class="icon">📅</span> Calendario</a>
+    <a class="nav-item" onclick="scrollTo('reporte')"><span class="icon">📈</span> Reporte</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Administración</div>
+    <a class="nav-item" onclick="scrollTo('ajustes')"><span class="icon">⚙️</span> Ajustes</a>
+    <a class="nav-item" onclick="scrollTo('admin')"><span class="icon">👤</span> Usuarios</a>
+    <a class="nav-item" onclick="scrollTo('seguimiento')"><span class="icon">🔍</span> Seguimiento</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Referencia</div>
+    <a class="nav-item" onclick="scrollTo('estados')"><span class="icon">🔄</span> Estados del pedido</a>
+    <a class="nav-item" onclick="scrollTo('faq')"><span class="icon">❓</span> Preguntas frecuentes</a>
+  </div>
+
+  <div class="sidebar-footer">
+    Comercial Casa del Carpintero SAC<br/>
+    Production OS · Versión 1.0 · 2025
+  </div>
+</nav>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero" id="inicio">
+    <div class="hero-badge">📖 Documentación oficial</div>
+    <h1>Manual de Usuario<br/>Production OS</h1>
+    <p>Guía completa para gestionar pedidos, producción y reportes en la herramienta digital de Casa del Carpintero.</p>
+    <div class="hero-meta">
+      <div><strong>5</strong> módulos principales</div>
+      <div><strong>6</strong> roles de usuario</div>
+      <div><strong>4</strong> estados de pedido</div>
+      <div><strong>2</strong> máquinas de corte</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════ RESUMEN ══════════ -->
+    <div class="section">
+      <div class="grid-3">
+        <div class="card" style="border-top: 3px solid var(--blue);">
+          <h3>📋 Gestión de pedidos</h3>
+          <p>Crea, sigue y completa pedidos con múltiples materiales. El sistema calcula automáticamente el tiempo de entrega.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--teal);">
+          <h3>⚙️ Control de producción</h3>
+          <p>Visualiza la cola de cada máquina en tiempo real. Avanza estados desde la planta de producción.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--coral);">
+          <h3>📈 Reportes automáticos</h3>
+          <p>El sistema guarda los datos de cada día automáticamente. Genera PDFs con gráficas de productividad.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ROLES ══════════ -->
+    <div class="section" id="roles">
+      <div class="section-header">
+        <div class="section-icon" style="background:#eff6ff;">👥</div>
+        <div>
+          <h2>Roles y permisos</h2>
+          <p>Cada usuario tiene un rol que determina qué puede hacer en el sistema</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <table class="role-table">
+          <thead>
+            <tr>
+              <th>Rol</th>
+              <th>Crear pedidos</th>
+              <th>Avanzar estados</th>
+              <th>Ver reportes</th>
+              <th>Ajustes</th>
+              <th>Invitar usuarios</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-purple">🛠 Desarrollador</span></td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-blue">👑 Administrador</span></td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-teal">🛒 Ventas</span></td>
+              <td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-orange">⚙️ Producción</span></td>
+              <td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-sage" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;">📦 Almacenes</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-zinc">👁 Visualizador</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tip">
+        <div class="tip-icon">💡</div>
+        <p><strong>¿Cómo sé mi rol?</strong> Aparece en la parte inferior del sidebar izquierdo junto a tu nombre de usuario.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ ACCESO ══════════ -->
+    <div class="section" id="acceso">
+      <div class="section-header">
+        <div class="section-icon" style="background:#faf5ff;">🔐</div>
+        <div>
+          <h2>Acceso al sistema</h2>
+          <p>Cómo iniciar sesión y cerrar sesión correctamente</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🚀 Iniciar sesión</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Abre la aplicación</h4>
+                <p>Ingresa a la URL del sistema. Serás redirigido al login automáticamente.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Ingresa tus credenciales</h4>
+                <p>Email y contraseña proporcionados por el administrador.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>Acceso automático</h4>
+                <p>El sistema te redirige al dashboard según tu rol.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🚪 Cerrar sesión</h3>
+          <p>Para cerrar sesión de forma segura:</p>
+          <ul style="margin-top: 12px;">
+            <li>Haz clic en el botón <strong>"Salir"</strong> al final del sidebar izquierdo</li>
+            <li>Espera la confirmación y serás redirigido al login</li>
+            <li>No cierres la pestaña sin cerrar sesión en equipos compartidos</li>
+          </ul>
+          <div class="warning" style="margin-top: 14px;">
+            <div class="tip-icon">⚠️</div>
+            <p><strong>En equipos compartidos</strong> siempre cierra sesión al terminar tu turno.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ DASHBOARD ══════════ -->
+    <div class="section" id="dashboard">
+      <div class="section-header">
+        <div class="section-icon" style="background:#eff6ff;">📊</div>
+        <div>
+          <h2>Dashboard</h2>
+          <p>Vista general en tiempo real de toda la operación del día</p>
+        </div>
+      </div>
+
+      <!-- Mock UI -->
+      <div class="mock-ui">
+        <div class="mock-topbar">
+          <span style="font-family:sans-serif;font-size:13px;font-weight:700;">Buenos días, Juan ☀️ — Turno mañana</span>
+          <span style="font-family:sans-serif;font-size:12px;color:#94a3b8;">08:32 AM</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;">
+          <div class="mock-stat"><div class="val" style="color:#1957A6;">12</div><div class="lbl">Pedidos hoy</div></div>
+          <div class="mock-stat"><div class="val" style="color:#CC5238;">5</div><div class="lbl">En cola</div></div>
+          <div class="mock-stat"><div class="val" style="color:#267A8C;">3</div><div class="lbl">En corte</div></div>
+          <div class="mock-stat"><div class="val" style="color:#16a34a;">4</div><div class="lbl">Listos</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;padding:12px;">
+            <div style="font-family:sans-serif;font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">⚙️ MÁQUINA M1 · 2 activos</div>
+            <div style="background:#f8fafc;border-radius:6px;padding:10px;margin-bottom:6px;font-family:sans-serif;font-size:12px;">
+              <div style="font-weight:700;">Empresa Pérez SAC</div>
+              <div style="color:#64748b;font-size:11px;">Melamina 18mm · 10 planchas</div>
+              <div class="prog-track"><div class="prog-fill" style="width:50%;background:#267A8C;"></div></div>
+              <span class="mock-badge" style="background:#dbeafe;color:#1957A6;margin-top:6px;display:inline-block;">En corte</span>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;padding:12px;">
+            <div style="font-family:sans-serif;font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">⚙️ MÁQUINA M2 · 1 activo</div>
+            <div style="background:#f8fafc;border-radius:6px;padding:10px;font-family:sans-serif;font-size:12px;">
+              <div style="font-weight:700;">Mueblería López</div>
+              <div style="color:#64748b;font-size:11px;">MDF 15mm · 5 planchas</div>
+              <div class="prog-track"><div class="prog-fill" style="width:25%;background:#CC5238;"></div></div>
+              <span class="mock-badge" style="background:#f4f4f5;color:#52525b;margin-top:6px;display:inline-block;">En cola</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>📊 Tarjetas de estadísticas</h3>
+          <ul>
+            <li><strong>Pedidos hoy</strong> — Total ingresados en el día</li>
+            <li><strong>En cola</strong> — Esperando inicio de corte</li>
+            <li><strong>En corte</strong> — Actualmente en máquina</li>
+            <li><strong>Listos</strong> — Completados hoy</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚙️ Columnas de máquinas</h3>
+          <ul>
+            <li>Muestra <strong>M1 y M2</strong> en paralelo</li>
+            <li>Cada tarjeta muestra cliente, material, cantidades</li>
+            <li>Barra de progreso visual por estado</li>
+            <li>Badges de <span class="badge badge-coral">⚡ URGENTE</span> y <span class="badge badge-amber">★ VIP</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip">
+        <div class="tip-icon">🔄</div>
+        <p><strong>Actualización automática</strong> El dashboard se actualiza solo cada 30 segundos. No hace falta recargar la página.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ PEDIDOS ══════════ -->
+    <div class="section" id="pedidos">
+      <div class="section-header">
+        <div class="section-icon" style="background:#f0fdf9;">📋</div>
+        <div>
+          <h2>Lista de pedidos</h2>
+          <p>Visualiza, filtra y gestiona todos los pedidos del sistema</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔍 Filtros disponibles</h3>
+        <div class="grid-3" style="margin-top:12px;">
+          <div style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0;">
+            <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;">BÚSQUEDA</div>
+            <p style="font-size:12px;">Por nombre de cliente o tipo de material</p>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0;">
+            <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;">ESTADO</div>
+            <p style="font-size:12px;">En cola, En corte, En tapacantos, Listo, Cancelado</p>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0;">
+            <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;">MÁQUINA</div>
+            <p style="font-size:12px;">Filtrar por M1 o M2</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📄 Columnas de la tabla</h3>
+        <ul>
+          <li><strong>#</strong> — Número correlativo del pedido</li>
+          <li><strong>Cliente</strong> — Nombre + código si tiene</li>
+          <li><strong>Material</strong> — Tipo de tablero principal</li>
+          <li><strong>Planchas / Piezas</strong> — Cantidades</li>
+          <li><strong>Máquina</strong> — M1 o M2 asignada</li>
+          <li><strong>Estado</strong> — Badge con color de estado actual</li>
+          <li><strong>Entrega</strong> — Fecha y hora estimada</li>
+          <li><strong>Acción</strong> — Enlace para ver el detalle completo</li>
+        </ul>
+      </div>
+
+      <div class="tip">
+        <div class="tip-icon">📄</div>
+        <p><strong>Paginación</strong> Se muestran 15 pedidos por página. Usa los botones de paginación en la parte inferior para navegar.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ NUEVO PEDIDO ══════════ -->
+    <div class="section" id="nuevo-pedido">
+      <div class="section-header">
+        <div class="section-icon" style="background:#eff6ff;">➕</div>
+        <div>
+          <h2>Crear un nuevo pedido</h2>
+          <p>Formulario de 4 pasos para registrar un pedido completo</p>
+        </div>
+      </div>
+
+      <div class="warning">
+        <div class="tip-icon">⚠️</div>
+        <p><strong>Roles requeridos:</strong> Solo <span class="badge badge-purple">Desarrollador</span> <span class="badge badge-blue">Administrador</span> <span class="badge badge-teal">Ventas</span> pueden crear pedidos.</p>
+      </div>
+
+      <!-- Steps -->
+      <div class="grid-2" style="gap:16px;">
+        <div class="card" style="border-left: 4px solid var(--blue);">
+          <h3><span style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</span> Cliente y Área</h3>
+          <ul>
+            <li><strong>Nombre del cliente</strong> — Campo con búsqueda automática. Si no existe, se crea al guardar.</li>
+            <li><strong>Área solicitante</strong> — Ventas, Producción, Almacenes, Cortes especiales, Administración, Logística</li>
+          </ul>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--teal);">
+          <h3><span style="background:var(--teal);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">2</span> Materiales</h3>
+          <ul>
+            <li><strong>Múltiples materiales</strong> — Puedes agregar varios materiales distintos en un mismo pedido</li>
+            <li>Por cada línea: tipo, marca, espesor, color, planchas, piezas, metros de canto delgado y grueso</li>
+            <li>Los totales se calculan automáticamente</li>
+          </ul>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--coral);">
+          <h3><span style="background:var(--coral);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">3</span> Servicios adicionales</h3>
+          <ul>
+            <li><strong>Ranuras</strong> — Fresado para ranuras</li>
+            <li><strong>Perforaciones</strong> — Taladrado de piezas</li>
+            <li><strong>Corte 45°</strong> — Bisel en bordes</li>
+            <li><strong>Corte especial</strong> — Indica el detalle en el campo de texto</li>
+          </ul>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--sage);">
+          <h3><span style="background:var(--sage);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">4</span> Prioridad y Turno</h3>
+          <ul>
+            <li><span class="badge badge-zinc">Normal</span> — Ingresa al final de la cola</li>
+            <li><span class="badge badge-coral">⚡ Urgente</span> — Marcado con badge rojo</li>
+            <li><span class="badge badge-amber">★ VIP</span> — Marcado con badge dorado</li>
+            <li><strong>Turno</strong> — Mañana, Tarde o Auto (detecta el turno actual)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 8px;">
+        <h3>🕐 Cálculo automático de entrega</h3>
+        <p>El sistema calcula la fecha y hora de entrega estimada considerando:</p>
+        <ul style="margin-top: 10px;">
+          <li>Velocidad base: <strong>6 planchas por hora</strong></li>
+          <li>+1 hora si tiene ranuras, +1 hora si tiene canto, +30 min si tiene cortes especiales</li>
+          <li>Espera en cola: <strong>2 horas por cada pedido delante</strong> en la misma máquina</li>
+          <li>Excluye automáticamente el horario de almuerzo (12:00–13:00) y fines de semana</li>
+          <li>Asigna automáticamente la máquina con <strong>menor carga</strong></li>
+        </ul>
+      </div>
+
+      <!-- Material types accordion -->
+      <div style="margin-top: 20px;">
+        <p style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 10px;">Tipos de tablero disponibles:</p>
+
+        <div class="accordion">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🪵 Melamina</span><span class="chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            Tablero aglomerado recubierto con película melamínica. Es el más común en la producción.<br/>
+            <ul>
+              <li>Marcas: Arauco, Masisa, Novopan, Vesto, Álamo, Fibranova, Otro</li>
+              <li>Espesores: 2.5 · 9 · 11 · 12 · 15 · 18 · 25 · 30 mm</li>
+              <li>Describir el color en el campo "Color / Referencia"</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🟫 MDF</span><span class="chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            Fibra de densidad media. Superficie lisa, ideal para pintar o lacar.<br/>
+            <ul>
+              <li>Marcas: Arauco, Masisa, Fibranova, Otro</li>
+              <li>Espesores: 2.5 · 9 · 12 · 15 · 18 · 25 mm</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📦 Triplay / OSB / Laminados / Aglomerado / Otros</span><span class="chevron">▼</span>
+          </div>
+          <div class="accordion-body">
+            Materiales alternativos para usos específicos. Cada uno tiene sus propias opciones de marca y espesor disponibles en el formulario.
+          </div>
+        </div>
+      </div>
+
+      <div class="tip" style="margin-top: 16px;">
+        <div class="tip-icon">💡</div>
+        <p><strong>Múltiples materiales</strong> Si el pedido incluye tipos de tablero diferentes (ej. melamina + MDF), usa el botón <mark>+ Agregar material</mark> para añadir otra línea. Los totales de planchas y piezas se suman automáticamente.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ DETALLE PEDIDO ══════════ -->
+    <div class="section" id="detalle-pedido">
+      <div class="section-header">
+        <div class="section-icon" style="background:#f0fdf4;">🔎</div>
+        <div>
+          <h2>Detalle del pedido</h2>
+          <p>Vista completa de un pedido individual con todas sus líneas y acciones</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>📌 Información principal</h3>
+          <ul>
+            <li>Nombre del cliente y código CDC</li>
+            <li>Badges de prioridad y área</li>
+            <li>Fecha de ingreso y hora</li>
+            <li>Máquina asignada</li>
+            <li>Estado actual con stepper visual</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📦 Sección de materiales</h3>
+          <ul>
+            <li>Muestra <strong>todas las líneas</strong> de material del pedido</li>
+            <li>Si tiene múltiples materiales, aparece badge <span class="badge badge-blue">X materiales</span></li>
+            <li>Fila de totales (planchas, piezas, canto) al final</li>
+            <li>Pedidos antiguos muestran el formato legacy</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🔄 Avanzar estado</h3>
+          <ul>
+            <li>Botón disponible solo para <span class="badge badge-blue">Administrador</span> y <span class="badge badge-orange">Producción</span></li>
+            <li>Sigue el flujo: Cola → Corte → Tapacantos → Listo</li>
+            <li>Al llegar a Listo se registra la fecha real de entrega</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📜 Historial de cambios</h3>
+          <ul>
+            <li>Registro cronológico de todos los cambios de estado</li>
+            <li>Muestra fecha, hora y transición realizada</li>
+            <li>No se puede editar (solo lectura)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PRODUCCION ══════════ -->
+    <div class="section" id="produccion">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fff7ed;">⚙️</div>
+        <div>
+          <h2>Producción</h2>
+          <p>Vista de planta en tiempo real para el equipo de corte</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📐 Diseño en dos columnas</h3>
+        <p>La pantalla se divide en dos columnas, una por máquina:</p>
+        <div class="grid-2" style="margin-top: 14px;">
+          <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px;">
+            <div style="font-size:11px;font-weight:700;color:#0369a1;margin-bottom:6px;">⚙️ MÁQUINA M1</div>
+            <p style="font-size:12px;color:#0c4a6e;">Enchapadora delgada → Sierra circular 1</p>
+            <p style="font-size:12px;color:#0c4a6e;">Muestra todos los pedidos no completados asignados a M1, ordenados por prioridad y hora de ingreso.</p>
+          </div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;">
+            <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;">⚙️ MÁQUINA M2</div>
+            <p style="font-size:12px;color:#14532d;">Sierra circular 2 → Enchapadora gruesa</p>
+            <p style="font-size:12px;color:#14532d;">Cola independiente de M2 con los mismos controles de estado.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🎯 Flujo recomendado para el operador</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Al iniciar el turno</h4>
+              <p>Abre la pantalla de Producción. Verifica los pedidos en cola asignados a tu máquina.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Al comenzar un pedido</h4>
+              <p>Haz clic en <mark>Avanzar estado</mark> para cambiar de "En cola" a "En corte".</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Al terminar el corte</h4>
+              <p>Vuelve a avanzar a "En tapacantos". El pedido pasa a la enchapadora.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>Al completar</h4>
+              <p>Avanza a "Listo". El sistema registra la hora de entrega real automáticamente.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ CALENDARIO ══════════ -->
+    <div class="section" id="calendario">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fdf4ff;">📅</div>
+        <div>
+          <h2>Calendario</h2>
+          <p>Vista de entregas agrupadas por fecha</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>📅 Qué muestra</h3>
+          <ul>
+            <li>Pedidos agrupados por fecha estimada de entrega</li>
+            <li>Stats: pendientes, entregas hoy, listos hoy, mañana</li>
+            <li>Pedidos sin fecha de entrega en sección separada</li>
+            <li>No muestra pedidos cancelados</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>💼 Para el área de Ventas</h3>
+          <ul>
+            <li>Usa este módulo para dar fechas exactas a los clientes</li>
+            <li>Identifica fácilmente qué pedidos están listos para entrega</li>
+            <li>Planifica la logística de despacho por día</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ REPORTE ══════════ -->
+    <div class="section" id="reporte">
+      <div class="section-header">
+        <div class="section-icon" style="background:#f0fdf4;">📈</div>
+        <div>
+          <h2>Reporte de producción</h2>
+          <p>Analítica diaria y semanal con gráficas, métricas y exportación PDF</p>
+        </div>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--teal);">
+        <h3>🔄 Actualización automática</h3>
+        <p>El reporte se actualiza <strong>cada 30 segundos</strong> automáticamente. Además, cada vez que se abre la página, los datos del día se guardan automáticamente en Supabase para el historial permanente.</p>
+      </div>
+
+      <div class="grid-2" style="margin-top: 4px;">
+        <div class="card">
+          <h3>📊 Gauges de carga</h3>
+          <p>Dos círculos de progreso muestran el porcentaje de carga actual de M1 y M2 en tiempo real.</p>
+          <ul style="margin-top: 8px;">
+            <li>0–33% → Carga baja (verde)</li>
+            <li>34–66% → Carga media (amarillo)</li>
+            <li>67–100% → Carga alta (rojo)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📉 Gráfico de barras 7 días</h3>
+          <p>Comparativo de pedidos completados por M1 y M2 en los últimos 7 días.</p>
+          <ul style="margin-top: 8px;">
+            <li>Barras azules = M1</li>
+            <li>Barras teal = M2</li>
+            <li>Día actual resaltado</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📋 Tabla de productividad</h3>
+          <ul>
+            <li>Pedidos completados por máquina</li>
+            <li>Promedio diario</li>
+            <li>Total de planchas y piezas</li>
+            <li>Barras de progreso visuales</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🖨 Exportar PDF</h3>
+          <ul>
+            <li>Botón <mark>Imprimir / PDF</mark> en la parte superior del reporte</li>
+            <li>Formato A4, optimizado para impresión</li>
+            <li>Incluye gauges, gráfico de barras y todas las tablas</li>
+            <li>Oculta controles de la interfaz automáticamente</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip">
+        <div class="tip-icon">💾</div>
+        <p><strong>Historial de reportes</strong> Accede a los reportes guardados en <mark>Reporte → Historial</mark>. Cada día queda guardado automáticamente.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ AJUSTES ══════════ -->
+    <div class="section" id="ajustes">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fafafa;">⚙️</div>
+        <div>
+          <h2>Ajustes</h2>
+          <p>Configuración del sistema y gestión de máquinas</p>
+        </div>
+      </div>
+
+      <div class="warning">
+        <div class="tip-icon">⚠️</div>
+        <p><strong>Solo Administrador y Desarrollador</strong> pueden acceder a los ajustes del sistema.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>⚙️ Control de máquinas</h3>
+          <ul>
+            <li>Activa o desactiva M1 y M2 individualmente</li>
+            <li>Una máquina inactiva no recibirá nuevos pedidos</li>
+            <li>El cambio es inmediato y se refleja en toda la app</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🔗 Link de seguimiento</h3>
+          <ul>
+            <li>Copia el enlace público de seguimiento para clientes</li>
+            <li>Los clientes pueden buscar su pedido por nombre o teléfono</li>
+            <li>No requiere login para acceder</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ADMIN ══════════ -->
+    <div class="section" id="admin">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fdf4ff;">👤</div>
+        <div>
+          <h2>Gestión de usuarios</h2>
+          <p>Invitar nuevos usuarios al sistema</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>✉️ Invitar un nuevo usuario</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Ve a Ajustes → Invitar usuario</h4>
+              <p>Solo visible para Administradores y Desarrolladores.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Ingresa el email corporativo</h4>
+              <p>El sistema enviará un correo de invitación automáticamente.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>El usuario recibe el email</h4>
+              <p>Debe hacer clic en el enlace para activar su cuenta y establecer contraseña.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>Asignar rol</h4>
+              <p>Contacta al administrador de la base de datos para asignar el rol correcto al nuevo usuario.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ SEGUIMIENTO ══════════ -->
+    <div class="section" id="seguimiento">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fff7ed;">🔍</div>
+        <div>
+          <h2>Seguimiento para clientes</h2>
+          <p>Portal público sin login para que los clientes consulten su pedido</p>
+        </div>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--orange);">
+        <h3>🌐 Acceso público</h3>
+        <p>Esta pantalla <strong>no requiere login</strong>. Comparte el enlace directamente con tus clientes por WhatsApp o correo.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🔍 Cómo buscar</h3>
+          <ul>
+            <li>El cliente ingresa su <strong>nombre</strong> o <strong>número de teléfono</strong></li>
+            <li>Aparecen todos sus pedidos activos</li>
+            <li>Muestra estado actual con stepper visual</li>
+            <li>Fecha y hora estimada de entrega</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>📱 Información que ve el cliente</h3>
+          <ul>
+            <li>Número de pedido y estado actual</li>
+            <li>Progreso: Recibido → En corte → En tapacantos → Listo</li>
+            <li>Material y marca del tablero</li>
+            <li>Fecha de entrega estimada</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip">
+        <div class="tip-icon">📲</div>
+        <p><strong>Comparte el enlace</strong> desde Ajustes → "Copiar link de seguimiento". Puedes incluirlo en mensajes automáticos de WhatsApp al confirmar un pedido.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ ESTADOS ══════════ -->
+    <div class="section" id="estados">
+      <div class="section-header">
+        <div class="section-icon" style="background:#f0f9ff;">🔄</div>
+        <div>
+          <h2>Estados del pedido</h2>
+          <p>Flujo de vida de un pedido desde su ingreso hasta la entrega</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="state-flow">
+          <div class="state-node">
+            <div class="state-circle" style="background:#f4f4f5;border-color:#a1a1aa;color:#71717a;">📥</div>
+            <div class="state-label">En cola</div>
+          </div>
+          <div class="state-arrow">→</div>
+          <div class="state-node">
+            <div class="state-circle" style="background:#dbeafe;border-color:#3b82f6;color:#1d4ed8;">✂️</div>
+            <div class="state-label">En corte</div>
+          </div>
+          <div class="state-arrow">→</div>
+          <div class="state-node">
+            <div class="state-circle" style="background:#ede9fe;border-color:#7c3aed;color:#5b21b6;">🔲</div>
+            <div class="state-label">En tapacantos</div>
+          </div>
+          <div class="state-arrow">→</div>
+          <div class="state-node">
+            <div class="state-circle" style="background:#d1fae5;border-color:#16a34a;color:#15803d;">✅</div>
+            <div class="state-label">Listo</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #64748b;">
+            <div class="state-circle" style="background:#fee2e2;border-color:#dc2626;color:#dc2626;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid;font-size:13px;">✗</div>
+            <span><strong style="color:#374151;">Cancelado</strong> — Puede ocurrir desde cualquier estado activo. Solo Administrador y Ventas pueden cancelar.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 4px;">
+        <div class="card">
+          <h3>📋 En cola</h3>
+          <p>El pedido fue registrado y espera ser procesado. Aparece en la cola de la máquina asignada ordenado por prioridad.</p>
+          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:20%;background:#a1a1aa;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">20% progreso</p></div>
+        </div>
+        <div class="card">
+          <h3>✂️ En corte</h3>
+          <p>El operador inició el corte en la sierra circular. El pedido está siendo procesado activamente en la máquina asignada.</p>
+          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:50%;background:#3b82f6;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">50% progreso</p></div>
+        </div>
+        <div class="card">
+          <h3>🔲 En tapacantos</h3>
+          <p>El corte terminó y las piezas están pasando por la enchapadora para aplicar el canto de PVC o ABS.</p>
+          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:78%;background:#7c3aed;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">78% progreso</p></div>
+        </div>
+        <div class="card">
+          <h3>✅ Listo</h3>
+          <p>El pedido está completo y disponible para entrega. Se registra automáticamente la hora exacta de finalización.</p>
+          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:100%;background:#16a34a;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">100% completado</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ FAQ ══════════ -->
+    <div class="section" id="faq">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fffbeb;">❓</div>
+        <div>
+          <h2>Preguntas frecuentes</h2>
+          <p>Soluciones a los problemas más comunes</p>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Cómo cambio el estado de un pedido?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          Abre el pedido desde la lista o desde la pantalla de Producción, luego haz clic en el botón <mark>Avanzar estado</mark>. Este botón solo está disponible para usuarios con rol <strong>Producción</strong> o <strong>Administrador</strong>.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Puedo editar un pedido después de crearlo?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          Actualmente el sistema no permite editar pedidos una vez registrados. Si hay un error, cancela el pedido y créalo de nuevo. Los pedidos cancelados quedan en el historial para referencia.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Por qué no aparece el botón "Nuevo Pedido"?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          El botón solo es visible para los roles <strong>Ventas</strong>, <strong>Administrador</strong> y <strong>Desarrollador</strong>. Si eres Producción o Almacenes, no tendrás acceso a crear pedidos. Contacta al administrador si necesitas cambiar tu rol.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Cómo sé a qué máquina se asignó un pedido?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          El sistema asigna automáticamente la máquina con menor carga al crear el pedido. Puedes ver la máquina asignada:
+          <ul>
+            <li>En la columna "Máquina" de la lista de pedidos</li>
+            <li>En el detalle del pedido, junto a la fecha de ingreso</li>
+            <li>En la pantalla de Producción (cada columna es una máquina)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Cómo busca el cliente su pedido?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          Comparte el enlace de seguimiento desde <strong>Ajustes → Copiar link</strong>. El cliente entra a esa URL y escribe su nombre o teléfono. No necesita crear cuenta ni ingresar contraseña.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Cada cuánto se actualizan los datos?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul>
+            <li><strong>Dashboard y Producción</strong> — En tiempo real mediante Supabase Realtime</li>
+            <li><strong>Reporte</strong> — Cada 30 segundos automáticamente</li>
+            <li><strong>Lista de pedidos y Calendario</strong> — Al navegar o recargar la página</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Qué pasa si cierro la ventana del reporte?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          No pasa nada. El reporte del día ya fue guardado automáticamente en Supabase la primera vez que abriste la página. Puedes acceder al historial completo en <mark>Reporte → Historial</mark>.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Puedo agregar más de un material a un pedido?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          Sí. En el formulario de nuevo pedido, en el paso "Materiales", usa el botón <mark>+ Agregar material</mark> para añadir líneas adicionales. Cada línea puede tener un tipo de tablero, marca, espesor y cantidades diferentes. Los totales se calculan automáticamente.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿Cómo cancelo un pedido?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          Abre el detalle del pedido. Si el pedido está activo (En cola, En corte, En tapacantos), verás el botón <mark>Cancelar pedido</mark> en rojo. Solo <strong>Administrador</strong> y <strong>Ventas</strong> pueden cancelar. Un pedido cancelado no se puede reactivar.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>¿El código CDC del cliente se asigna automáticamente?</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          Sí. Al crear un cliente nuevo en el sistema, se le asigna automáticamente un código correlativo con el formato <code>CDC-001</code>, <code>CDC-002</code>, etc. Este código aparece junto al nombre del cliente en toda la app.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ FOOTER ══════════ -->
+    <div style="border-top: 1px solid #e2e8f0; padding-top: 32px; margin-top: 16px; text-align: center;">
+      <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1957A6,#267A8C);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;">CC</div>
+        <div style="text-align:left;">
+          <div style="font-size:12px;font-weight:700;color:#0f172a;">Casa del Carpintero</div>
+          <div style="font-size:11px;color:#94a3b8;">Production OS · Manual de Usuario</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#94a3b8;">Comercial Casa del Carpintero SAC · Versión 1.0 · 2025</p>
+      <p style="font-size:11px;color:#cbd5e1;margin-top:6px;">Para soporte técnico contacta al equipo de desarrollo</p>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // ── Accordion toggle ──
+  function toggleAccordion(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+  }
+
+  // ── Scroll to section ──
+  function scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    // Update active nav
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  // ── Active nav on scroll ──
+  const sections = ['inicio','roles','acceso','dashboard','pedidos','nuevo-pedido','produccion','calendario','reporte','ajustes','admin','seguimiento','estados','faq'];
+  const navItems = document.querySelectorAll('.nav-item');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 80) current = id;
+    });
+    navItems.forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${current}'`)) {
+        item.classList.add('active');
+      }
+    });
+  });
+
+  // ── Search filter ──
+  function filterNav(query) {
+    const q = query.toLowerCase().trim();
+    navItems.forEach(item => {
+      if (!q) { item.style.display = ''; return; }
+      item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
