@@ -18,21 +18,20 @@ export async function GET(request: Request) {
 
     const [
       { count: totalUsers },
-      { count: ordersToday },
-      { count: enCola },
-      { count: enCorte },
-      { count: enTapacantos },
-      { count: listos },
+      { data: pedidos },
       { data: maquinas },
     ] = await Promise.all([
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('pedidos').select('*', { count: 'exact', head: true }).gte('fecha_ingreso', todayStart),
-      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'En cola'),
-      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'En corte'),
-      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'En tapacantos'),
-      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'Listo').gte('fecha_ingreso', todayStart),
+      supabase.from('pedidos').select('estado, fecha_ingreso'),
       supabase.from('maquinas').select('id, nombre, activa'),
     ])
+
+    const p = pedidos ?? []
+    const ordersToday = p.filter(o => o.fecha_ingreso >= todayStart).length
+    const enCola = p.filter(o => o.estado === 'En cola').length
+    const enCorte = p.filter(o => o.estado === 'En corte').length
+    const enTapacantos = p.filter(o => o.estado === 'En tapacantos').length
+    const listos = p.filter(o => o.estado === 'Listo' && o.fecha_ingreso >= todayStart).length
 
     return NextResponse.json({
       status: 'healthy',
@@ -41,11 +40,11 @@ export async function GET(request: Request) {
       metrics: {
         users: totalUsers ?? 0,
         orders: {
-          today: ordersToday ?? 0,
-          en_cola: enCola ?? 0,
-          en_corte: enCorte ?? 0,
-          en_tapacantos: enTapacantos ?? 0,
-          listos_hoy: listos ?? 0,
+          today: ordersToday,
+          en_cola: enCola,
+          en_corte: enCorte,
+          en_tapacantos: enTapacantos,
+          listos_hoy: listos,
         },
         machines: (maquinas ?? []).map((m) => ({
           id: m.id,
