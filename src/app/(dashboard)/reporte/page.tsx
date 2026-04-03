@@ -34,6 +34,7 @@ export default async function ReportePage() {
     { count: enCorte },
     { count: enTapacantos },
     { count: listos },
+    { count: vendidos },
     { count: cancelados },
     { data: completadosSemana },
     { data: activosXMaquina },
@@ -48,18 +49,19 @@ export default async function ReportePage() {
     supabase
       .from("pedidos")
       .select("*, cliente:clientes(nombre)")
-      .not("estado", "in", '("Listo","Cancelado")')
+      .not("estado", "in", '("Listo","Vendido","Cancelado")')
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true }),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En tapacantos"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Listo").gte("updated_at", hoy.toISOString()),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Vendido").gte("updated_at", hoy.toISOString()),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Cancelado").gte("updated_at", hoy.toISOString()),
     supabase
       .from("pedidos")
       .select("maquina_asignada, updated_at, cant_planchas, cant_piezas")
-      .eq("estado", "Listo")
+      .in("estado", ["Listo", "Vendido"])
       .gte("updated_at", hace7dias.toISOString()),
     supabase
       .from("pedidos")
@@ -82,6 +84,7 @@ export default async function ReportePage() {
     enCorte: enCorte ?? 0,
     enTapacantos: enTapacantos ?? 0,
     listos: listos ?? 0,
+    vendidos: vendidos ?? 0,
     cancelados: cancelados ?? 0,
     totalPlanchas,
     totalPiezas,
@@ -205,6 +208,7 @@ export default async function ReportePage() {
                 { label: "En cola",    value: enCola ?? 0,             color: "text-orange-400" },
                 { label: "En corte",   value: enCorte ?? 0,            color: "text-zinc-300" },
                 { label: "Listos",     value: listos ?? 0,             color: "text-emerald-400" },
+                { label: "Vendidos",   value: vendidos ?? 0,           color: "text-teal-400" },
                 { label: "Cancelados", value: cancelados ?? 0,         color: "text-red-400" },
               ].map(({ label, value, color }) => (
                 <div key={label} className="bg-white/10 rounded-xl p-3 sm:p-4 text-center">

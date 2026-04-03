@@ -12,6 +12,7 @@ const ESTADO_PROGRESS: Record<string, number> = {
   "En corte": 50,
   "En tapacantos": 78,
   "Listo": 100,
+  "Vendido": 100,
 };
 
 const ESTADO_BADGE: Record<string, string> = {
@@ -19,6 +20,7 @@ const ESTADO_BADGE: Record<string, string> = {
   "En corte":      "bg-blue-500 text-white",
   "En tapacantos": "bg-violet-500 text-white",
   "Listo":         "bg-emerald-500 text-white",
+  "Vendido":       "bg-teal-600 text-white",
   "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
   "Pausado":       "bg-amber-100 text-amber-700",
 };
@@ -28,6 +30,7 @@ const CARD_LEFT_BORDER: Record<string, string> = {
   "En corte":      "border-l-blue-500",
   "En tapacantos": "border-l-violet-500",
   "Listo":         "border-l-emerald-500",
+  "Vendido":       "border-l-teal-500",
   "Cancelado":     "border-l-red-400",
   "Pausado":       "border-l-amber-400",
 };
@@ -119,7 +122,7 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
           </p>
         </div>
         <span className={`shrink-0 ml-2 text-[10px] font-bold px-2 py-1 rounded-md tracking-wide ${badgeClass}`}>
-          {estado === "En cola" ? "COLA" : estado === "En corte" ? "CORTE" : estado === "En tapacantos" ? "ENCHAPE" : estado.toUpperCase()}
+          {estado === "En cola" ? "COLA" : estado === "En corte" ? "CORTE" : estado === "En tapacantos" ? "ENCHAPE" : estado === "Vendido" ? "VENDIDO" : estado.toUpperCase()}
         </span>
       </div>
 
@@ -209,7 +212,7 @@ export default async function DashboardPage() {
     { count: pedidosHoy },
     { count: enCola },
     { count: enCorte },
-    { count: listos },
+    { count: completados },
     { data: pedidosM1 },
     { data: pedidosM2 },
     { data: maquinas },
@@ -219,19 +222,20 @@ export default async function DashboardPage() {
       .lt("created_at", tomorrow.toISOString()),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
-    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Listo")
+    supabase.from("pedidos").select("*", { count: "exact", head: true })
+      .in("estado", ["Listo", "Vendido"])
       .gte("updated_at", today.toISOString()),
     supabase.from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M1")
-      .not("estado", "in", '("Listo","Cancelado")')
+      .not("estado", "in", '("Listo","Vendido","Cancelado")')
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(5),
     supabase.from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M2")
-      .not("estado", "in", '("Listo","Cancelado")')
+      .not("estado", "in", '("Listo","Vendido","Cancelado")')
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(5),
@@ -262,7 +266,7 @@ export default async function DashboardPage() {
       icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" x2="8.12" y1="4" y2="15.88"/><line x1="14.47" x2="20" y1="14.48" y2="20"/><line x1="8.12" x2="12" y1="8.12" y2="12"/></svg>,
     },
     {
-      label: "Listos hoy", value: listos ?? 0, delay: 180, sub: "para retirar",
+      label: "Completados hoy", value: completados ?? 0, delay: 180, sub: "listos + entregados",
       accentColor: "#22c55e",
       iconBg: "rgba(34,197,94,0.12)",
       icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,

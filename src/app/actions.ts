@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, IS_ADMIN } from "@/lib/auth";
 
 const SIGUIENTE_ESTADO: Record<string, string> = {
   "En cola": "En corte",
@@ -64,6 +65,26 @@ export async function guardarReporte(stats: {
     .upsert({ fecha, stats }, { onConflict: "fecha" });
   if (error) return { error: error.message };
   revalidatePath("/reporte");
+  return { ok: true };
+}
+
+export async function marcarVendido(pedidoId: string) {
+  const role = await getUserRole();
+  if (!IS_ADMIN.includes(role)) return { error: "Sin permisos" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("pedidos")
+    .update({ estado: "Vendido", fecha_cierre: new Date().toISOString() })
+    .eq("id", pedidoId)
+    .eq("estado", "Listo"); // solo desde Listo
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/produccion");
+  revalidatePath("/pedidos");
+  revalidatePath(`/pedidos/${pedidoId}`);
   return { ok: true };
 }
 

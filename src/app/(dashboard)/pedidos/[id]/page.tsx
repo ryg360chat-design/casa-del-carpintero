@@ -1,15 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
-import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO } from "@/lib/auth";
+import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO, IS_ADMIN } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import CancelarPedidoBtn from "@/components/CancelarPedidoBtn";
+import MarcarVendidoBtn from "@/components/MarcarVendidoBtn";
 
 const ESTADO_STYLE: Record<string, string> = {
   "En cola":       "bg-slate-100 text-slate-600 border border-slate-200",
   "En corte":      "bg-blue-500 text-white",
   "En tapacantos": "bg-violet-500 text-white",
   "Listo":         "bg-emerald-500 text-white",
+  "Vendido":       "bg-teal-600 text-white",
   "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
   "Pausado":       "bg-amber-100 text-amber-700 border border-amber-200",
 };
@@ -23,7 +25,7 @@ const AREA_COLORS: Record<string, string> = {
   "Logistica":        "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
-const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo"];
+const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo", "Vendido"];
 
 export default async function PedidoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,6 +33,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   const role = await getUserRole();
   const canAdvance = CAN_ADVANCE_STATE.includes(role);
   const canCancel = CAN_CREATE_PEDIDO.includes(role);
+  const canVender = IS_ADMIN.includes(role);
 
   const { data: pedido } = await supabase
     .from("pedidos")
@@ -69,6 +72,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
   const pasoActual = ESTADOS_FLUJO.indexOf(estado);
   const esListo = estado === "Listo";
+  const esVendido = estado === "Vendido";
   const esCancelado = estado === "Cancelado";
 
   // Servicios adicionales activos
@@ -139,15 +143,18 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
           <div className="flex items-center">
             {ESTADOS_FLUJO.map((s, idx) => {
-              const done = esListo ? true : idx < pasoActual;
-              const current = !esListo && idx === pasoActual;
+              const done = esVendido ? true : idx < pasoActual;
+              const current = !esVendido && idx === pasoActual;
               const isLast = idx === ESTADOS_FLUJO.length - 1;
+              const isVendidoStep = s === "Vendido";
 
               return (
                 <div key={s} className="flex items-center flex-1 last:flex-none">
                   <div className="flex flex-col items-center">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                      done
+                      done && isVendidoStep
+                        ? "bg-teal-600 border-teal-600 text-white shadow-sm"
+                        : done
                         ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
                         : current
                         ? "bg-white border-blue-500 text-blue-600 shadow-[0_0_0_4px_rgba(59,130,246,0.12)]"
@@ -186,6 +193,13 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               <AvanzarEstadoBtn pedidoId={pedido.id} estadoActual={estado} showLabel canAdvance={canAdvance} />
             </div>
           )}
+
+          {esListo && canVender && (
+            <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
+              <p className="text-xs text-zinc-400">El cliente retiró el pedido o fue entregado</p>
+              <MarcarVendidoBtn pedidoId={pedido.id} />
+            </div>
+          )}
         </div>
       )}
 
@@ -197,6 +211,25 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
             </svg>
           </div>
           <p className="text-sm font-semibold text-red-700">Pedido cancelado</p>
+        </div>
+      )}
+
+      {esVendido && (
+        <div className="animate-fade-in-up delay-100 bg-teal-50 border border-teal-200 rounded-xl p-4 mb-5 flex items-center gap-3">
+          <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="2.5">
+              <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-teal-700">Pedido entregado al cliente</p>
+            {pedido.fecha_cierre && (
+              <p className="text-xs text-teal-600 mt-0.5">
+                {new Date(pedido.fecha_cierre as string).toLocaleString("es", { dateStyle: "medium", timeStyle: "short" })}
+              </p>
+            )}
+          </div>
         </div>
       )}
 

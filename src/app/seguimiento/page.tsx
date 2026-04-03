@@ -26,6 +26,12 @@ const ESTADO_CONFIG: Record<string, { label: string; icon: string; className: st
     className: "bg-zinc-900 text-white",
     desc: "Tu pedido está listo. ¡Podés pasar a retirarlo!",
   },
+  "Vendido": {
+    label: "Entregado ✓",
+    icon: "🚚",
+    className: "bg-teal-600 text-white",
+    desc: "Tu pedido fue entregado. ¡Gracias por tu compra!",
+  },
   "Cancelado": {
     label: "Cancelado",
     icon: "❌",
@@ -80,12 +86,13 @@ export default async function SeguimientoPage({
     }
   }
 
-  const PASOS = ["Recibido", "En corte", "En tapacantos", "Listo"];
+  const PASOS = ["Recibido", "En corte", "En tapacantos", "Listo", "Entregado"];
   const PASO_IDX: Record<string, number> = {
     "En cola": 0,
     "En corte": 1,
     "En tapacantos": 2,
     "Listo": 3,
+    "Vendido": 4,
   };
 
   return (
@@ -153,6 +160,7 @@ export default async function SeguimientoPage({
               const pasoActual = PASO_IDX[estado] ?? 0;
               const isCancelado = estado === "Cancelado";
               const isListo = estado === "Listo";
+              const isVendido = estado === "Vendido";
               const numeroOrden = `#${String(p.id as string).slice(-4).toUpperCase()}`;
 
               const entregaFecha = p.fecha_entrega_estimada
@@ -166,20 +174,22 @@ export default async function SeguimientoPage({
 
               // SVG icons for each step
               const PASO_ICONS = [
-                // Recibido — inbox/check
+                // Recibido — inbox
                 <svg key="rec" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>,
                 // En corte — scissors
                 <svg key="cor" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>,
                 // En tapacantos — layers
                 <svg key="tap" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
-                // Listo — truck
-                <svg key="lst" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+                // Listo — check circle
+                <svg key="lst" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>,
+                // Entregado — truck
+                <svg key="vnd" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
               ];
 
               return (
                 <div key={p.id as string} className="bg-white border border-zinc-200/80 rounded-2xl overflow-hidden shadow-sm">
                   {/* Orange top accent */}
-                  <div className="h-1 w-full" style={{ background: isCancelado ? "#ef4444" : isListo ? "#22c55e" : "linear-gradient(90deg, #f97316, #fb923c)" }} />
+                  <div className="h-1 w-full" style={{ background: isCancelado ? "#ef4444" : isVendido ? "#0f766e" : isListo ? "#22c55e" : "linear-gradient(90deg, #f97316, #fb923c)" }} />
 
                   {/* Header */}
                   <div className="px-5 pt-4 pb-3">
@@ -214,7 +224,7 @@ export default async function SeguimientoPage({
                                 <div
                                   className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
                                   style={{
-                                    background: done ? (isListo ? "#22c55e" : "#f97316") : "#f4f4f5",
+                                    background: done ? (isVendido ? "#0f766e" : isListo ? "#22c55e" : "#f97316") : "#f4f4f5",
                                     color: done ? "white" : "#a1a1aa",
                                     boxShadow: current ? "0 0 0 3px rgba(249,115,22,0.2)" : "none",
                                   }}
@@ -228,7 +238,7 @@ export default async function SeguimientoPage({
                                 <p className={`text-[9px] font-semibold whitespace-nowrap ${done ? "text-zinc-700" : "text-zinc-400"}`}>{paso}</p>
                               </div>
                               {idx < PASOS.length - 1 && (
-                                <div className="flex-1 h-0.5 mb-4 mx-1" style={{ background: idx < pasoActual ? (isListo ? "#22c55e" : "#f97316") : "#e4e4e7" }} />
+                                <div className="flex-1 h-0.5 mb-4 mx-1" style={{ background: idx < pasoActual ? (isVendido ? "#0f766e" : isListo ? "#22c55e" : "#f97316") : "#e4e4e7" }} />
                               )}
                             </div>
                           );
@@ -239,11 +249,14 @@ export default async function SeguimientoPage({
 
                   {/* Info message */}
                   {!isCancelado && (
-                    <div className="mx-5 mb-4 px-3.5 py-2.5 rounded-xl text-sm" style={{ background: isListo ? "rgba(34,197,94,0.08)" : "rgba(249,115,22,0.08)", border: `1px solid ${isListo ? "rgba(34,197,94,0.2)" : "rgba(249,115,22,0.2)"}` }}>
-                      <p className="font-semibold" style={{ color: isListo ? "#16a34a" : "#ea580c" }}>
-                        {isListo ? "¡Tu pedido está listo para retirar!" : `En proceso · ${cfg.label}`}
+                    <div className="mx-5 mb-4 px-3.5 py-2.5 rounded-xl text-sm" style={{
+                      background: isVendido ? "rgba(15,118,110,0.08)" : isListo ? "rgba(34,197,94,0.08)" : "rgba(249,115,22,0.08)",
+                      border: `1px solid ${isVendido ? "rgba(15,118,110,0.2)" : isListo ? "rgba(34,197,94,0.2)" : "rgba(249,115,22,0.2)"}`,
+                    }}>
+                      <p className="font-semibold" style={{ color: isVendido ? "#0f766e" : isListo ? "#16a34a" : "#ea580c" }}>
+                        {isVendido ? "¡Pedido entregado! Gracias por tu compra." : isListo ? "¡Tu pedido está listo para retirar!" : `En proceso · ${cfg.label}`}
                       </p>
-                      {entregaStr && !isListo && (
+                      {entregaStr && !isListo && !isVendido && (
                         <p className="text-xs text-zinc-500 mt-0.5 capitalize">Entrega estimada: {entregaStr}</p>
                       )}
                     </div>
