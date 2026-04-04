@@ -84,7 +84,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   ].filter(Boolean) as string[];
 
   return (
-    <div className="p-8 max-w-4xl mx-auto animate-fade-in">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto animate-fade-in">
       {/* Back */}
       <Link
         href="/pedidos"
@@ -97,7 +97,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
       </Link>
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-6 animate-fade-in-up">
+      <div className="flex items-start justify-between gap-3 mb-6 animate-fade-in-up flex-wrap">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <h1 className="text-2xl font-bold text-zinc-900">
@@ -139,10 +139,11 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
       {/* Progress stepper */}
       {!esCancelado && (
-        <div className="animate-fade-in-up delay-100 bg-white border border-zinc-200 rounded-xl p-6 mb-5">
+        <div className="animate-fade-in-up delay-100 bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 mb-5">
           <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-5">Progreso del pedido</p>
 
-          <div className="flex items-center">
+          <div className="overflow-x-auto -mx-1 px-1">
+          <div className="flex items-center min-w-[420px]">
             {ESTADOS_FLUJO.map((s, idx) => {
               const done = esVendido ? true : idx < pasoActual;
               const current = !esVendido && idx === pasoActual;
@@ -186,6 +187,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                 </div>
               );
             })}
+          </div>
           </div>
 
           {estaActivo && (canAdvance || canCancel) && (
@@ -234,7 +236,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-5 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
         {/* Material y Corte */}
         <div className="animate-fade-in-up delay-150 bg-white border border-zinc-200 rounded-xl p-5 card-hover">
           <div className="flex items-center justify-between mb-4">

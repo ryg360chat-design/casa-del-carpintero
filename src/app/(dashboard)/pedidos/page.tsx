@@ -85,7 +85,7 @@ export default async function PedidosPage({
   };
 
   return (
-    <div className="p-6 flex flex-col gap-5 min-h-full animate-fade-in" style={{ background: "linear-gradient(160deg, rgba(255,237,213,0.45) 0%, rgba(244,244,245,0) 30%)" }}>
+    <div className="p-4 sm:p-6 flex flex-col gap-5 min-h-full animate-fade-in" style={{ background: "linear-gradient(160deg, rgba(255,237,213,0.45) 0%, rgba(244,244,245,0) 30%)" }}>
       {/* Header row with inline count */}
       <div className="animate-fade-in-down flex items-center justify-between">
         <div className="flex items-baseline gap-3">
@@ -107,8 +107,58 @@ export default async function PedidosPage({
           </Suspense>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        {/* Mobile card list — visible only on xs screens */}
+        <div className="sm:hidden divide-y divide-zinc-100">
+          {pedidosFiltrados.length === 0 && (
+            <div className="text-center py-16 text-zinc-400 text-sm px-6">
+              {busqueda || estado || maquina
+                ? "Sin resultados para los filtros aplicados."
+                : <span>No hay pedidos aún.{" "}<Link href="/pedidos/nuevo" className="text-zinc-900 font-semibold underline underline-offset-2">Crear el primero</Link></span>
+              }
+            </div>
+          )}
+          {pedidosFiltrados.map((p: Record<string, unknown>, i: number) => {
+            const estadoPedido = p.estado as string;
+            const style = ESTADO_STYLE[estadoPedido];
+            const entregaDate = p.fecha_entrega_estimada ? new Date(p.fecha_entrega_estimada as string) : null;
+            const entrega = entregaDate ? limaDate(entregaDate, { day: "2-digit", month: "2-digit" }) : null;
+            const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
+            const isUrgente = p.prioridad === "urgente";
+            const numero = String(from + i + 101).padStart(3, "0");
+
+            return (
+              <Link
+                key={p.id as string}
+                href={`/pedidos/${p.id as string}`}
+                className="flex items-center gap-3 px-4 py-3.5 hover:bg-zinc-50 transition-colors active:bg-zinc-100"
+              >
+                <span className="text-[11px] text-zinc-400 font-mono w-8 shrink-0">{numero}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-zinc-900 text-sm truncate">{cliente}</span>
+                    {isUrgente && <span className="text-[9px] font-bold text-white px-1 py-0.5 rounded shrink-0" style={{ background: "linear-gradient(135deg,#f97316,#dc2626)" }}>⚡</span>}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-zinc-500">{p.tipo_tablero as string}</span>
+                    {p.maquina_asignada && <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">{p.maquina_asignada as string}</span>}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {style && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.bg}`}>{estadoPedido}</span>
+                  )}
+                  {entrega && <span className="text-[10px] text-zinc-400">{entrega}</span>}
+                </div>
+                <svg className="text-zinc-300 shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-100 bg-zinc-50/40">

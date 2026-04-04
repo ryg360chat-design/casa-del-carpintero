@@ -134,7 +134,7 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="group/nav relative w-[60px] hover:w-[220px] transition-[width] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] bg-zinc-900 flex flex-col h-full shrink-0 overflow-hidden z-30 select-none">
+    <aside className="group/nav relative w-[60px] hover:w-[220px] transition-[width] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] bg-zinc-900 hidden md:flex flex-col h-full shrink-0 overflow-hidden z-30 select-none">
 
       {/* Logo */}
       <div className="h-[57px] flex items-center px-[14px] border-b border-zinc-800/80 overflow-hidden gap-3">

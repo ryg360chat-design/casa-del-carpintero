@@ -279,7 +279,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="p-6 animate-fade-in min-h-full" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.45) 0%, rgba(244,244,245,0) 35%)" }}>
+    <div className="p-4 sm:p-6 animate-fade-in min-h-full" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.45) 0%, rgba(244,244,245,0) 35%)" }}>
       <GreetingHeader userRole={role} />
 
       {/* Stats */}

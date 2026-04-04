@@ -155,15 +155,15 @@ export default async function ReportePage() {
         }
       `}</style>
 
-      <div className="p-8 max-w-5xl mx-auto animate-fade-in" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.3) 0%, rgba(244,244,245,0) 30%)" }}>
+      <div className="p-4 sm:p-8 max-w-5xl mx-auto animate-fade-in" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.3) 0%, rgba(244,244,245,0) 30%)" }}>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between mb-8 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 print:hidden">
           <div>
             <h1 className="text-2xl font-bold text-zinc-900">Reporte Diario</h1>
             <p className="text-zinc-500 text-sm mt-0.5 capitalize">{fechaHoy}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <GuardarReporteBtn stats={statsHoy} />
             <Link
               href="/reporte/historial"
@@ -357,7 +357,8 @@ export default async function ReportePage() {
               <p className="text-xs text-zinc-400 mt-0.5">Últimos 7 días</p>
             </div>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[520px]">
             <thead>
               <tr className="border-b border-zinc-100 bg-zinc-50">
                 {["Máquina", "Completados", "Prom./día", "Planchas", "Piezas", "Carga actual"].map(h => (
@@ -391,6 +392,7 @@ export default async function ReportePage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Tabla de pedidos de hoy */}
@@ -405,7 +407,8 @@ export default async function ReportePage() {
           {(pedidosHoy ?? []).length === 0 ? (
             <div className="py-16 text-center text-zinc-400 text-sm">No se ingresaron pedidos hoy</div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="border-b border-zinc-100 bg-zinc-50">
                   {["#", "Cliente", "Material", "Planchas", "Piezas", "Mts. Canto", "Máquina", "Estado", "Prioridad"].map((h) => (
@@ -458,6 +461,7 @@ export default async function ReportePage() {
                 </tr>
               </tfoot>
             </table>
+            </div>
           )}
         </div>
 
@@ -470,7 +474,8 @@ export default async function ReportePage() {
                 {todosActivos?.length ?? 0} en proceso
               </span>
             </div>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[520px]">
               <thead>
                 <tr className="border-b border-zinc-100 bg-zinc-50">
                   {["#", "Cliente", "Material", "Planchas", "Máquina", "Estado", "Entrega est."].map((h) => (
@@ -510,6 +515,7 @@ export default async function ReportePage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 

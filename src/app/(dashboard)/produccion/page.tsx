@@ -121,9 +121,9 @@ export default async function ProduccionPage() {
   const ahora = new Date().toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="p-8 min-h-full" style={{ background: "linear-gradient(160deg, rgba(220,252,231,0.45) 0%, rgba(244,244,245,0) 32%)" }}>
+    <div className="p-4 sm:p-8 min-h-full" style={{ background: "linear-gradient(160deg, rgba(220,252,231,0.45) 0%, rgba(244,244,245,0) 32%)" }}>
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex items-start justify-between flex-wrap gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Producción en Tiempo Real</h1>
           <p className="text-zinc-500 text-sm mt-0.5 flex items-center gap-2">
