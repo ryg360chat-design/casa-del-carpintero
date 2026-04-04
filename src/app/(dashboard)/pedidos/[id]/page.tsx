@@ -63,11 +63,12 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   const estaActivo = ["En cola", "En corte", "En tapacantos"].includes(estado);
   const cliente = pedido.cliente as Record<string, unknown> | null;
 
+  const TZ = "America/Lima";
   const fechaIngreso = new Date(pedido.fecha_ingreso).toLocaleDateString("es", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: TZ,
   });
   const horaIngreso = new Date(pedido.fecha_ingreso).toLocaleTimeString("es", {
-    hour: "2-digit", minute: "2-digit",
+    hour: "2-digit", minute: "2-digit", timeZone: TZ,
   });
 
   const pasoActual = ESTADOS_FLUJO.indexOf(estado);
@@ -226,7 +227,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
             <p className="text-sm font-semibold text-teal-700">Pedido entregado al cliente</p>
             {pedido.fecha_cierre && (
               <p className="text-xs text-teal-600 mt-0.5">
-                {new Date(pedido.fecha_cierre as string).toLocaleString("es", { dateStyle: "medium", timeStyle: "short" })}
+                {new Date(pedido.fecha_cierre as string).toLocaleString("es", { dateStyle: "medium", timeStyle: "short", timeZone: TZ })}
               </p>
             )}
           </div>
@@ -364,14 +365,14 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               <div className="flex justify-between items-center">
                 <span className="text-xs text-zinc-400">Ingreso</span>
                 <span className="text-xs font-semibold text-zinc-900">
-                  {new Date(pedido.fecha_ingreso).toLocaleDateString("es", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                  {new Date(pedido.fecha_ingreso).toLocaleDateString("es", { day: "2-digit", month: "2-digit", year: "2-digit", timeZone: TZ })}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-zinc-400">Entrega estimada</span>
                 <span className="text-xs font-semibold text-zinc-900">
                   {pedido.fecha_entrega_estimada
-                    ? new Date(pedido.fecha_entrega_estimada).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })
+                    ? new Date(pedido.fecha_entrega_estimada).toLocaleString("es", { dateStyle: "short", timeStyle: "short", timeZone: TZ })
                     : "—"}
                 </span>
               </div>
@@ -379,7 +380,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-zinc-400">Entrega real</span>
                   <span className="text-xs font-semibold text-emerald-700">
-                    {new Date(pedido.fecha_entrega_real).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}
+                    {new Date(pedido.fecha_entrega_real).toLocaleString("es", { dateStyle: "short", timeStyle: "short", timeZone: TZ })}
                   </span>
                 </div>
               )}
@@ -418,7 +419,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0" />
                 <span className="text-xs text-zinc-400 whitespace-nowrap min-w-[100px]">
-                  {new Date(h.created_at as string).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}
+                  {new Date(h.created_at as string).toLocaleString("es", { dateStyle: "short", timeStyle: "short", timeZone: TZ })}
                 </span>
                 <span className="text-xs font-medium text-zinc-400 line-through">{h.estado_anterior as string}</span>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2.5">
