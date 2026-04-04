@@ -49,7 +49,7 @@ export default async function ReportePage() {
     supabase
       .from("pedidos")
       .select("*, cliente:clientes(nombre)")
-      .not("estado", "in", '("Listo","Vendido","Cancelado")')
+      .in("estado", ["En cola", "En corte", "En tapacantos"])
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true }),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
