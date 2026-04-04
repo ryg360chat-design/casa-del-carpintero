@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const resetSuccess = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("reset") === "true";
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -120,6 +123,15 @@ export default function LoginPage() {
           <h2 className="text-[26px] font-extrabold text-zinc-900 mb-1.5 tracking-tight">Bienvenido de nuevo</h2>
           <p className="text-zinc-400 text-sm mb-8 leading-relaxed">Ingresá tus credenciales para acceder al panel de gestión.</p>
 
+          {resetSuccess && (
+            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-2.5 rounded-xl mb-4">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              Contraseña actualizada. Ya podés ingresar.
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {/* Email */}
             <div>
@@ -145,6 +157,9 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Contraseña</label>
+                <Link href="/auth/forgot" className="text-xs font-semibold hover:opacity-80 transition-opacity" style={{ color: "#1957A6" }}>
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </div>
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

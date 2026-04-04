@@ -199,7 +199,7 @@ export default function Sidebar({
 
       {/* User */}
       <div className="px-2 py-3 overflow-hidden">
-        <div className="flex items-center gap-2.5 pl-2 pr-2 py-2 rounded-lg hover:bg-white/6 transition-colors">
+        <Link href="/perfil" className="flex items-center gap-2.5 pl-2 pr-2 py-2 rounded-lg hover:bg-white/6 transition-colors">
           <div className="w-7 h-7 bg-gradient-to-br from-zinc-500 to-zinc-700 rounded-full flex items-center justify-center shrink-0 ring-1 ring-white/10">
             <span className="text-white text-[11px] font-bold">{initials}</span>
           </div>
@@ -208,7 +208,7 @@ export default function Sidebar({
             <p className="text-zinc-500 text-[10px] truncate whitespace-nowrap">{userEmail}</p>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={(e) => { e.preventDefault(); handleLogout(); }}
             title="Cerrar sesion"
             data-tooltip="Salir"
             className="shrink-0 opacity-0 group-hover/nav:opacity-100 transition-all text-zinc-600 hover:text-white p-1 rounded hover:bg-white/10"
@@ -219,7 +219,7 @@ export default function Sidebar({
               <line x1="21" x2="9" y1="12" y2="12"/>
             </svg>
           </button>
-        </div>
+        </Link>
       </div>
     </aside>
   );
