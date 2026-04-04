@@ -35,7 +35,7 @@ export default async function DashboardLayout({
           {children}
         </main>
       </div>
-      <BottomNav />
+      <BottomNav isAdmin={isAdmin} isDeveloper={isDeveloper} />
     </div>
   );
 }
