@@ -228,14 +228,14 @@ export default async function DashboardPage() {
     supabase.from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M1")
-      .in("estado", ["En cola", "En corte", "En tapacantos"])
+      .in("estado", ["En cola", "En corte", "En tapacantos", "Listo"])
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(5),
     supabase.from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M2")
-      .in("estado", ["En cola", "En corte", "En tapacantos"])
+      .in("estado", ["En cola", "En corte", "En tapacantos", "Listo"])
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(5),

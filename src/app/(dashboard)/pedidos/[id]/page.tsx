@@ -313,7 +313,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
           )}
 
           {/* Servicios adicionales */}
-          {(servicios.length > 0 || pedido.cortes_especiales) && (
+          {(servicios.length > 0 || (pedido.cortes_especiales && pedido.cortes_especiales !== "false")) && (
             <div className="mt-4 pt-4 border-t border-zinc-100">
               <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2">Servicios adicionales</p>
               <div className="flex flex-wrap gap-1.5">
@@ -325,7 +325,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                     {s}
                   </span>
                 ))}
-                {pedido.cortes_especiales && (
+                {pedido.cortes_especiales && pedido.cortes_especiales !== "false" && typeof pedido.cortes_especiales === "string" && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
                     ✦ {pedido.cortes_especiales}
                   </span>
