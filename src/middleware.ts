@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login");
+  const isAuthPage = request.nextUrl.pathname.startsWith("/login") || request.nextUrl.pathname.startsWith("/auth/");
   const isPublicPage = request.nextUrl.pathname.startsWith("/seguimiento");
   const isHubApi = request.nextUrl.pathname.startsWith("/api/hub/");
 
