@@ -140,7 +140,7 @@ export default async function PedidosPage({
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-xs text-zinc-500">{p.tipo_tablero as string}</span>
-                    {p.maquina_asignada && <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">{p.maquina_asignada as string}</span>}
+                    {!!(p.maquina_asignada as string) && <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">{p.maquina_asignada as string}</span>}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
