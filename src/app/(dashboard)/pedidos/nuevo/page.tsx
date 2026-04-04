@@ -346,10 +346,10 @@ export default function NuevoPedidoPage() {
 
       const { count: cM1 } = await supabase
         .from("pedidos").select("*", { count: "exact", head: true })
-        .eq("maquina_asignada", "M1").not("estado", "in", '("Listo","Cancelado")');
+        .eq("maquina_asignada", "M1").not("estado", "in", '("Listo","Vendido","Cancelado")');
       const { count: cM2 } = await supabase
         .from("pedidos").select("*", { count: "exact", head: true })
-        .eq("maquina_asignada", "M2").not("estado", "in", '("Listo","Cancelado")');
+        .eq("maquina_asignada", "M2").not("estado", "in", '("Listo","Vendido","Cancelado")');
 
       const cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? cM1 ?? 0 : cM2 ?? 0;
       const maquina  = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";
@@ -404,9 +404,7 @@ export default function NuevoPedidoPage() {
         cant_planchas:          totalPlanchas,
         cant_piezas:            totalPiezas,
         metros_canto:           totalCanto,
-        tipo_canto:             (parseFloat(primera.metrosDelgado || "0") > 0 && parseFloat(primera.metrosGrueso || "0") > 0)
-                                  ? "ambos"
-                                  : parseFloat(primera.metrosGrueso || "0") > 0 ? "grueso" : "delgado",
+        tipo_canto:             parseFloat(primera.metrosGrueso || "0") > 0 ? "grueso" : "delgado",
         ranuras,
         perforaciones,
         corte_45:               corte45,
@@ -441,7 +439,8 @@ export default function NuevoPedidoPage() {
       router.push("/pedidos");
       router.refresh();
     } catch (err) {
-      setError("Error al guardar el pedido. Intenta de nuevo.");
+      const msg = err instanceof Error ? err.message : JSON.stringify(err);
+      setError(`Error: ${msg}`);
       console.error(err);
     } finally {
       setLoading(false);
