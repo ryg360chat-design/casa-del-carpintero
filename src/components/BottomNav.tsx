@@ -126,7 +126,7 @@ export default function BottomNav({
 
       {/* Slide-up drawer for extra items */}
       {drawerOpen && hasExtras && (
-        <div className="fixed bottom-16 left-0 right-0 z-50 md:hidden bg-zinc-900 border-t border-zinc-700 rounded-t-2xl p-4 shadow-xl animate-fade-in-up">
+        <div className="fixed bottom-[57px] left-0 right-0 z-50 md:hidden bg-zinc-900 border-t border-zinc-800 p-4 shadow-xl animate-fade-in-up">
           <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-4" />
           <div className="grid grid-cols-3 gap-3">
             {visibleExtras.map(item => {
