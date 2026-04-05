@@ -15,7 +15,7 @@ export default async function DevPage() {
     supabase.from("pedidos").select("*", { count: "exact", head: true })
       .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
     supabase.from("clientes").select("*", { count: "exact", head: true }),
-    supabase.from("profiles").select("id, nombre, rol, created_at").order("created_at"),
+    supabase.from("profiles").select("id, nombre, rol, created_at").order("created_at").limit(100),
   ]);
 
   // Variables de entorno (solo presencia, nunca valores)
