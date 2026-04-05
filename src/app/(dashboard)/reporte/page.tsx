@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import ImprimirBtn from "@/components/ImprimirBtn";
 import GuardarReporteBtn from "@/components/GuardarReporteBtn";
-import AutoRefresh from "@/components/AutoRefresh";
+import RealtimeRefresh from "@/components/RealtimeRefresh";
 import { limaTime, limaDateTime, limaStartOfToday, limaEndOfToday, limaTodayKey, TZ } from "@/lib/time";
 import Link from "next/link";
 
@@ -143,7 +143,7 @@ export default async function ReportePage() {
 
   return (
     <>
-      <AutoRefresh intervalMs={30000} />
+      <RealtimeRefresh channelName="pedidos-reporte" />
       <style>{`
         @media print {
           body { background: white !important; }
