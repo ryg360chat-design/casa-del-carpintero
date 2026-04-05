@@ -344,12 +344,12 @@ export default function NuevoPedidoPage() {
       const hora  = ahora.getHours();
       const turno = turnoManual === "auto" ? (hora < 12 ? "mañana" : "tarde") : turnoManual;
 
-      const { count: cM1 } = await supabase
-        .from("pedidos").select("*", { count: "exact", head: true })
-        .eq("maquina_asignada", "M1").not("estado", "in", '("Listo","Vendido","Cancelado")');
-      const { count: cM2 } = await supabase
-        .from("pedidos").select("*", { count: "exact", head: true })
-        .eq("maquina_asignada", "M2").not("estado", "in", '("Listo","Vendido","Cancelado")');
+      const [{ count: cM1 }, { count: cM2 }] = await Promise.all([
+        supabase.from("pedidos").select("*", { count: "exact", head: true })
+          .eq("maquina_asignada", "M1").not("estado", "in", '("Listo","Vendido","Cancelado")'),
+        supabase.from("pedidos").select("*", { count: "exact", head: true })
+          .eq("maquina_asignada", "M2").not("estado", "in", '("Listo","Vendido","Cancelado")'),
+      ]);
 
       const cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? cM1 ?? 0 : cM2 ?? 0;
       const maquina  = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";

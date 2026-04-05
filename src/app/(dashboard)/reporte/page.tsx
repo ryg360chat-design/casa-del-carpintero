@@ -96,7 +96,7 @@ export default async function ReportePage() {
   // Auto-guardar snapshot del día en cada carga (upsert → nunca se pierde un día)
   await supabase
     .from("reportes_guardados")
-    .upsert({ fecha: hoy.toISOString().slice(0, 10), stats: statsHoy }, { onConflict: "fecha" });
+    .upsert({ fecha: limaTodayKey(), stats: statsHoy }, { onConflict: "fecha" });
 
   // ── Chart data (últimos 7 días) ───────────────────────────────────────
   const diasSemana = Array.from({ length: 7 }, (_, i) => {
@@ -107,7 +107,7 @@ export default async function ReportePage() {
 
   const chartData = diasSemana.map(d => {
     const key = d.toISOString().slice(0, 10);
-    const isToday = key === hoy.toISOString().slice(0, 10);
+    const isToday = key === limaTodayKey();
     const dayRecs = (completadosSemana ?? []).filter((p: Record<string, unknown>) =>
       (p.updated_at as string)?.slice(0, 10) === key
     );

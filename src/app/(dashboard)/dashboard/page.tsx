@@ -237,7 +237,7 @@ export default async function DashboardPage() {
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(5),
-    supabase.from("maquinas").select("*").order("id"),
+    supabase.from("maquinas").select("*").order("id").limit(10),
   ]);
 
   const maquinaMap = Object.fromEntries(

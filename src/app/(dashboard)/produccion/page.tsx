@@ -114,7 +114,7 @@ export default async function ProduccionPage() {
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(50),
-    supabase.from("maquinas").select("*"),
+    supabase.from("maquinas").select("*").limit(10),
   ]);
 
   const m1 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M1");
