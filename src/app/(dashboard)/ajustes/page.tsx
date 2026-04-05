@@ -1,8 +1,13 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, IS_ADMIN } from "@/lib/auth";
 import MaquinaToggle from "@/components/MaquinaToggle";
 import CopiarLink from "./CopiarLink";
 
 export default async function AjustesPage() {
+  const role = await getUserRole();
+  if (!IS_ADMIN.includes(role)) redirect("/dashboard");
+
   const supabase = await createClient();
 
   const { data: maquinas } = await supabase.from("maquinas").select("*").order("id");

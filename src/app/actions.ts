@@ -64,6 +64,15 @@ export async function guardarReporte(stats: {
   totalPiezas: number;
   totalMetros: number;
 }) {
+  const role = await getUserRole();
+  if (!IS_ADMIN.includes(role)) return { error: "Sin permisos" };
+
+  // Validar que los valores sean números no negativos
+  const values = Object.values(stats);
+  if (values.some((v) => typeof v !== "number" || v < 0 || !isFinite(v))) {
+    return { error: "Datos inválidos" };
+  }
+
   const supabase = await createClient();
   const fecha = new Date().toISOString().split("T")[0];
   const { error } = await supabase

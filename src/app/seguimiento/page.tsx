@@ -60,17 +60,25 @@ export default async function SeguimientoPage({
   if (busqueda) {
     const supabase = await createClient();
 
-    // Buscar por cada palabra del nombre (ej: "Samuel" o "Cadena" o "Samuel Cadena")
-    const palabras = busqueda.split(/\s+/).filter(Boolean);
-    const condiciones = [
-      ...palabras.map((p) => `nombre.ilike.%${p}%`),
-      `telefono.ilike.%${busqueda}%`,
-    ].join(",");
+    // Sanitizar input: solo letras, números, espacios y guiones
+    const busquedaSegura = busqueda.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9 +\-]/g, "").trim().slice(0, 80);
+    if (!busquedaSegura) {
+      pedidos = [];
+    } else {
+    const palabras = busquedaSegura.split(/\s+/).filter(Boolean);
 
-    const { data: clientes } = await supabase
-      .from("clientes")
-      .select("id, nombre, telefono")
-      .or(condiciones);
+    // Buscar clientes por nombre (una palabra a la vez) o teléfono exacto
+    let clientesQuery = supabase.from("clientes").select("id, nombre, telefono");
+    if (palabras.length === 1) {
+      clientesQuery = clientesQuery.or(`nombre.ilike.%${palabras[0]}%,telefono.ilike.%${palabras[0]}%`);
+    } else {
+      // Múltiples palabras: aplicar filtros encadenados (AND implícito por nombre)
+      for (const p of palabras) {
+        clientesQuery = clientesQuery.ilike("nombre", `%${p}%`);
+      }
+    }
+
+    const { data: clientes } = await clientesQuery;
 
     if (clientes && clientes.length > 0) {
       const clienteIds = clientes.map((c: { id: string }) => c.id);
@@ -84,6 +92,7 @@ export default async function SeguimientoPage({
 
       pedidos = (data ?? []) as Record<string, unknown>[];
     }
+    } // end else busquedaSegura
   }
 
   const PASOS = ["Recibido", "En corte", "En tapacantos", "Listo", "Entregado"];

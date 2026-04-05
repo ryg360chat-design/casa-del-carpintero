@@ -1,8 +1,11 @@
 .next/
 node_modules/
-.env.local
 .env
+.env.*
+.env*.local
 out/
 build/
 .claude/
 tsconfig.tsbuildinfo
+
+.vercel
