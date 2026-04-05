@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+
+const DRAFT_KEY = "nuevo-pedido-draft";
 
 const SECTION  = "flex flex-col gap-4 bg-white border border-zinc-200 rounded-2xl p-6";
 const STEP_NUM_STYLE = { background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" };
@@ -264,6 +266,10 @@ export default function NuevoPedidoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
+  // Draft banner
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const draftLoaded = useRef(false); // evita guardar estado vacío antes de cargar
+
   // Cliente
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteCodigo, setClienteCodigo] = useState<string | null>(null);
@@ -307,6 +313,50 @@ export default function NuevoPedidoPage() {
   const [prioridad, setPrioridad]               = useState<"normal" | "urgente" | "vip">("normal");
   const [turnoManual, setTurnoManual]           = useState<"mañana" | "tarde" | "auto">("auto");
   const [notas, setNotas]                       = useState("");
+
+  // ── Draft: detectar borrador al montar ───────────────────────────
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (raw) setShowDraftBanner(true);
+    } catch { /* sessionStorage no disponible */ }
+    draftLoaded.current = true;
+  }, []);
+
+  // ── Draft: guardar automáticamente al cambiar estado ─────────────
+  useEffect(() => {
+    if (!draftLoaded.current) return;
+    const draft = { clienteNombre, area, lineas, ranuras, perforaciones, corte45, cortesEspeciales, prioridad, turnoManual, notas };
+    const isEmpty = !clienteNombre.trim() && lineas.length === 1 && !lineas[0].colorMaterial && !lineas[0].planchas;
+    try {
+      if (isEmpty) sessionStorage.removeItem(DRAFT_KEY);
+      else sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch { /* sessionStorage no disponible */ }
+  }, [clienteNombre, area, lineas, ranuras, perforaciones, corte45, cortesEspeciales, prioridad, turnoManual, notas]);
+
+  function loadDraft() {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.clienteNombre) setClienteNombre(d.clienteNombre);
+      if (d.area)          setArea(d.area);
+      if (d.lineas?.length) setLineas(d.lineas);
+      if (d.ranuras !== undefined)          setRanuras(d.ranuras);
+      if (d.perforaciones !== undefined)    setPerforaciones(d.perforaciones);
+      if (d.corte45 !== undefined)          setCorte45(d.corte45);
+      if (d.cortesEspeciales !== undefined) setCortesEspeciales(d.cortesEspeciales);
+      if (d.prioridad)   setPrioridad(d.prioridad);
+      if (d.turnoManual) setTurnoManual(d.turnoManual);
+      if (d.notas)       setNotas(d.notas);
+    } catch { /* JSON inválido, ignorar */ }
+    setShowDraftBanner(false);
+  }
+
+  function discardDraft() {
+    try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* ok */ }
+    setShowDraftBanner(false);
+  }
 
   // Totales calculados de todas las líneas
   const totalPlanchas = lineas.reduce((s, l) => s + parseFloat(l.planchas || "0"), 0);
@@ -436,6 +486,7 @@ export default function NuevoPedidoPage() {
         if (lineasError) throw new Error(lineasError.message);
       }
 
+      try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* ok */ }
       router.push("/pedidos");
       router.refresh();
     } catch (err) {
@@ -471,6 +522,27 @@ export default function NuevoPedidoPage() {
         <h1 className="text-2xl font-bold text-zinc-900">Nuevo Pedido</h1>
         <p className="text-zinc-500 text-sm mt-0.5">Configuración de corte y optimización de materiales</p>
       </div>
+
+      {/* Banner de borrador */}
+      {showDraftBanner && (
+        <div className="mb-4 flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span className="text-sm font-semibold text-amber-800">Tenés un pedido sin terminar</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button type="button" onClick={discardDraft} className="text-xs text-amber-600 hover:text-amber-800 font-medium px-2 py-1 rounded hover:bg-amber-100 transition-colors">
+              Descartar
+            </button>
+            <button type="button" onClick={loadDraft} className="text-xs font-bold bg-amber-600 text-white px-3 py-1.5 rounded-lg hover:bg-amber-700 transition-colors">
+              Continuar
+            </button>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
