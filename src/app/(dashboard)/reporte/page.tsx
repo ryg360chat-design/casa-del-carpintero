@@ -93,11 +93,6 @@ export default async function ReportePage() {
     totalMetros,
   };
 
-  // Auto-guardar snapshot del día en cada carga (upsert → nunca se pierde un día)
-  await supabase
-    .from("reportes_guardados")
-    .upsert({ fecha: limaTodayKey(), stats: statsHoy }, { onConflict: "fecha" });
-
   // ── Chart data (últimos 7 días) ───────────────────────────────────────
   const diasSemana = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(hace7dias);

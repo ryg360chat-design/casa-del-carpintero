@@ -31,7 +31,29 @@ export default async function PedidosPage({
   const from = (currentPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  // Build data query
+  // Sanitize search input
+  const busquedaSegura = q
+    ? q.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9 ]/g, "").trim().slice(0, 80)
+    : "";
+
+  // Run client lookup + stat counts in parallel
+  const [clienteMatch, { count: total }, { count: enProduccion }, { count: listosHoy }] =
+    await Promise.all([
+      busquedaSegura
+        ? supabase.from("clientes").select("id").ilike("nombre", `%${busquedaSegura}%`).limit(100)
+        : Promise.resolve({ data: null as null }),
+      supabase.from("pedidos").select("*", { count: "exact", head: true }),
+      supabase.from("pedidos").select("*", { count: "exact", head: true })
+        .in("estado", ["En cola", "En corte", "En tapacantos"]),
+      supabase.from("pedidos").select("*", { count: "exact", head: true })
+        .eq("estado", "Listo")
+        .gte("updated_at", startOfToday)
+        .lte("updated_at", endOfToday),
+    ]);
+
+  const clienteIds = (clienteMatch?.data ?? []).map((c: { id: string }) => c.id);
+
+  // Build data query with server-side search
   let dataQuery = supabase
     .from("pedidos")
     .select("*, cliente:clientes(nombre, codigo)", { count: "exact" })
@@ -39,36 +61,16 @@ export default async function PedidosPage({
     .range(from, to);
   if (estado) dataQuery = dataQuery.eq("estado", estado);
   if (maquina) dataQuery = dataQuery.eq("maquina_asignada", maquina);
+  if (busquedaSegura) {
+    const parts = [
+      `tipo_tablero.ilike.%${busquedaSegura}%`,
+      `marca_melamina.ilike.%${busquedaSegura}%`,
+      ...(clienteIds.length > 0 ? [`cliente_id.in.(${clienteIds.join(",")})`] : []),
+    ];
+    dataQuery = dataQuery.or(parts.join(","));
+  }
 
-  const [
-    { data: pedidosRaw, count: filteredCount },
-    { count: total },
-    { count: enProduccion },
-    { count: listosHoy },
-  ] = await Promise.all([
-    dataQuery,
-    supabase.from("pedidos").select("*", { count: "exact", head: true }),
-    supabase.from("pedidos").select("*", { count: "exact", head: true })
-      .in("estado", ["En cola", "En corte", "En tapacantos"]),
-    supabase.from("pedidos").select("*", { count: "exact", head: true })
-      .eq("estado", "Listo")
-      .gte("updated_at", startOfToday)
-      .lte("updated_at", endOfToday),
-  ]).catch(() => [
-    { data: [], count: 0 },
-    { count: 0 },
-    { count: 0 },
-    { count: 0 },
-  ] as const);
-
-  const busqueda = q?.toLowerCase().trim() ?? "";
-  const pedidosFiltrados = busqueda
-    ? (pedidosRaw ?? []).filter((p: Record<string, unknown>) => {
-        const nombreCliente = ((p.cliente as Record<string, unknown>)?.nombre as string ?? "").toLowerCase();
-        const material = `${p.tipo_tablero} ${p.marca_melamina}`.toLowerCase();
-        return nombreCliente.includes(busqueda) || material.includes(busqueda);
-      })
-    : (pedidosRaw ?? []);
+  const { data: pedidosFiltrados, count: filteredCount } = await dataQuery;
 
   const totalPages = Math.ceil((filteredCount ?? 0) / PAGE_SIZE);
 
@@ -109,7 +111,7 @@ export default async function PedidosPage({
         <div className="sm:hidden divide-y divide-zinc-100">
           {pedidosFiltrados.length === 0 && (
             <div className="text-center py-16 text-zinc-400 text-sm px-6">
-              {busqueda || estado || maquina
+              {busquedaSegura || estado || maquina
                 ? "Sin resultados para los filtros aplicados."
                 : <span>No hay pedidos aún.{" "}<Link href="/pedidos/nuevo" className="text-zinc-900 font-semibold underline underline-offset-2">Crear el primero</Link></span>
               }
@@ -189,7 +191,7 @@ export default async function PedidosPage({
                       <rect width="6" height="4" x="9" y="3" rx="1"/>
                       <path d="M9 12h6M9 16h4"/>
                     </svg>
-                    {busqueda || estado || maquina
+                    {busquedaSegura || estado || maquina
                       ? "Sin resultados para los filtros aplicados."
                       : <span>No hay pedidos aún.{" "}<Link href="/pedidos/nuevo" className="text-zinc-900 font-semibold underline underline-offset-2">Crear el primero</Link></span>
                     }
@@ -274,7 +276,7 @@ export default async function PedidosPage({
             {pedidosFiltrados.length > 0
               ? `${from + 1}–${from + pedidosFiltrados.length} de ${filteredCount ?? "?"} pedidos`
               : "Sin resultados"}
-            {(busqueda || estado || maquina) ? " · filtrado" : ""}
+            {(busquedaSegura || estado || maquina) ? " · filtrado" : ""}
           </p>
 
           {totalPages > 1 && (
