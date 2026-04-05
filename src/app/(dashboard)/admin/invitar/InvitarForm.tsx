@@ -3,27 +3,40 @@
 import { useState } from "react";
 import { invitarUsuario } from "./actions";
 
-export default function InvitarForm() {
+const ROLES = [
+  { value: "viewer",     label: "Visualizador",        desc: "Solo puede ver pedidos" },
+  { value: "ventas",     label: "Ventas",              desc: "Crea y gestiona pedidos" },
+  { value: "produccion", label: "Jefe de Producción",  desc: "Avanza estados de producción" },
+  { value: "almacenes",  label: "Almacenes",           desc: "Acceso a inventario y entregas" },
+  { value: "admin",      label: "Administrador",       desc: "Control total del sistema" },
+] as const;
+
+type RolValue = typeof ROLES[number]["value"];
+
+export default function InvitarForm({ isAdmin }: { isAdmin?: boolean }) {
   const [email, setEmail] = useState("");
+  const [rol, setRol] = useState<RolValue>("ventas");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null);
-  const [historial, setHistorial] = useState<string[]>([]);
+  const [historial, setHistorial] = useState<{ email: string; rol: string }[]>([]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setResult(null);
 
-    const res = await invitarUsuario(email.trim().toLowerCase());
+    const res = await invitarUsuario(email.trim().toLowerCase(), rol);
     setResult(res);
 
     if (res.success) {
-      setHistorial((prev) => [email.trim().toLowerCase(), ...prev]);
+      setHistorial((prev) => [{ email: email.trim().toLowerCase(), rol }, ...prev]);
       setEmail("");
     }
 
     setLoading(false);
   }
+
+  const rolesVisibles = isAdmin ? ROLES : ROLES.filter(r => r.value !== "admin");
 
   return (
     <div className="p-8 max-w-xl mx-auto min-h-full">
@@ -50,6 +63,35 @@ export default function InvitarForm() {
                 placeholder="nombre@empresa.com" required
                 className="w-full pl-9 pr-3 py-2.5 border border-zinc-200 rounded-xl text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 bg-white"
                 style={{ "--tw-ring-color": "#1957A6" } as React.CSSProperties} />
+            </div>
+          </div>
+
+          {/* Selector de rol */}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5">
+              Rol
+            </label>
+            <div className="grid grid-cols-1 gap-2">
+              {rolesVisibles.map(r => (
+                <label key={r.value} className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all ${
+                  rol === r.value
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-zinc-200 bg-white hover:border-zinc-300"
+                }`}>
+                  <input
+                    type="radio" name="rol" value={r.value}
+                    checked={rol === r.value}
+                    onChange={() => setRol(r.value)}
+                    className="accent-blue-600"
+                  />
+                  <div>
+                    <p className={`text-sm font-semibold ${rol === r.value ? "text-blue-700" : "text-zinc-800"}`}>
+                      {r.label}
+                    </p>
+                    <p className="text-xs text-zinc-400">{r.desc}</p>
+                  </div>
+                </label>
+              ))}
             </div>
           </div>
 
@@ -100,14 +142,19 @@ export default function InvitarForm() {
         <div className="bg-white border border-zinc-200 rounded-2xl p-5">
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-3">Enviados en esta sesión</p>
           <div className="flex flex-col gap-2">
-            {historial.map((e) => (
-              <div key={e} className="flex items-center gap-2.5 text-sm text-zinc-700">
-                <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
+            {historial.map((e, i) => (
+              <div key={i} className="flex items-center justify-between text-sm text-zinc-700">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
+                  {e.email}
+                </div>
+                <span className="text-[11px] font-bold bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-full capitalize">
+                  {e.rol}
                 </span>
-                {e}
               </div>
             ))}
           </div>
