@@ -433,7 +433,7 @@ export default function NuevoPedidoPage() {
           metros_canto_grueso:  parseFloat(l.metrosGrueso || "0"),
         }));
         const { error: lineasError } = await supabase.from("pedido_lineas").insert(lineasPayload);
-        if (lineasError) console.warn("pedido_lineas insert error:", lineasError.message);
+        if (lineasError) throw new Error(lineasError.message);
       }
 
       router.push("/pedidos");
@@ -441,7 +441,6 @@ export default function NuevoPedidoPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : JSON.stringify(err);
       setError(`Error: ${msg}`);
-      console.error(err);
     } finally {
       setLoading(false);
     }

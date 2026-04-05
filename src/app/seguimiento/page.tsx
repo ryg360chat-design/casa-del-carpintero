@@ -76,7 +76,7 @@ export default async function SeguimientoPage({
       const clienteIds = clientes.map((c: { id: string }) => c.id);
       const { data } = await supabase
         .from("pedidos")
-        .select("*, cliente:clientes(nombre, telefono)")
+        .select("id, estado, prioridad, tipo_tablero, marca_melamina, fecha_ingreso, fecha_entrega_estimada, fecha_entrega_real, cliente:clientes(nombre, telefono)")
         .in("cliente_id", clienteIds)
         .not("estado", "eq", "Cancelado")
         .order("fecha_ingreso", { ascending: false })

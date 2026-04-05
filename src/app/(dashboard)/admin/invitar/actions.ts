@@ -1,8 +1,14 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getUserRole, IS_ADMIN } from "@/lib/auth";
 
 export async function invitarUsuario(email: string) {
+  const role = await getUserRole();
+  if (!IS_ADMIN.includes(role)) {
+    return { error: "Sin permisos para invitar usuarios." };
+  }
+
   if (!email || !email.includes("@")) {
     return { error: "Correo inválido." };
   }

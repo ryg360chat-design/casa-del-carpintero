@@ -1,18 +1,27 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createClient } from '@/lib/supabase/server'
+import { timingSafeEqual } from 'crypto'
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.HUB_API_SECRET}`) {
+  const token = request.headers.get('authorization')?.replace('Bearer ', '') ?? ''
+  const validToken = process.env.HUB_API_SECRET ?? ''
+
+  let authorized = false
+  try {
+    authorized =
+      token.length > 0 &&
+      token.length === validToken.length &&
+      timingSafeEqual(Buffer.from(token), Buffer.from(validToken))
+  } catch {
+    authorized = false
+  }
+
+  if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
+    const supabase = await createClient()
     const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
 

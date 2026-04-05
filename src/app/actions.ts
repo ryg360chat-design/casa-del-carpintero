@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getUserRole, IS_ADMIN } from "@/lib/auth";
+import { getUserRole, IS_ADMIN, CAN_ADVANCE_STATE } from "@/lib/auth";
 
 const SIGUIENTE_ESTADO: Record<string, string> = {
   "En cola": "En corte",
@@ -11,6 +11,9 @@ const SIGUIENTE_ESTADO: Record<string, string> = {
 };
 
 export async function avanzarEstado(pedidoId: string, estadoActual: string) {
+  const role = await getUserRole();
+  if (!CAN_ADVANCE_STATE.includes(role)) return { error: "Sin permisos" };
+
   const siguiente = SIGUIENTE_ESTADO[estadoActual];
   if (!siguiente) return { error: "No hay siguiente estado" };
 
@@ -35,6 +38,9 @@ export async function avanzarEstado(pedidoId: string, estadoActual: string) {
 }
 
 export async function toggleMaquina(maquinaId: string, activa: boolean) {
+  const role = await getUserRole();
+  if (!IS_ADMIN.includes(role)) return { error: "Sin permisos" };
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("maquinas")
@@ -89,6 +95,9 @@ export async function marcarVendido(pedidoId: string) {
 }
 
 export async function cancelarPedido(pedidoId: string) {
+  const role = await getUserRole();
+  if (!IS_ADMIN.includes(role)) return { error: "Sin permisos" };
+
   const supabase = await createClient();
 
   const { error } = await supabase
