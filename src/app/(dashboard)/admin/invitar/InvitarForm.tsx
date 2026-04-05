@@ -131,10 +131,10 @@ export default function InvitarForm({ isAdmin }: { isAdmin?: boolean }) {
       <div className="rounded-xl p-4 mb-6 text-sm" style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.2)" }}>
         <p className="font-semibold text-zinc-800 mb-1">¿Cómo funciona?</p>
         <ol className="text-zinc-500 text-xs flex flex-col gap-1 list-decimal list-inside">
-          <li>Ingresás el correo del nuevo usuario</li>
-          <li>Supabase le envía un email automáticamente con un link seguro</li>
+          <li>Ingresás el correo y el rol del nuevo usuario</li>
+          <li>El sistema le envía un email con un link seguro</li>
           <li>El usuario hace clic en el link y elige su contraseña</li>
-          <li>Ya puede ingresar al sistema normalmente</li>
+          <li>Ya puede ingresar al sistema con el rol asignado</li>
         </ol>
       </div>
 
