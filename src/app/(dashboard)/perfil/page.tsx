@@ -38,17 +38,19 @@ export default function PerfilPage() {
   const [passSuccess, setPassSuccess] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setUser({ email: user.email ?? "", id: user.id });
-
+      if (!user || cancelled) return;
       const { data } = await supabase.from("profiles").select("rol").eq("id", user.id).maybeSingle();
+      if (cancelled) return;
+      setUser({ email: user.email ?? "", id: user.id });
       setRole(data?.rol ?? "viewer");
       setLoadingUser(false);
     }
     load();
+    return () => { cancelled = true; };
   }, []);
 
   async function handleChangePassword(e: React.FormEvent) {
