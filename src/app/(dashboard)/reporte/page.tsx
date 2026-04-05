@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import ImprimirBtn from "@/components/ImprimirBtn";
 import GuardarReporteBtn from "@/components/GuardarReporteBtn";
 import AutoRefresh from "@/components/AutoRefresh";
-import { limaTime } from "@/lib/time";
+import { limaTime, limaDateTime, limaStartOfToday, limaEndOfToday, limaTodayKey, TZ } from "@/lib/time";
 import Link from "next/link";
 
 const ESTADO_LABEL: Record<string, string> = {
@@ -20,12 +20,11 @@ const CIRC = 2 * Math.PI * 44; // r=44 → ≈ 276.5
 export default async function ReportePage() {
   const supabase = await createClient();
 
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const manana = new Date(hoy);
-  manana.setDate(manana.getDate() + 1);
-  const hace7dias = new Date(hoy);
-  hace7dias.setDate(hace7dias.getDate() - 6);
+  const startOfToday = limaStartOfToday();
+  const endOfToday   = limaEndOfToday();
+  const hace7diasDate = new Date();
+  hace7diasDate.setDate(hace7diasDate.getDate() - 6);
+  const hace7dias = hace7diasDate.toISOString();
 
   const [
     { data: pedidosHoy },
@@ -42,8 +41,8 @@ export default async function ReportePage() {
     supabase
       .from("pedidos")
       .select("*, cliente:clientes(nombre, telefono)")
-      .gte("created_at", hoy.toISOString())
-      .lt("created_at", manana.toISOString())
+      .gte("created_at", startOfToday)
+      .lte("created_at", endOfToday)
       .order("prioridad", { ascending: true })
       .order("created_at", { ascending: true }),
     supabase
@@ -55,9 +54,9 @@ export default async function ReportePage() {
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En tapacantos"),
-    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Listo").gte("updated_at", hoy.toISOString()),
-    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Vendido").gte("updated_at", hoy.toISOString()),
-    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Cancelado").gte("updated_at", hoy.toISOString()),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Listo").gte("updated_at", startOfToday),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Vendido").gte("updated_at", startOfToday),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Cancelado").gte("updated_at", startOfToday),
     supabase
       .from("pedidos")
       .select("maquina_asignada, updated_at, cant_planchas, cant_piezas")
@@ -69,8 +68,8 @@ export default async function ReportePage() {
       .in("estado", ["En cola", "En corte", "En tapacantos"]),
   ]);
 
-  const fechaHoy = hoy.toLocaleDateString("es", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  const fechaHoy = new Date().toLocaleDateString("es", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: TZ,
   });
   const horaGenera = limaTime(new Date());
 
@@ -489,7 +488,7 @@ export default async function ReportePage() {
                   const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
                   const numeroOrden = `#${String(p.id as string).slice(-4).toUpperCase()}`;
                   const entrega = p.fecha_entrega_estimada
-                    ? new Date(p.fecha_entrega_estimada as string).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })
+                    ? limaDateTime(p.fecha_entrega_estimada as string)
                     : "—";
                   return (
                     <tr key={p.id as string} className={`border-b border-zinc-50 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-zinc-50/50"}`}>

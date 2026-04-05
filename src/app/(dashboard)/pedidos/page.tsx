@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
 import PedidosFiltros from "@/components/PedidosFiltros";
-import { limaDate, limaTime } from "@/lib/time";
+import { limaDate, limaTime, limaStartOfToday, limaEndOfToday } from "@/lib/time";
 
 const ESTADO_STYLE: Record<string, { bg: string; dot: string }> = {
   "En cola":       { bg: "bg-slate-100 text-slate-600 border border-slate-200", dot: "bg-slate-400" },
@@ -25,10 +25,8 @@ export default async function PedidosPage({
   const currentPage = Math.max(1, parseInt(pageParam ?? "1"));
   const supabase = await createClient();
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const startOfToday = limaStartOfToday();
+  const endOfToday   = limaEndOfToday();
 
   const from = (currentPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -54,8 +52,8 @@ export default async function PedidosPage({
       .in("estado", ["En cola", "En corte", "En tapacantos"]),
     supabase.from("pedidos").select("*", { count: "exact", head: true })
       .eq("estado", "Listo")
-      .gte("updated_at", today.toISOString())
-      .lt("updated_at", tomorrow.toISOString()),
+      .gte("updated_at", startOfToday)
+      .lte("updated_at", endOfToday),
   ]).catch(() => [
     { data: [], count: 0 },
     { count: 0 },

@@ -5,7 +5,7 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 import GreetingHeader from "@/components/GreetingHeader";
 import Link from "next/link";
 import React from "react";
-import { limaTime, limaDate, esHoyLima, esMañanaLima } from "@/lib/time";
+import { limaTime, limaDate, esHoyLima, esMañanaLima, limaStartOfToday, limaEndOfToday } from "@/lib/time";
 
 const ESTADO_PROGRESS: Record<string, number> = {
   "En cola": 20,
@@ -203,10 +203,8 @@ export default async function DashboardPage() {
   const role = await getUserRole();
   const canAdvance = CAN_ADVANCE_STATE.includes(role);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const startOfToday = limaStartOfToday();
+  const endOfToday   = limaEndOfToday();
 
   const [
     { count: pedidosHoy },
@@ -218,13 +216,13 @@ export default async function DashboardPage() {
     { data: maquinas },
   ] = await Promise.all([
     supabase.from("pedidos").select("*", { count: "exact", head: true })
-      .gte("created_at", today.toISOString())
-      .lt("created_at", tomorrow.toISOString()),
+      .gte("created_at", startOfToday)
+      .lte("created_at", endOfToday),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true })
       .in("estado", ["Listo", "Vendido"])
-      .gte("updated_at", today.toISOString()),
+      .gte("updated_at", startOfToday),
     supabase.from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M1")

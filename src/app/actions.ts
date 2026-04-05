@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getUserRole, IS_ADMIN, CAN_ADVANCE_STATE } from "@/lib/auth";
+import { limaTodayKey } from "@/lib/time";
 
 const SIGUIENTE_ESTADO: Record<string, string> = {
   "En cola": "En corte",
@@ -74,7 +75,7 @@ export async function guardarReporte(stats: {
   }
 
   const supabase = await createClient();
-  const fecha = new Date().toISOString().split("T")[0];
+  const fecha = limaTodayKey();
   const { error } = await supabase
     .from("reportes_guardados")
     .upsert({ fecha, stats }, { onConflict: "fecha" });
