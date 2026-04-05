@@ -3,6 +3,7 @@ import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO, IS_ADMIN } from "@/l
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
+import { TZ } from "@/lib/time";
 import CancelarPedidoBtn from "@/components/CancelarPedidoBtn";
 import MarcarVendidoBtn from "@/components/MarcarVendidoBtn";
 
@@ -63,7 +64,6 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   const estaActivo = ["En cola", "En corte", "En tapacantos"].includes(estado);
   const cliente = pedido.cliente as Record<string, unknown> | null;
 
-  const TZ = "America/Lima";
   const fechaIngreso = new Date(pedido.fecha_ingreso).toLocaleDateString("es", {
     weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: TZ,
   });
