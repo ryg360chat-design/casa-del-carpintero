@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO } from "@/lib/auth";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
+import { TZ, limaTime } from "@/lib/time";
 
 const ESTADO_BADGE: Record<string, string> = {
   "En cola": "border border-zinc-300 text-zinc-600 bg-transparent text-xs font-semibold px-3 py-1 rounded-full",
@@ -21,12 +22,11 @@ function PedidoCard({ pedido, canAdvance = true }: { pedido: Record<string, unkn
     : null;
 
   const esHoy = fechaEntrega
-    ? fechaEntrega.toDateString() === new Date().toDateString()
+    ? fechaEntrega.toLocaleDateString("en-CA", { timeZone: TZ }) ===
+      new Date().toLocaleDateString("en-CA", { timeZone: TZ })
     : false;
 
-  const horaEntrega = fechaEntrega
-    ? fechaEntrega.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })
-    : null;
+  const horaEntrega = fechaEntrega ? limaTime(fechaEntrega) : null;
 
   const numeroOrden = `#${String(pedido.id as string).slice(-4).toUpperCase()}`;
 
