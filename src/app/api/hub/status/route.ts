@@ -61,12 +61,14 @@ export async function GET(request: Request) {
       supabase.from('maquinas').select('id, nombre, activa'),
     ])
 
-    const p = pedidos ?? []
-    const ordersToday = p.filter(o => o.fecha_ingreso >= todayStart).length
-    const enCola = p.filter(o => o.estado === 'En cola').length
-    const enCorte = p.filter(o => o.estado === 'En corte').length
-    const enTapacantos = p.filter(o => o.estado === 'En tapacantos').length
-    const listos = p.filter(o => o.estado === 'Listo' && o.fecha_ingreso >= todayStart).length
+    type PedidoRow = { estado: string; fecha_ingreso: string }
+    type MaquinaRow = { id: number; nombre: string; activa: boolean }
+    const p: PedidoRow[] = pedidos ?? []
+    const ordersToday = p.filter((o: PedidoRow) => o.fecha_ingreso >= todayStart).length
+    const enCola = p.filter((o: PedidoRow) => o.estado === 'En cola').length
+    const enCorte = p.filter((o: PedidoRow) => o.estado === 'En corte').length
+    const enTapacantos = p.filter((o: PedidoRow) => o.estado === 'En tapacantos').length
+    const listos = p.filter((o: PedidoRow) => o.estado === 'Listo' && o.fecha_ingreso >= todayStart).length
 
     return NextResponse.json({
       status: 'healthy',
@@ -81,7 +83,7 @@ export async function GET(request: Request) {
           en_tapacantos: enTapacantos,
           listos_hoy: listos,
         },
-        machines: (maquinas ?? []).map((m) => ({
+        machines: (maquinas ?? []).map((m: MaquinaRow) => ({
           id: m.id,
           nombre: m.nombre,
           activa: m.activa,
