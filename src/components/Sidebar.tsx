@@ -151,7 +151,7 @@ export default function Sidebar({
       {/* Logo */}
       <div className="h-[57px] flex items-center px-[14px] border-b border-zinc-800/80 overflow-hidden gap-3">
         <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
-          <span className="text-white font-black text-[13px] tracking-tight">CC</span>
+          <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
         </div>
         <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75">
           <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap">CASA DEL CARPINTERO</p>

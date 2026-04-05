@@ -54,7 +54,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="flex items-center gap-3 mb-auto">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shrink-0" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">CC</span>
+              <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
             </div>
             <div>
               <p className="text-white font-bold text-base leading-tight tracking-tight">Casa del Carpintero</p>
@@ -112,7 +112,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">CC</span>
+              <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
             </div>
             <span className="font-bold text-zinc-900 text-sm">Casa del Carpintero</span>
           </div>

@@ -111,7 +111,7 @@ export default async function SeguimientoPage({
         <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">CC</span>
+              <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
             </div>
             <div>
               <p className="text-zinc-900 text-sm font-bold leading-tight">Casa del Carpintero</p>

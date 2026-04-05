@@ -26,14 +26,14 @@ export default function BuscarForm({ defaultValue = "" }: { defaultValue?: strin
           type="text"
           defaultValue={defaultValue}
           placeholder="Tu nombre o número de teléfono..."
-          className="w-full pl-10 pr-4 py-3 border border-zinc-200 rounded-xl text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+          className="w-full pl-10 pr-4 py-3 border border-zinc-200 rounded-xl text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           autoFocus
         />
       </div>
       <button
         type="submit"
         className="text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-95 shrink-0"
-        style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" }}
+        style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}
       >
         Buscar
       </button>
