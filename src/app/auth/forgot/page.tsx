@@ -9,10 +9,11 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || cooldown > 0) return;
     setLoading(true);
     setError("");
 
@@ -28,6 +29,14 @@ export default function ForgotPasswordPage() {
     }
     setSent(true);
     setLoading(false);
+    // 60s cooldown para prevenir spam
+    let remaining = 60;
+    setCooldown(remaining);
+    const interval = setInterval(() => {
+      remaining -= 1;
+      setCooldown(remaining);
+      if (remaining <= 0) clearInterval(interval);
+    }, 1000);
   }
 
   return (
@@ -107,7 +116,7 @@ export default function ForgotPasswordPage() {
 
                 <button
                   type="submit"
-                  disabled={loading || !email.trim()}
+                  disabled={loading || !email.trim() || cooldown > 0}
                   className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all press-effect disabled:opacity-40 flex items-center justify-center gap-2"
                   style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
                 >
@@ -118,6 +127,8 @@ export default function ForgotPasswordPage() {
                       </svg>
                       Enviando...
                     </>
+                  ) : cooldown > 0 ? (
+                    `Esperá ${cooldown}s para reenviar`
                   ) : (
                     <>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
