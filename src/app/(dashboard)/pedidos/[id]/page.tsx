@@ -49,12 +49,14 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
       .from("pedido_historial")
       .select("*")
       .eq("pedido_id", id)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(100),
     supabase
       .from("pedido_lineas")
       .select("*")
       .eq("pedido_id", id)
-      .order("orden", { ascending: true }),
+      .order("orden", { ascending: true })
+      .limit(50),
   ]);
 
   const estado = pedido.estado as string;

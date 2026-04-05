@@ -50,7 +50,8 @@ export default async function ReportePage() {
       .select("*, cliente:clientes(nombre)")
       .in("estado", ["En cola", "En corte", "En tapacantos"])
       .order("prioridad", { ascending: true })
-      .order("fecha_ingreso", { ascending: true }),
+      .order("fecha_ingreso", { ascending: true })
+      .limit(200),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En tapacantos"),
@@ -61,11 +62,13 @@ export default async function ReportePage() {
       .from("pedidos")
       .select("maquina_asignada, updated_at, cant_planchas, cant_piezas")
       .in("estado", ["Listo", "Vendido"])
-      .gte("updated_at", hace7dias.toISOString()),
+      .gte("updated_at", hace7dias)
+      .limit(500),
     supabase
       .from("pedidos")
       .select("maquina_asignada")
-      .in("estado", ["En cola", "En corte", "En tapacantos"]),
+      .in("estado", ["En cola", "En corte", "En tapacantos"])
+      .limit(200),
   ]);
 
   const fechaHoy = new Date().toLocaleDateString("es", {
