@@ -51,24 +51,25 @@ export async function GET(request: Request) {
     const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
 
+    // Reemplaza el select de TODOS los pedidos por 5 COUNT queries paralelas (sin transferir datos)
+    type MaquinaRow = { id: number; nombre: string; activa: boolean }
     const [
       { count: totalUsers },
-      { data: pedidos },
+      { count: ordersToday },
+      { count: enCola },
+      { count: enCorte },
+      { count: enTapacantos },
+      { count: listos },
       { data: maquinas },
     ] = await Promise.all([
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('pedidos').select('estado, fecha_ingreso'),
+      supabase.from('pedidos').select('*', { count: 'exact', head: true }).gte('fecha_ingreso', todayStart),
+      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'En cola'),
+      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'En corte'),
+      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'En tapacantos'),
+      supabase.from('pedidos').select('*', { count: 'exact', head: true }).eq('estado', 'Listo').gte('fecha_ingreso', todayStart),
       supabase.from('maquinas').select('id, nombre, activa'),
     ])
-
-    type PedidoRow = { estado: string; fecha_ingreso: string }
-    type MaquinaRow = { id: number; nombre: string; activa: boolean }
-    const p: PedidoRow[] = pedidos ?? []
-    const ordersToday = p.filter((o: PedidoRow) => o.fecha_ingreso >= todayStart).length
-    const enCola = p.filter((o: PedidoRow) => o.estado === 'En cola').length
-    const enCorte = p.filter((o: PedidoRow) => o.estado === 'En corte').length
-    const enTapacantos = p.filter((o: PedidoRow) => o.estado === 'En tapacantos').length
-    const listos = p.filter((o: PedidoRow) => o.estado === 'Listo' && o.fecha_ingreso >= todayStart).length
 
     return NextResponse.json({
       status: 'healthy',
