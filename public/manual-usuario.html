@@ -24,10 +24,7 @@
     background: #0f172a; color: #cbd5e1; overflow-y: auto; z-index: 100;
     display: flex; flex-direction: column;
   }
-  .sidebar-brand {
-    padding: 24px 20px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
+  .sidebar-brand { padding: 24px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
   .sidebar-brand .logo {
     width: 38px; height: 38px; border-radius: 10px;
     background: linear-gradient(135deg, var(--blue), var(--teal));
@@ -43,7 +40,7 @@
   }
   .sidebar-search input {
     background: none; border: none; outline: none; color: #e2e8f0;
-    font-size: 12px; width: 100%; placeholder-color: #64748b;
+    font-size: 12px; width: 100%;
   }
   .sidebar-search input::placeholder { color: #475569; }
   .sidebar-section { padding: 8px 0; }
@@ -55,11 +52,12 @@
     display: flex; align-items: center; gap: 10px;
     padding: 8px 20px; font-size: 12.5px; color: #94a3b8;
     cursor: pointer; border-left: 2px solid transparent;
-    transition: all 0.15s; text-decoration: none;
+    transition: all 0.15s; text-decoration: none; user-select: none;
   }
   .nav-item:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
-  .nav-item.active { background: rgba(25,87,166,0.15); color: #93c5fd; border-left-color: var(--blue); }
+  .nav-item.active { background: rgba(25,87,166,0.18); color: #93c5fd; border-left-color: var(--blue); }
   .nav-item .icon { font-size: 14px; width: 18px; text-align: center; }
+  .nav-item.hidden-by-search { display: none; }
   .sidebar-footer {
     margin-top: auto; padding: 14px 20px;
     border-top: 1px solid rgba(255,255,255,0.07);
@@ -67,10 +65,44 @@
   }
 
   /* ── MAIN ── */
-  .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+  .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(248,249,251,0.95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 56px; display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+  }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
+  .breadcrumb .sep { color: #cbd5e1; }
+  .breadcrumb .current { color: #374151; font-weight: 600; }
+  .nav-controls { display: flex; gap: 8px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid #e2e8f0; background: #fff;
+    color: #374151; transition: all 0.15s;
+  }
+  .nav-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* ── SECTIONS (SPA) ── */
+  .page { display: none; flex-direction: column; flex: 1; }
+  .page.active {
+    display: flex;
+    animation: fadeSlide 0.22s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── HERO (solo en inicio) ── */
   .hero {
     background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
-    color: white; padding: 60px 56px 48px;
+    color: white; padding: 52px 56px 44px;
   }
   .hero-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -78,27 +110,28 @@
     border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
     margin-bottom: 18px;
   }
-  .hero h1 { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
-  .hero p  { font-size: 16px; opacity: 0.85; max-width: 560px; }
-  .hero-meta { display: flex; gap: 32px; margin-top: 32px; }
+  .hero h1 { font-size: 34px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+  .hero p  { font-size: 15px; opacity: 0.85; max-width: 520px; }
+  .hero-meta { display: flex; gap: 32px; margin-top: 28px; }
   .hero-meta div { font-size: 12px; opacity: 0.7; }
   .hero-meta strong { display: block; font-size: 22px; font-weight: 800; opacity: 1; }
 
-  .content { padding: 48px 56px; max-width: 960px; }
+  /* ── PAGE HEADER (para páginas que no son inicio) ── */
+  .page-hero {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+    color: white; padding: 36px 56px 32px;
+    display: flex; align-items: center; gap: 18px;
+  }
+  .page-hero-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .page-hero h2 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+  .page-hero p  { font-size: 13.5px; opacity: 0.8; }
 
-  /* ── SECTIONS ── */
-  .section { margin-bottom: 64px; scroll-margin-top: 24px; }
-  .section-header {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
-    padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;
-  }
-  .section-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-  .section-header h2 { font-size: 22px; font-weight: 800; color: #0f172a; }
-  .section-header p  { font-size: 13px; color: #64748b; margin-top: 2px; }
+  /* ── CONTENT ── */
+  .content { padding: 40px 56px 56px; max-width: 960px; }
 
   /* ── CARDS ── */
   .card {
@@ -115,11 +148,10 @@
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 
-  /* ── BADGES / CHIPS ── */
+  /* ── BADGES ── */
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700;
-    border: 1px solid transparent;
+    padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid transparent;
   }
   .badge-blue   { background: #eff6ff; color: var(--blue);   border-color: #bfdbfe; }
   .badge-teal   { background: #f0fdf9; color: var(--teal);   border-color: #99f6e4; }
@@ -134,8 +166,7 @@
   .role-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .role-table th {
     background: #f8fafc; color: #64748b; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.05em; padding: 10px 14px; text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    letter-spacing: 0.05em; padding: 10px 14px; text-align: left; border-bottom: 1px solid #e2e8f0;
   }
   .role-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #374151; }
   .role-table tr:last-child td { border-bottom: none; }
@@ -145,9 +176,7 @@
 
   /* ── STATE FLOW ── */
   .state-flow { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
-  .state-node {
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-  }
+  .state-node { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .state-circle {
     width: 52px; height: 52px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -156,7 +185,7 @@
   .state-label { font-size: 11px; font-weight: 600; color: #475569; text-align: center; max-width: 64px; }
   .state-arrow { font-size: 20px; color: #94a3b8; margin: 0 4px; padding-bottom: 20px; }
 
-  /* ── STEP BOXES ── */
+  /* ── STEPS ── */
   .steps { display: flex; flex-direction: column; gap: 12px; }
   .step { display: flex; gap: 16px; align-items: flex-start; }
   .step-num {
@@ -167,7 +196,7 @@
   .step-content h4 { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
   .step-content p  { font-size: 13px; color: #64748b; }
 
-  /* ── TIP BOX ── */
+  /* ── TIP / WARNING ── */
   .tip {
     display: flex; gap: 12px; background: #eff6ff; border: 1px solid #bfdbfe;
     border-radius: 10px; padding: 14px 16px; margin: 16px 0;
@@ -175,7 +204,6 @@
   .tip-icon { font-size: 18px; flex-shrink: 0; }
   .tip p { font-size: 13px; color: #1d4ed8; line-height: 1.6; }
   .tip strong { display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px; color: #1e40af; }
-
   .warning {
     display: flex; gap: 12px; background: #fff7ed; border: 1px solid #fed7aa;
     border-radius: 10px; padding: 14px 16px; margin: 16px 0;
@@ -200,60 +228,57 @@
   .accordion-body li { margin-bottom: 5px; }
 
   /* ── MOCK UI ── */
-  .mock-ui {
-    background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
-    padding: 20px; margin: 16px 0; font-family: monospace;
-  }
+  .mock-ui { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 16px 0; }
   .mock-topbar {
     background: #fff; border-radius: 8px; padding: 10px 16px;
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 12px; border: 1px solid #e2e8f0;
   }
-  .mock-stat {
-    background: #fff; border-radius: 8px; padding: 14px 16px; border: 1px solid #e2e8f0;
-    text-align: center;
-  }
+  .mock-stat { background: #fff; border-radius: 8px; padding: 14px 16px; border: 1px solid #e2e8f0; text-align: center; }
   .mock-stat .val { font-size: 24px; font-weight: 800; color: #0f172a; font-family: -apple-system, sans-serif; }
   .mock-stat .lbl { font-size: 10px; color: #94a3b8; font-family: -apple-system, sans-serif; margin-top: 2px; }
   .mock-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: -apple-system, sans-serif; }
 
-  /* ── KEYBOARD ── */
-  kbd {
-    display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1;
-    border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace;
-    box-shadow: 0 1px 0 #cbd5e1; color: #374151;
+  /* ── MISC ── */
+  kbd { display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace; box-shadow: 0 1px 0 #cbd5e1; color: #374151; }
+  mark { background: #fef9c3; border-radius: 3px; padding: 1px 4px; }
+  code { background: #f1f5f9; border-radius: 4px; padding: 2px 6px; font-size: 12px; color: #0f172a; font-family: monospace; }
+  .prog-track { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .prog-fill   { height: 100%; border-radius: 3px; }
+
+  /* ── PAGE FOOTER NAV ── */
+  .page-footer {
+    margin-top: auto; border-top: 1px solid #e2e8f0;
+    padding: 20px 56px; display: flex; align-items: center; justify-content: space-between;
+    background: #fff;
   }
+  .page-footer-prev, .page-footer-next {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    padding: 10px 18px; border-radius: 10px; font-size: 12.5px; font-weight: 600;
+    border: 1px solid #e2e8f0; background: #fff; color: #374151; transition: all 0.15s;
+  }
+  .page-footer-prev:hover, .page-footer-next:hover { background: #f1f5f9; border-color: #cbd5e1; }
+  .page-footer-prev.invisible, .page-footer-next.invisible { visibility: hidden; }
+  .page-pos { font-size: 11px; color: #94a3b8; }
 
   /* ── SCROLLBAR ── */
   .sidebar::-webkit-scrollbar { width: 4px; }
   .sidebar::-webkit-scrollbar-track { background: transparent; }
   .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
 
-  /* ── PRINT ── */
-  @media print {
-    .sidebar { display: none; }
-    .main { margin-left: 0; }
-    .hero { padding: 32px; }
-    .content { padding: 24px; }
-  }
-
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     .sidebar { display: none; }
     .main { margin-left: 0; }
-    .hero { padding: 32px 24px; }
-    .content { padding: 24px; }
+    .hero, .page-hero, .content, .topbar, .page-footer { padding-left: 24px; padding-right: 24px; }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .hero-meta { flex-wrap: wrap; gap: 16px; }
   }
-
-  /* ── HIGHLIGHT ── */
-  mark { background: #fef9c3; border-radius: 3px; padding: 1px 4px; }
-  code { background: #f1f5f9; border-radius: 4px; padding: 2px 6px; font-size: 12px; color: #0f172a; font-family: monospace; }
-
-  /* Progress bar mock */
-  .prog-track { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 6px; }
-  .prog-fill   { height: 100%; border-radius: 3px; }
+  @media print {
+    .sidebar, .topbar, .page-footer { display: none; }
+    .main { margin-left: 0; }
+    .page { display: flex !important; }
+  }
 </style>
 </head>
 <body>
@@ -261,7 +286,7 @@
 <!-- ══════════════════ SIDEBAR ══════════════════ -->
 <nav class="sidebar">
   <div class="sidebar-brand">
-    <div class="logo">CC</div>
+    <div class="logo">CDC</div>
     <h2>Casa del Carpintero</h2>
     <p>Manual de Usuario · v1.0</p>
   </div>
@@ -273,32 +298,32 @@
 
   <div class="sidebar-section">
     <div class="sidebar-section-title">Introducción</div>
-    <a class="nav-item active" onclick="scrollTo('inicio')"><span class="icon">🏠</span> Inicio</a>
-    <a class="nav-item" onclick="scrollTo('roles')"><span class="icon">👥</span> Roles y permisos</a>
-    <a class="nav-item" onclick="scrollTo('acceso')"><span class="icon">🔐</span> Acceso al sistema</a>
+    <a class="nav-item" data-section="inicio"><span class="icon">🏠</span> Inicio</a>
+    <a class="nav-item" data-section="roles"><span class="icon">👥</span> Roles y permisos</a>
+    <a class="nav-item" data-section="acceso"><span class="icon">🔐</span> Acceso al sistema</a>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-section-title">Módulos principales</div>
-    <a class="nav-item" onclick="scrollTo('dashboard')"><span class="icon">📊</span> Dashboard</a>
-    <a class="nav-item" onclick="scrollTo('pedidos')"><span class="icon">📋</span> Pedidos</a>
-    <a class="nav-item" onclick="scrollTo('nuevo-pedido')"><span class="icon">➕</span> Crear pedido</a>
-    <a class="nav-item" onclick="scrollTo('produccion')"><span class="icon">⚙️</span> Producción</a>
-    <a class="nav-item" onclick="scrollTo('calendario')"><span class="icon">📅</span> Calendario</a>
-    <a class="nav-item" onclick="scrollTo('reporte')"><span class="icon">📈</span> Reporte</a>
+    <a class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" data-section="pedidos"><span class="icon">📋</span> Pedidos</a>
+    <a class="nav-item" data-section="nuevo-pedido"><span class="icon">➕</span> Crear pedido</a>
+    <a class="nav-item" data-section="produccion"><span class="icon">⚙️</span> Producción</a>
+    <a class="nav-item" data-section="calendario"><span class="icon">📅</span> Calendario</a>
+    <a class="nav-item" data-section="reporte"><span class="icon">📈</span> Reporte</a>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-section-title">Administración</div>
-    <a class="nav-item" onclick="scrollTo('ajustes')"><span class="icon">⚙️</span> Ajustes</a>
-    <a class="nav-item" onclick="scrollTo('admin')"><span class="icon">👤</span> Usuarios</a>
-    <a class="nav-item" onclick="scrollTo('seguimiento')"><span class="icon">🔍</span> Seguimiento</a>
+    <a class="nav-item" data-section="ajustes"><span class="icon">⚙️</span> Ajustes</a>
+    <a class="nav-item" data-section="admin"><span class="icon">👤</span> Usuarios</a>
+    <a class="nav-item" data-section="seguimiento"><span class="icon">🔍</span> Seguimiento</a>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-section-title">Referencia</div>
-    <a class="nav-item" onclick="scrollTo('estados')"><span class="icon">🔄</span> Estados del pedido</a>
-    <a class="nav-item" onclick="scrollTo('faq')"><span class="icon">❓</span> Preguntas frecuentes</a>
+    <a class="nav-item" data-section="estados"><span class="icon">🔄</span> Estados del pedido</a>
+    <a class="nav-item" data-section="faq"><span class="icon">❓</span> Preguntas frecuentes</a>
   </div>
 
   <div class="sidebar-footer">
@@ -310,49 +335,104 @@
 <!-- ══════════════════ MAIN ══════════════════ -->
 <div class="main">
 
-  <!-- HERO -->
-  <div class="hero" id="inicio">
-    <div class="hero-badge">📖 Documentación oficial</div>
-    <h1>Manual de Usuario<br/>Production OS</h1>
-    <p>Guía completa para gestionar pedidos, producción y reportes en la herramienta digital de Casa del Carpintero.</p>
-    <div class="hero-meta">
-      <div><strong>5</strong> módulos principales</div>
-      <div><strong>6</strong> roles de usuario</div>
-      <div><strong>4</strong> estados de pedido</div>
-      <div><strong>2</strong> máquinas de corte</div>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>Manual</span>
+      <span class="sep">›</span>
+      <span class="current" id="breadcrumbCurrent">Inicio</span>
+    </div>
+    <div class="nav-controls">
+      <button class="nav-btn" id="btnPrev" onclick="navStep(-1)">← Anterior</button>
+      <button class="nav-btn" id="btnNext" onclick="navStep(1)">Siguiente →</button>
     </div>
   </div>
 
-  <div class="content">
-
-    <!-- ══════════ RESUMEN ══════════ -->
-    <div class="section">
-      <div class="grid-3">
-        <div class="card" style="border-top: 3px solid var(--blue);">
+  <!-- ══════════ INICIO ══════════ -->
+  <div class="page" id="page-inicio">
+    <div class="hero">
+      <div class="hero-badge">📖 Documentación oficial</div>
+      <h1>Manual de Usuario<br/>Production OS</h1>
+      <p>Guía completa para gestionar pedidos, producción y reportes en la herramienta digital de Casa del Carpintero.</p>
+      <div class="hero-meta">
+        <div><strong>5</strong> módulos principales</div>
+        <div><strong>6</strong> roles de usuario</div>
+        <div><strong>4</strong> estados de pedido</div>
+        <div><strong>2</strong> máquinas de corte</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-3" style="margin-bottom:32px;">
+        <div class="card" style="border-top:3px solid var(--blue);cursor:pointer;" onclick="goTo('pedidos')">
           <h3>📋 Gestión de pedidos</h3>
           <p>Crea, sigue y completa pedidos con múltiples materiales. El sistema calcula automáticamente el tiempo de entrega.</p>
+          <div style="margin-top:12px;font-size:12px;color:var(--blue);font-weight:600;">Ver módulo →</div>
         </div>
-        <div class="card" style="border-top: 3px solid var(--teal);">
+        <div class="card" style="border-top:3px solid var(--teal);cursor:pointer;" onclick="goTo('produccion')">
           <h3>⚙️ Control de producción</h3>
           <p>Visualiza la cola de cada máquina en tiempo real. Avanza estados desde la planta de producción.</p>
+          <div style="margin-top:12px;font-size:12px;color:var(--teal);font-weight:600;">Ver módulo →</div>
         </div>
-        <div class="card" style="border-top: 3px solid var(--coral);">
+        <div class="card" style="border-top:3px solid var(--coral);cursor:pointer;" onclick="goTo('reporte')">
           <h3>📈 Reportes automáticos</h3>
           <p>El sistema guarda los datos de cada día automáticamente. Genera PDFs con gráficas de productividad.</p>
+          <div style="margin-top:12px;font-size:12px;color:var(--coral);font-weight:600;">Ver módulo →</div>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:#64748b;font-weight:600;margin-bottom:14px;">Navega por los módulos:</p>
+      <div class="grid-2">
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('roles')">
+          <h3>👥 Roles y permisos</h3>
+          <p style="font-size:12.5px;">Qué puede hacer cada tipo de usuario en el sistema.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('acceso')">
+          <h3>🔐 Acceso al sistema</h3>
+          <p style="font-size:12.5px;">Cómo iniciar y cerrar sesión correctamente.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('dashboard')">
+          <h3>📊 Dashboard</h3>
+          <p style="font-size:12.5px;">Vista general en tiempo real de toda la operación.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('nuevo-pedido')">
+          <h3>➕ Crear pedido</h3>
+          <p style="font-size:12.5px;">Formulario de 4 pasos para registrar un pedido completo.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('calendario')">
+          <h3>📅 Calendario</h3>
+          <p style="font-size:12.5px;">Vista de entregas agrupadas por fecha.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('estados')">
+          <h3>🔄 Estados del pedido</h3>
+          <p style="font-size:12.5px;">Flujo de vida de un pedido desde ingreso hasta entrega.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('seguimiento')">
+          <h3>🔍 Seguimiento público</h3>
+          <p style="font-size:12.5px;">Portal sin login para que los clientes consulten su pedido.</p>
+        </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;" onclick="goTo('faq')">
+          <h3>❓ Preguntas frecuentes</h3>
+          <p style="font-size:12.5px;">Soluciones a los problemas más comunes.</p>
         </div>
       </div>
     </div>
+    <div class="page-footer">
+      <span class="page-footer-prev invisible">—</span>
+      <span class="page-pos" id="pos-inicio"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Roles y permisos →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ ROLES ══════════ -->
-    <div class="section" id="roles">
-      <div class="section-header">
-        <div class="section-icon" style="background:#eff6ff;">👥</div>
-        <div>
-          <h2>Roles y permisos</h2>
-          <p>Cada usuario tiene un rol que determina qué puede hacer en el sistema</p>
-        </div>
+  <!-- ══════════ ROLES ══════════ -->
+  <div class="page" id="page-roles">
+    <div class="page-hero">
+      <div class="page-hero-icon">👥</div>
+      <div>
+        <h2>Roles y permisos</h2>
+        <p>Cada usuario tiene un rol que determina qué puede hacer en el sistema</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="card">
         <table class="role-table">
           <thead>
@@ -383,7 +463,7 @@
               <td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
             <tr>
-              <td><span class="badge badge-sage" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;">📦 Almacenes</span></td>
+              <td><span class="badge" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;">📦 Almacenes</span></td>
               <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
             <tr>
@@ -394,22 +474,47 @@
         </table>
       </div>
 
+      <div class="grid-2" style="margin-top:4px;">
+        <div class="card">
+          <h3>🛠 Desarrollador</h3>
+          <p>Acceso total al sistema, incluyendo diagnóstico, configuración técnica y gestión de base de datos. Solo para el equipo técnico.</p>
+        </div>
+        <div class="card">
+          <h3>👑 Administrador</h3>
+          <p>Gestión operativa completa: pedidos, reportes, máquinas, usuarios e invitaciones. Rol del dueño o encargado del taller.</p>
+        </div>
+        <div class="card">
+          <h3>🛒 Ventas</h3>
+          <p>Puede crear pedidos y consultarlos. No puede avanzar estados ni administrar usuarios. Rol para el área comercial.</p>
+        </div>
+        <div class="card">
+          <h3>⚙️ Producción</h3>
+          <p>Puede avanzar estados de pedidos y ver reportes. No crea pedidos. Rol para operarios de la planta.</p>
+        </div>
+      </div>
+
       <div class="tip">
         <div class="tip-icon">💡</div>
         <p><strong>¿Cómo sé mi rol?</strong> Aparece en la parte inferior del sidebar izquierdo junto a tu nombre de usuario.</p>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Inicio</button>
+      <span class="page-pos" id="pos-roles"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Acceso al sistema →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ ACCESO ══════════ -->
-    <div class="section" id="acceso">
-      <div class="section-header">
-        <div class="section-icon" style="background:#faf5ff;">🔐</div>
-        <div>
-          <h2>Acceso al sistema</h2>
-          <p>Cómo iniciar sesión y cerrar sesión correctamente</p>
-        </div>
+  <!-- ══════════ ACCESO ══════════ -->
+  <div class="page" id="page-acceso">
+    <div class="page-hero">
+      <div class="page-hero-icon">🔐</div>
+      <div>
+        <h2>Acceso al sistema</h2>
+        <p>Cómo iniciar sesión y cerrar sesión correctamente</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="grid-2">
         <div class="card">
           <h3>🚀 Iniciar sesión</h3>
@@ -437,34 +542,65 @@
             </div>
           </div>
         </div>
-
         <div class="card">
           <h3>🚪 Cerrar sesión</h3>
           <p>Para cerrar sesión de forma segura:</p>
-          <ul style="margin-top: 12px;">
+          <ul style="margin-top:12px;">
             <li>Haz clic en el botón <strong>"Salir"</strong> al final del sidebar izquierdo</li>
             <li>Espera la confirmación y serás redirigido al login</li>
             <li>No cierres la pestaña sin cerrar sesión en equipos compartidos</li>
           </ul>
-          <div class="warning" style="margin-top: 14px;">
+          <div class="warning" style="margin-top:14px;">
             <div class="tip-icon">⚠️</div>
             <p><strong>En equipos compartidos</strong> siempre cierra sesión al terminar tu turno.</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ══════════ DASHBOARD ══════════ -->
-    <div class="section" id="dashboard">
-      <div class="section-header">
-        <div class="section-icon" style="background:#eff6ff;">📊</div>
-        <div>
-          <h2>Dashboard</h2>
-          <p>Vista general en tiempo real de toda la operación del día</p>
+      <div class="card">
+        <h3>✉️ Primera vez — Activar cuenta</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Recibirás un correo de invitación</h4>
+              <p>El administrador te enviará un email desde el sistema con un enlace de activación.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Haz clic en el enlace</h4>
+              <p>El enlace es válido por 24 horas. Si expira, pide al administrador que reenvíe la invitación.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Establece tu contraseña</h4>
+              <p>Crea una contraseña segura. A partir de ese momento ya puedes ingresar normalmente.</p>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Roles y permisos</button>
+      <span class="page-pos" id="pos-acceso"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Dashboard →</button>
+    </div>
+  </div>
 
-      <!-- Mock UI -->
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <div class="page" id="page-dashboard">
+    <div class="page-hero">
+      <div class="page-hero-icon">📊</div>
+      <div>
+        <h2>Dashboard</h2>
+        <p>Vista general en tiempo real de toda la operación del día</p>
+      </div>
+    </div>
+    <div class="content">
       <div class="mock-ui">
         <div class="mock-topbar">
           <span style="font-family:sans-serif;font-size:13px;font-weight:700;">Buenos días, Juan ☀️ — Turno mañana</span>
@@ -479,7 +615,7 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;padding:12px;">
             <div style="font-family:sans-serif;font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">⚙️ MÁQUINA M1 · 2 activos</div>
-            <div style="background:#f8fafc;border-radius:6px;padding:10px;margin-bottom:6px;font-family:sans-serif;font-size:12px;">
+            <div style="background:#f8fafc;border-radius:6px;padding:10px;font-family:sans-serif;font-size:12px;">
               <div style="font-weight:700;">Empresa Pérez SAC</div>
               <div style="color:#64748b;font-size:11px;">Melamina 18mm · 10 planchas</div>
               <div class="prog-track"><div class="prog-fill" style="width:50%;background:#267A8C;"></div></div>
@@ -521,20 +657,26 @@
 
       <div class="tip">
         <div class="tip-icon">🔄</div>
-        <p><strong>Actualización automática</strong> El dashboard se actualiza solo cada 30 segundos. No hace falta recargar la página.</p>
+        <p><strong>Actualización automática</strong> El dashboard se actualiza solo en tiempo real. No hace falta recargar la página.</p>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Acceso al sistema</button>
+      <span class="page-pos" id="pos-dashboard"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Pedidos →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ PEDIDOS ══════════ -->
-    <div class="section" id="pedidos">
-      <div class="section-header">
-        <div class="section-icon" style="background:#f0fdf9;">📋</div>
-        <div>
-          <h2>Lista de pedidos</h2>
-          <p>Visualiza, filtra y gestiona todos los pedidos del sistema</p>
-        </div>
+  <!-- ══════════ PEDIDOS ══════════ -->
+  <div class="page" id="page-pedidos">
+    <div class="page-hero">
+      <div class="page-hero-icon">📋</div>
+      <div>
+        <h2>Lista de pedidos</h2>
+        <p>Visualiza, filtra y gestiona todos los pedidos del sistema</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="card">
         <h3>🔍 Filtros disponibles</h3>
         <div class="grid-3" style="margin-top:12px;">
@@ -557,7 +699,7 @@
         <h3>📄 Columnas de la tabla</h3>
         <ul>
           <li><strong>#</strong> — Número correlativo del pedido</li>
-          <li><strong>Cliente</strong> — Nombre + código si tiene</li>
+          <li><strong>Cliente</strong> — Nombre + código CDC si tiene</li>
           <li><strong>Material</strong> — Tipo de tablero principal</li>
           <li><strong>Planchas / Piezas</strong> — Cantidades</li>
           <li><strong>Máquina</strong> — M1 o M2 asignada</li>
@@ -571,41 +713,71 @@
         <div class="tip-icon">📄</div>
         <p><strong>Paginación</strong> Se muestran 15 pedidos por página. Usa los botones de paginación en la parte inferior para navegar.</p>
       </div>
-    </div>
 
-    <!-- ══════════ NUEVO PEDIDO ══════════ -->
-    <div class="section" id="nuevo-pedido">
-      <div class="section-header">
-        <div class="section-icon" style="background:#eff6ff;">➕</div>
-        <div>
-          <h2>Crear un nuevo pedido</h2>
-          <p>Formulario de 4 pasos para registrar un pedido completo</p>
+      <div class="card" style="margin-top:4px;">
+        <h3>🔎 Detalle del pedido</h3>
+        <div class="grid-2" style="margin-top:10px;">
+          <div>
+            <p style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px;">INFORMACIÓN PRINCIPAL</p>
+            <ul>
+              <li>Nombre del cliente y código CDC</li>
+              <li>Badges de prioridad y área</li>
+              <li>Fecha de ingreso y hora</li>
+              <li>Máquina asignada</li>
+              <li>Estado actual con stepper visual</li>
+            </ul>
+          </div>
+          <div>
+            <p style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px;">ACCIONES DISPONIBLES</p>
+            <ul>
+              <li>Avanzar estado (Producción / Admin)</li>
+              <li>Cancelar pedido (Ventas / Admin)</li>
+              <li>Ver historial de cambios</li>
+              <li>Ver todas las líneas de material</li>
+            </ul>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Dashboard</button>
+      <span class="page-pos" id="pos-pedidos"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Crear pedido →</button>
+    </div>
+  </div>
 
+  <!-- ══════════ NUEVO PEDIDO ══════════ -->
+  <div class="page" id="page-nuevo-pedido">
+    <div class="page-hero">
+      <div class="page-hero-icon">➕</div>
+      <div>
+        <h2>Crear un nuevo pedido</h2>
+        <p>Formulario de 4 pasos para registrar un pedido completo</p>
+      </div>
+    </div>
+    <div class="content">
       <div class="warning">
         <div class="tip-icon">⚠️</div>
         <p><strong>Roles requeridos:</strong> Solo <span class="badge badge-purple">Desarrollador</span> <span class="badge badge-blue">Administrador</span> <span class="badge badge-teal">Ventas</span> pueden crear pedidos.</p>
       </div>
 
-      <!-- Steps -->
       <div class="grid-2" style="gap:16px;">
-        <div class="card" style="border-left: 4px solid var(--blue);">
+        <div class="card" style="border-left:4px solid var(--blue);">
           <h3><span style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</span> Cliente y Área</h3>
           <ul>
             <li><strong>Nombre del cliente</strong> — Campo con búsqueda automática. Si no existe, se crea al guardar.</li>
             <li><strong>Área solicitante</strong> — Ventas, Producción, Almacenes, Cortes especiales, Administración, Logística</li>
           </ul>
         </div>
-        <div class="card" style="border-left: 4px solid var(--teal);">
+        <div class="card" style="border-left:4px solid var(--teal);">
           <h3><span style="background:var(--teal);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">2</span> Materiales</h3>
           <ul>
-            <li><strong>Múltiples materiales</strong> — Puedes agregar varios materiales distintos en un mismo pedido</li>
+            <li><strong>Múltiples materiales</strong> — Puedes agregar varios distintos en un mismo pedido</li>
             <li>Por cada línea: tipo, marca, espesor, color, planchas, piezas, metros de canto delgado y grueso</li>
             <li>Los totales se calculan automáticamente</li>
           </ul>
         </div>
-        <div class="card" style="border-left: 4px solid var(--coral);">
+        <div class="card" style="border-left:4px solid var(--coral);">
           <h3><span style="background:var(--coral);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">3</span> Servicios adicionales</h3>
           <ul>
             <li><strong>Ranuras</strong> — Fresado para ranuras</li>
@@ -614,21 +786,21 @@
             <li><strong>Corte especial</strong> — Indica el detalle en el campo de texto</li>
           </ul>
         </div>
-        <div class="card" style="border-left: 4px solid var(--sage);">
+        <div class="card" style="border-left:4px solid var(--sage);">
           <h3><span style="background:var(--sage);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">4</span> Prioridad y Turno</h3>
           <ul>
             <li><span class="badge badge-zinc">Normal</span> — Ingresa al final de la cola</li>
             <li><span class="badge badge-coral">⚡ Urgente</span> — Marcado con badge rojo</li>
             <li><span class="badge badge-amber">★ VIP</span> — Marcado con badge dorado</li>
-            <li><strong>Turno</strong> — Mañana, Tarde o Auto (detecta el turno actual)</li>
+            <li><strong>Turno</strong> — Mañana, Tarde o Auto</li>
           </ul>
         </div>
       </div>
 
-      <div class="card" style="margin-top: 8px;">
+      <div class="card" style="margin-top:8px;">
         <h3>🕐 Cálculo automático de entrega</h3>
-        <p>El sistema calcula la fecha y hora de entrega estimada considerando:</p>
-        <ul style="margin-top: 10px;">
+        <p>El sistema calcula la fecha y hora estimada considerando:</p>
+        <ul style="margin-top:10px;">
           <li>Velocidad base: <strong>6 planchas por hora</strong></li>
           <li>+1 hora si tiene ranuras, +1 hora si tiene canto, +30 min si tiene cortes especiales</li>
           <li>Espera en cola: <strong>2 horas por cada pedido delante</strong> en la misma máquina</li>
@@ -637,10 +809,8 @@
         </ul>
       </div>
 
-      <!-- Material types accordion -->
-      <div style="margin-top: 20px;">
-        <p style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 10px;">Tipos de tablero disponibles:</p>
-
+      <div style="margin-top:20px;">
+        <p style="font-size:13px;font-weight:700;color:#374151;margin-bottom:10px;">Tipos de tablero disponibles:</p>
         <div class="accordion">
           <div class="accordion-header" onclick="toggleAccordion(this)">
             <span>🪵 Melamina</span><span class="chevron">▼</span>
@@ -654,7 +824,6 @@
             </ul>
           </div>
         </div>
-
         <div class="accordion">
           <div class="accordion-header" onclick="toggleAccordion(this)">
             <span>🟫 MDF</span><span class="chevron">▼</span>
@@ -667,7 +836,6 @@
             </ul>
           </div>
         </div>
-
         <div class="accordion">
           <div class="accordion-header" onclick="toggleAccordion(this)">
             <span>📦 Triplay / OSB / Laminados / Aglomerado / Otros</span><span class="chevron">▼</span>
@@ -678,84 +846,41 @@
         </div>
       </div>
 
-      <div class="tip" style="margin-top: 16px;">
+      <div class="tip" style="margin-top:16px;">
         <div class="tip-icon">💡</div>
-        <p><strong>Múltiples materiales</strong> Si el pedido incluye tipos de tablero diferentes (ej. melamina + MDF), usa el botón <mark>+ Agregar material</mark> para añadir otra línea. Los totales de planchas y piezas se suman automáticamente.</p>
+        <p><strong>Múltiples materiales</strong> Si el pedido incluye tipos de tablero diferentes (ej. melamina + MDF), usa el botón <mark>+ Agregar material</mark> para añadir otra línea. Los totales se suman automáticamente.</p>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Pedidos</button>
+      <span class="page-pos" id="pos-nuevo-pedido"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Producción →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ DETALLE PEDIDO ══════════ -->
-    <div class="section" id="detalle-pedido">
-      <div class="section-header">
-        <div class="section-icon" style="background:#f0fdf4;">🔎</div>
-        <div>
-          <h2>Detalle del pedido</h2>
-          <p>Vista completa de un pedido individual con todas sus líneas y acciones</p>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <h3>📌 Información principal</h3>
-          <ul>
-            <li>Nombre del cliente y código CDC</li>
-            <li>Badges de prioridad y área</li>
-            <li>Fecha de ingreso y hora</li>
-            <li>Máquina asignada</li>
-            <li>Estado actual con stepper visual</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>📦 Sección de materiales</h3>
-          <ul>
-            <li>Muestra <strong>todas las líneas</strong> de material del pedido</li>
-            <li>Si tiene múltiples materiales, aparece badge <span class="badge badge-blue">X materiales</span></li>
-            <li>Fila de totales (planchas, piezas, canto) al final</li>
-            <li>Pedidos antiguos muestran el formato legacy</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>🔄 Avanzar estado</h3>
-          <ul>
-            <li>Botón disponible solo para <span class="badge badge-blue">Administrador</span> y <span class="badge badge-orange">Producción</span></li>
-            <li>Sigue el flujo: Cola → Corte → Tapacantos → Listo</li>
-            <li>Al llegar a Listo se registra la fecha real de entrega</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>📜 Historial de cambios</h3>
-          <ul>
-            <li>Registro cronológico de todos los cambios de estado</li>
-            <li>Muestra fecha, hora y transición realizada</li>
-            <li>No se puede editar (solo lectura)</li>
-          </ul>
-        </div>
+  <!-- ══════════ PRODUCCION ══════════ -->
+  <div class="page" id="page-produccion">
+    <div class="page-hero">
+      <div class="page-hero-icon">⚙️</div>
+      <div>
+        <h2>Producción</h2>
+        <p>Vista de planta en tiempo real para el equipo de corte</p>
       </div>
     </div>
-
-    <!-- ══════════ PRODUCCION ══════════ -->
-    <div class="section" id="produccion">
-      <div class="section-header">
-        <div class="section-icon" style="background:#fff7ed;">⚙️</div>
-        <div>
-          <h2>Producción</h2>
-          <p>Vista de planta en tiempo real para el equipo de corte</p>
-        </div>
-      </div>
-
+    <div class="content">
       <div class="card">
         <h3>📐 Diseño en dos columnas</h3>
         <p>La pantalla se divide en dos columnas, una por máquina:</p>
-        <div class="grid-2" style="margin-top: 14px;">
+        <div class="grid-2" style="margin-top:14px;">
           <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px;">
             <div style="font-size:11px;font-weight:700;color:#0369a1;margin-bottom:6px;">⚙️ MÁQUINA M1</div>
             <p style="font-size:12px;color:#0c4a6e;">Enchapadora delgada → Sierra circular 1</p>
-            <p style="font-size:12px;color:#0c4a6e;">Muestra todos los pedidos no completados asignados a M1, ordenados por prioridad y hora de ingreso.</p>
+            <p style="font-size:12px;color:#0c4a6e;margin-top:4px;">Muestra todos los pedidos no completados asignados a M1, ordenados por prioridad.</p>
           </div>
           <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;">
             <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;">⚙️ MÁQUINA M2</div>
             <p style="font-size:12px;color:#14532d;">Sierra circular 2 → Enchapadora gruesa</p>
-            <p style="font-size:12px;color:#14532d;">Cola independiente de M2 con los mismos controles de estado.</p>
+            <p style="font-size:12px;color:#14532d;margin-top:4px;">Cola independiente de M2 con los mismos controles de estado.</p>
           </div>
         </div>
       </div>
@@ -793,18 +918,29 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ══════════ CALENDARIO ══════════ -->
-    <div class="section" id="calendario">
-      <div class="section-header">
-        <div class="section-icon" style="background:#fdf4ff;">📅</div>
-        <div>
-          <h2>Calendario</h2>
-          <p>Vista de entregas agrupadas por fecha</p>
-        </div>
+      <div class="tip">
+        <div class="tip-icon">🔄</div>
+        <p><strong>Tiempo real</strong> La pantalla de producción se actualiza automáticamente cuando otro usuario avanza un pedido. No hace falta recargar.</p>
       </div>
+    </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Crear pedido</button>
+      <span class="page-pos" id="pos-produccion"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Calendario →</button>
+    </div>
+  </div>
 
+  <!-- ══════════ CALENDARIO ══════════ -->
+  <div class="page" id="page-calendario">
+    <div class="page-hero">
+      <div class="page-hero-icon">📅</div>
+      <div>
+        <h2>Calendario</h2>
+        <p>Vista de entregas agrupadas por fecha</p>
+      </div>
+    </div>
+    <div class="content">
       <div class="grid-2">
         <div class="card">
           <h3>📅 Qué muestra</h3>
@@ -824,37 +960,48 @@
           </ul>
         </div>
       </div>
+
+      <div class="tip">
+        <div class="tip-icon">📲</div>
+        <p><strong>Coordinación con Ventas</strong> Cuando un pedido pasa a "Listo", el personal de ventas puede verlo inmediatamente en el calendario para coordinarse con el cliente.</p>
+      </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Producción</button>
+      <span class="page-pos" id="pos-calendario"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Reporte →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ REPORTE ══════════ -->
-    <div class="section" id="reporte">
-      <div class="section-header">
-        <div class="section-icon" style="background:#f0fdf4;">📈</div>
-        <div>
-          <h2>Reporte de producción</h2>
-          <p>Analítica diaria y semanal con gráficas, métricas y exportación PDF</p>
-        </div>
+  <!-- ══════════ REPORTE ══════════ -->
+  <div class="page" id="page-reporte">
+    <div class="page-hero">
+      <div class="page-hero-icon">📈</div>
+      <div>
+        <h2>Reporte de producción</h2>
+        <p>Analítica diaria y semanal con gráficas, métricas y exportación PDF</p>
       </div>
-
-      <div class="card" style="border-top: 3px solid var(--teal);">
+    </div>
+    <div class="content">
+      <div class="card" style="border-top:3px solid var(--teal);">
         <h3>🔄 Actualización automática</h3>
-        <p>El reporte se actualiza <strong>cada 30 segundos</strong> automáticamente. Además, cada vez que se abre la página, los datos del día se guardan automáticamente en Supabase para el historial permanente.</p>
+        <p>El reporte se actualiza <strong>cada 30 segundos</strong> automáticamente. Cada vez que se abre la página, los datos del día se guardan en el historial permanente.</p>
       </div>
 
-      <div class="grid-2" style="margin-top: 4px;">
+      <div class="grid-2" style="margin-top:4px;">
         <div class="card">
           <h3>📊 Gauges de carga</h3>
           <p>Dos círculos de progreso muestran el porcentaje de carga actual de M1 y M2 en tiempo real.</p>
-          <ul style="margin-top: 8px;">
+          <ul style="margin-top:8px;">
             <li>0–33% → Carga baja (verde)</li>
             <li>34–66% → Carga media (amarillo)</li>
             <li>67–100% → Carga alta (rojo)</li>
           </ul>
         </div>
         <div class="card">
-          <h3>📉 Gráfico de barras 7 días</h3>
+          <h3>📉 Gráfico 7 días</h3>
           <p>Comparativo de pedidos completados por M1 y M2 en los últimos 7 días.</p>
-          <ul style="margin-top: 8px;">
+          <ul style="margin-top:8px;">
             <li>Barras azules = M1</li>
             <li>Barras teal = M2</li>
             <li>Día actual resaltado</li>
@@ -872,9 +1019,9 @@
         <div class="card">
           <h3>🖨 Exportar PDF</h3>
           <ul>
-            <li>Botón <mark>Imprimir / PDF</mark> en la parte superior del reporte</li>
+            <li>Botón <mark>Imprimir / PDF</mark> en la parte superior</li>
             <li>Formato A4, optimizado para impresión</li>
-            <li>Incluye gauges, gráfico de barras y todas las tablas</li>
+            <li>Incluye gauges, gráfico y tablas</li>
             <li>Oculta controles de la interfaz automáticamente</li>
           </ul>
         </div>
@@ -885,17 +1032,23 @@
         <p><strong>Historial de reportes</strong> Accede a los reportes guardados en <mark>Reporte → Historial</mark>. Cada día queda guardado automáticamente.</p>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Calendario</button>
+      <span class="page-pos" id="pos-reporte"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Ajustes →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ AJUSTES ══════════ -->
-    <div class="section" id="ajustes">
-      <div class="section-header">
-        <div class="section-icon" style="background:#fafafa;">⚙️</div>
-        <div>
-          <h2>Ajustes</h2>
-          <p>Configuración del sistema y gestión de máquinas</p>
-        </div>
+  <!-- ══════════ AJUSTES ══════════ -->
+  <div class="page" id="page-ajustes">
+    <div class="page-hero">
+      <div class="page-hero-icon">⚙️</div>
+      <div>
+        <h2>Ajustes</h2>
+        <p>Configuración del sistema y gestión de máquinas</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="warning">
         <div class="tip-icon">⚠️</div>
         <p><strong>Solo Administrador y Desarrollador</strong> pueden acceder a los ajustes del sistema.</p>
@@ -920,32 +1073,38 @@
         </div>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Reporte</button>
+      <span class="page-pos" id="pos-ajustes"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Usuarios →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ ADMIN ══════════ -->
-    <div class="section" id="admin">
-      <div class="section-header">
-        <div class="section-icon" style="background:#fdf4ff;">👤</div>
-        <div>
-          <h2>Gestión de usuarios</h2>
-          <p>Invitar nuevos usuarios al sistema</p>
-        </div>
+  <!-- ══════════ ADMIN ══════════ -->
+  <div class="page" id="page-admin">
+    <div class="page-hero">
+      <div class="page-hero-icon">👤</div>
+      <div>
+        <h2>Gestión de usuarios</h2>
+        <p>Invitar nuevos usuarios y administrar roles</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="card">
         <h3>✉️ Invitar un nuevo usuario</h3>
         <div class="steps">
           <div class="step">
             <div class="step-num">1</div>
             <div class="step-content">
-              <h4>Ve a Ajustes → Invitar usuario</h4>
+              <h4>Ve a Administración → Invitar usuario</h4>
               <p>Solo visible para Administradores y Desarrolladores.</p>
             </div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
             <div class="step-content">
-              <h4>Ingresa el email corporativo</h4>
-              <p>El sistema enviará un correo de invitación automáticamente.</p>
+              <h4>Ingresa el email y selecciona el rol</h4>
+              <p>El sistema enviará un correo de invitación automáticamente con el rol ya asignado.</p>
             </div>
           </div>
           <div class="step">
@@ -958,32 +1117,49 @@
           <div class="step">
             <div class="step-num">4</div>
             <div class="step-content">
-              <h4>Asignar rol</h4>
-              <p>Contacta al administrador de la base de datos para asignar el rol correcto al nuevo usuario.</p>
+              <h4>Gestión desde la tabla de usuarios</h4>
+              <p>En Administración → Usuarios puedes cambiar el rol o desactivar cualquier usuario en cualquier momento.</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ══════════ SEGUIMIENTO ══════════ -->
-    <div class="section" id="seguimiento">
-      <div class="section-header">
-        <div class="section-icon" style="background:#fff7ed;">🔍</div>
-        <div>
-          <h2>Seguimiento para clientes</h2>
-          <p>Portal público sin login para que los clientes consulten su pedido</p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>🔄 Cambiar rol</h3>
+          <p>Desde la tabla de usuarios, selecciona el nuevo rol en el desplegable de cada fila. El cambio es inmediato.</p>
+        </div>
+        <div class="card">
+          <h3>🚫 Desactivar usuario</h3>
+          <p>El botón Desactivar bloquea el acceso del usuario sin eliminarlo. Puedes reactivarlo en cualquier momento.</p>
         </div>
       </div>
+    </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Ajustes</button>
+      <span class="page-pos" id="pos-admin"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Seguimiento →</button>
+    </div>
+  </div>
 
-      <div class="card" style="border-top: 3px solid var(--orange);">
+  <!-- ══════════ SEGUIMIENTO ══════════ -->
+  <div class="page" id="page-seguimiento">
+    <div class="page-hero">
+      <div class="page-hero-icon">🔍</div>
+      <div>
+        <h2>Seguimiento para clientes</h2>
+        <p>Portal público sin login para que los clientes consulten su pedido</p>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card" style="border-top:3px solid var(--orange);">
         <h3>🌐 Acceso público</h3>
-        <p>Esta pantalla <strong>no requiere login</strong>. Comparte el enlace directamente con tus clientes por WhatsApp o correo.</p>
+        <p>Esta pantalla <strong>no requiere login</strong>. Comparte el enlace directamente con tus clientes por WhatsApp o correo desde Ajustes → Copiar link.</p>
       </div>
 
       <div class="grid-2">
         <div class="card">
-          <h3>🔍 Cómo buscar</h3>
+          <h3>🔍 Cómo busca el cliente</h3>
           <ul>
             <li>El cliente ingresa su <strong>nombre</strong> o <strong>número de teléfono</strong></li>
             <li>Aparecen todos sus pedidos activos</li>
@@ -1007,17 +1183,23 @@
         <p><strong>Comparte el enlace</strong> desde Ajustes → "Copiar link de seguimiento". Puedes incluirlo en mensajes automáticos de WhatsApp al confirmar un pedido.</p>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Usuarios</button>
+      <span class="page-pos" id="pos-seguimiento"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Estados del pedido →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ ESTADOS ══════════ -->
-    <div class="section" id="estados">
-      <div class="section-header">
-        <div class="section-icon" style="background:#f0f9ff;">🔄</div>
-        <div>
-          <h2>Estados del pedido</h2>
-          <p>Flujo de vida de un pedido desde su ingreso hasta la entrega</p>
-        </div>
+  <!-- ══════════ ESTADOS ══════════ -->
+  <div class="page" id="page-estados">
+    <div class="page-hero">
+      <div class="page-hero-icon">🔄</div>
+      <div>
+        <h2>Estados del pedido</h2>
+        <p>Flujo de vida de un pedido desde su ingreso hasta la entrega</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="card">
         <div class="state-flow">
           <div class="state-node">
@@ -1040,58 +1222,62 @@
             <div class="state-label">Listo</div>
           </div>
         </div>
-
-        <div style="margin-top: 8px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
-          <div style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #64748b;">
-            <div class="state-circle" style="background:#fee2e2;border-color:#dc2626;color:#dc2626;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid;font-size:13px;">✗</div>
+        <div style="margin-top:8px;padding-top:16px;border-top:1px solid #f1f5f9;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#64748b;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#fee2e2;border:2px solid #dc2626;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">✗</div>
             <span><strong style="color:#374151;">Cancelado</strong> — Puede ocurrir desde cualquier estado activo. Solo Administrador y Ventas pueden cancelar.</span>
           </div>
         </div>
       </div>
 
-      <div class="grid-2" style="margin-top: 4px;">
+      <div class="grid-2" style="margin-top:4px;">
         <div class="card">
           <h3>📋 En cola</h3>
           <p>El pedido fue registrado y espera ser procesado. Aparece en la cola de la máquina asignada ordenado por prioridad.</p>
-          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:20%;background:#a1a1aa;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">20% progreso</p></div>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:20%;background:#a1a1aa;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">20% progreso</p></div>
         </div>
         <div class="card">
           <h3>✂️ En corte</h3>
-          <p>El operador inició el corte en la sierra circular. El pedido está siendo procesado activamente en la máquina asignada.</p>
-          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:50%;background:#3b82f6;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">50% progreso</p></div>
+          <p>El operador inició el corte en la sierra circular. El pedido está siendo procesado activamente.</p>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:50%;background:#3b82f6;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">50% progreso</p></div>
         </div>
         <div class="card">
           <h3>🔲 En tapacantos</h3>
           <p>El corte terminó y las piezas están pasando por la enchapadora para aplicar el canto de PVC o ABS.</p>
-          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:78%;background:#7c3aed;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">78% progreso</p></div>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:78%;background:#7c3aed;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">78% progreso</p></div>
         </div>
         <div class="card">
           <h3>✅ Listo</h3>
           <p>El pedido está completo y disponible para entrega. Se registra automáticamente la hora exacta de finalización.</p>
-          <div style="margin-top: 8px;"><div class="prog-track"><div class="prog-fill" style="width:100%;background:#16a34a;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">100% completado</p></div>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:100%;background:#16a34a;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">100% completado</p></div>
         </div>
       </div>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Seguimiento</button>
+      <span class="page-pos" id="pos-estados"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Preguntas frecuentes →</button>
+    </div>
+  </div>
 
-    <!-- ══════════ FAQ ══════════ -->
-    <div class="section" id="faq">
-      <div class="section-header">
-        <div class="section-icon" style="background:#fffbeb;">❓</div>
-        <div>
-          <h2>Preguntas frecuentes</h2>
-          <p>Soluciones a los problemas más comunes</p>
-        </div>
+  <!-- ══════════ FAQ ══════════ -->
+  <div class="page" id="page-faq">
+    <div class="page-hero">
+      <div class="page-hero-icon">❓</div>
+      <div>
+        <h2>Preguntas frecuentes</h2>
+        <p>Soluciones a los problemas más comunes</p>
       </div>
-
+    </div>
+    <div class="content">
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Cómo cambio el estado de un pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          Abre el pedido desde la lista o desde la pantalla de Producción, luego haz clic en el botón <mark>Avanzar estado</mark>. Este botón solo está disponible para usuarios con rol <strong>Producción</strong> o <strong>Administrador</strong>.
+          Abre el pedido desde la lista o desde la pantalla de Producción, luego haz clic en <mark>Avanzar estado</mark>. Este botón solo está disponible para <strong>Producción</strong> y <strong>Administrador</strong>.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Puedo editar un pedido después de crearlo?</span><span class="chevron">▼</span>
@@ -1100,22 +1286,20 @@
           Actualmente el sistema no permite editar pedidos una vez registrados. Si hay un error, cancela el pedido y créalo de nuevo. Los pedidos cancelados quedan en el historial para referencia.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Por qué no aparece el botón "Nuevo Pedido"?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          El botón solo es visible para los roles <strong>Ventas</strong>, <strong>Administrador</strong> y <strong>Desarrollador</strong>. Si eres Producción o Almacenes, no tendrás acceso a crear pedidos. Contacta al administrador si necesitas cambiar tu rol.
+          El botón solo es visible para <strong>Ventas</strong>, <strong>Administrador</strong> y <strong>Desarrollador</strong>. Si eres Producción o Almacenes, no tendrás acceso a crear pedidos. Contacta al administrador si necesitas cambiar tu rol.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Cómo sé a qué máquina se asignó un pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          El sistema asigna automáticamente la máquina con menor carga al crear el pedido. Puedes ver la máquina asignada:
+          El sistema asigna automáticamente la máquina con menor carga al crear el pedido. Puedes verla:
           <ul>
             <li>En la columna "Máquina" de la lista de pedidos</li>
             <li>En el detalle del pedido, junto a la fecha de ingreso</li>
@@ -1123,16 +1307,14 @@
           </ul>
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Cómo busca el cliente su pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          Comparte el enlace de seguimiento desde <strong>Ajustes → Copiar link</strong>. El cliente entra a esa URL y escribe su nombre o teléfono. No necesita crear cuenta ni ingresar contraseña.
+          Comparte el enlace de seguimiento desde <strong>Ajustes → Copiar link</strong>. El cliente entra a esa URL y escribe su nombre o teléfono. No necesita crear cuenta ni contraseña.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Cada cuánto se actualizan los datos?</span><span class="chevron">▼</span>
@@ -1145,62 +1327,136 @@
           </ul>
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Qué pasa si cierro la ventana del reporte?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          No pasa nada. El reporte del día ya fue guardado automáticamente en Supabase la primera vez que abriste la página. Puedes acceder al historial completo en <mark>Reporte → Historial</mark>.
+          No pasa nada. El reporte del día ya fue guardado automáticamente la primera vez que abriste la página. Accede al historial en <mark>Reporte → Historial</mark>.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Puedo agregar más de un material a un pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          Sí. En el formulario de nuevo pedido, en el paso "Materiales", usa el botón <mark>+ Agregar material</mark> para añadir líneas adicionales. Cada línea puede tener un tipo de tablero, marca, espesor y cantidades diferentes. Los totales se calculan automáticamente.
+          Sí. En el formulario de nuevo pedido, en el paso "Materiales", usa el botón <mark>+ Agregar material</mark>. Cada línea puede tener un tipo de tablero, marca, espesor y cantidades diferentes.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿Cómo cancelo un pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          Abre el detalle del pedido. Si el pedido está activo (En cola, En corte, En tapacantos), verás el botón <mark>Cancelar pedido</mark> en rojo. Solo <strong>Administrador</strong> y <strong>Ventas</strong> pueden cancelar. Un pedido cancelado no se puede reactivar.
+          Abre el detalle del pedido. Si está activo, verás el botón <mark>Cancelar pedido</mark> en rojo. Solo <strong>Administrador</strong> y <strong>Ventas</strong> pueden cancelar. Un pedido cancelado no se puede reactivar.
         </div>
       </div>
-
       <div class="accordion">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <span>¿El código CDC del cliente se asigna automáticamente?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          Sí. Al crear un cliente nuevo en el sistema, se le asigna automáticamente un código correlativo con el formato <code>CDC-001</code>, <code>CDC-002</code>, etc. Este código aparece junto al nombre del cliente en toda la app.
+          Sí. Al crear un cliente nuevo, se le asigna automáticamente un código correlativo con el formato <code>CDC-001</code>, <code>CDC-002</code>, etc. Este código aparece junto al nombre del cliente en toda la app.
         </div>
       </div>
-    </div>
 
-    <!-- ══════════ FOOTER ══════════ -->
-    <div style="border-top: 1px solid #e2e8f0; padding-top: 32px; margin-top: 16px; text-align: center;">
-      <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1957A6,#267A8C);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;">CC</div>
-        <div style="text-align:left;">
-          <div style="font-size:12px;font-weight:700;color:#0f172a;">Casa del Carpintero</div>
-          <div style="font-size:11px;color:#94a3b8;">Production OS · Manual de Usuario</div>
+      <div style="border-top:1px solid #e2e8f0;padding-top:28px;margin-top:16px;text-align:center;">
+        <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1957A6,#267A8C);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;">CDC</div>
+          <div style="text-align:left;">
+            <div style="font-size:12px;font-weight:700;color:#0f172a;">Casa del Carpintero</div>
+            <div style="font-size:11px;color:#94a3b8;">Production OS · Manual de Usuario</div>
+          </div>
         </div>
+        <p style="font-size:12px;color:#94a3b8;">Comercial Casa del Carpintero SAC · Versión 1.0 · 2025</p>
+        <p style="font-size:11px;color:#cbd5e1;margin-top:6px;">Para soporte técnico contacta al equipo de desarrollo</p>
       </div>
-      <p style="font-size:12px;color:#94a3b8;">Comercial Casa del Carpintero SAC · Versión 1.0 · 2025</p>
-      <p style="font-size:11px;color:#cbd5e1;margin-top:6px;">Para soporte técnico contacta al equipo de desarrollo</p>
     </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Estados del pedido</button>
+      <span class="page-pos" id="pos-faq"></span>
+      <span class="page-footer-next invisible">—</span>
+    </div>
+  </div>
 
-  </div><!-- /content -->
 </div><!-- /main -->
 
 <script>
-  // ── Accordion toggle ──
+  const SECTIONS = [
+    { id: 'inicio',       label: 'Inicio' },
+    { id: 'roles',        label: 'Roles y permisos' },
+    { id: 'acceso',       label: 'Acceso al sistema' },
+    { id: 'dashboard',    label: 'Dashboard' },
+    { id: 'pedidos',      label: 'Pedidos' },
+    { id: 'nuevo-pedido', label: 'Crear pedido' },
+    { id: 'produccion',   label: 'Producción' },
+    { id: 'calendario',   label: 'Calendario' },
+    { id: 'reporte',      label: 'Reporte' },
+    { id: 'ajustes',      label: 'Ajustes' },
+    { id: 'admin',        label: 'Usuarios' },
+    { id: 'seguimiento',  label: 'Seguimiento' },
+    { id: 'estados',      label: 'Estados del pedido' },
+    { id: 'faq',          label: 'Preguntas frecuentes' },
+  ];
+
+  let currentIndex = 0;
+
+  function goTo(id) {
+    const idx = SECTIONS.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    currentIndex = idx;
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function navStep(dir) {
+    const next = currentIndex + dir;
+    if (next < 0 || next >= SECTIONS.length) return;
+    currentIndex = next;
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    const sec = SECTIONS[currentIndex];
+
+    // Show/hide pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById('page-' + sec.id);
+    if (page) page.classList.add('active');
+
+    // Update sidebar active
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.section === sec.id);
+    });
+
+    // Update breadcrumb
+    document.getElementById('breadcrumbCurrent').textContent = sec.label;
+
+    // Update topbar buttons
+    document.getElementById('btnPrev').disabled = currentIndex === 0;
+    document.getElementById('btnNext').disabled = currentIndex === SECTIONS.length - 1;
+
+    // Update hash
+    history.replaceState(null, '', '#' + sec.id);
+  }
+
+  // Sidebar nav clicks
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => goTo(item.dataset.section));
+  });
+
+  // Search filter
+  function filterNav(query) {
+    const q = query.toLowerCase().trim();
+    document.querySelectorAll('.nav-item').forEach(item => {
+      if (!q) { item.classList.remove('hidden-by-search'); return; }
+      const match = item.textContent.toLowerCase().includes(q);
+      item.classList.toggle('hidden-by-search', !match);
+    });
+  }
+
+  // Accordion toggle
   function toggleAccordion(header) {
     const body = header.nextElementSibling;
     const isOpen = header.classList.contains('open');
@@ -1208,41 +1464,11 @@
     body.classList.toggle('open', !isOpen);
   }
 
-  // ── Scroll to section ──
-  function scrollTo(id) {
-    const el = document.getElementById(id);
-    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    // Update active nav
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-  }
-
-  // ── Active nav on scroll ──
-  const sections = ['inicio','roles','acceso','dashboard','pedidos','nuevo-pedido','produccion','calendario','reporte','ajustes','admin','seguimiento','estados','faq'];
-  const navItems = document.querySelectorAll('.nav-item');
-
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && window.scrollY >= el.offsetTop - 80) current = id;
-    });
-    navItems.forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${current}'`)) {
-        item.classList.add('active');
-      }
-    });
-  });
-
-  // ── Search filter ──
-  function filterNav(query) {
-    const q = query.toLowerCase().trim();
-    navItems.forEach(item => {
-      if (!q) { item.style.display = ''; return; }
-      item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-  }
+  // Init from hash
+  const hash = window.location.hash.replace('#', '');
+  const initIdx = SECTIONS.findIndex(s => s.id === hash);
+  currentIndex = initIdx >= 0 ? initIdx : 0;
+  render();
 </script>
 </body>
 </html>

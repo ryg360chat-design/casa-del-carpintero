@@ -94,15 +94,15 @@ export default async function ProduccionPage() {
   const canCreatePedido = CAN_CREATE_PEDIDO.includes(role);
 
   const [
-    { data: pedidosM1, error: e1 },
-    { data: pedidosM2, error: e2 },
+    { data: pedidosM1 },
+    { data: pedidosM2 },
     { data: maquinas },
   ] = await Promise.all([
     supabase
       .from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M1")
-      .not("estado", "in", '("Listo","Cancelado")')
+      .not("estado", "in", '("Listo","Vendido","Cancelado")')
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(50),
@@ -110,7 +110,7 @@ export default async function ProduccionPage() {
       .from("pedidos")
       .select("*, cliente:clientes(nombre)")
       .eq("maquina_asignada", "M2")
-      .not("estado", "in", '("Listo","Cancelado")')
+      .not("estado", "in", '("Listo","Vendido","Cancelado")')
       .order("prioridad", { ascending: true })
       .order("fecha_ingreso", { ascending: true })
       .limit(50),
@@ -120,7 +120,7 @@ export default async function ProduccionPage() {
   const m1 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M1");
   const m2 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M2");
 
-  const ahora = new Date().toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+  const ahora = new Date().toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
 
   return (
     <div className="p-4 sm:p-8 min-h-full" style={{ background: "linear-gradient(160deg, rgba(220,252,231,0.45) 0%, rgba(244,244,245,0) 32%)" }}>
