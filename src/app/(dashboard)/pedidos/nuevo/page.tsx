@@ -517,7 +517,7 @@ export default function NuevoPedidoPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8 max-w-2xl mx-auto min-h-full" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.3) 0%, #f8f9fb 28%)" }}>
+    <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <div className="mb-7">
         <h1 className="text-2xl font-bold text-zinc-900">Nuevo Pedido</h1>
         <p className="text-zinc-500 text-sm mt-0.5">Configuración de corte y optimización de materiales</p>
