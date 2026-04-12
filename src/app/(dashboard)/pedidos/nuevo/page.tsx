@@ -677,20 +677,18 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>4</span>
             <h2 className="font-bold text-zinc-900">Prioridad y Turno</h2>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={LABEL}>Prioridad</label>
               <div className="flex border border-zinc-200 rounded-lg overflow-hidden">
                 {(["normal", "urgente", "vip"] as const).map((p) => (
                   <button key={p} type="button" onClick={() => setPrioridad(p)}
-                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-1 ${
+                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                       prioridad === p
                         ? p === "vip" ? "bg-orange-500 text-white" : "bg-zinc-900 text-white"
                         : "bg-white text-zinc-600 hover:bg-zinc-50"
                     }`}
                   >
-                    {p === "urgente" && <span>⚡</span>}
-                    {p === "vip"     && <span>★</span>}
                     {p.charAt(0).toUpperCase() + p.slice(1)}
                   </button>
                 ))}
