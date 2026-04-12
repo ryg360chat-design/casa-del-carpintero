@@ -389,6 +389,14 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
                   </span>
                 </div>
               )}
+              {pedido.fecha_inicio_programada && (
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-zinc-400">Inicio programado</span>
+                  <span className="text-xs font-semibold text-blue-700">
+                    {new Date(pedido.fecha_inicio_programada + "T00:00:00").toLocaleDateString("es", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center">
                 <span className="text-xs text-zinc-400">Turno</span>
                 <span className="text-xs font-semibold text-zinc-900 capitalize">{pedido.turno ?? "—"}</span>

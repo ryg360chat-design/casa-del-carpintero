@@ -225,16 +225,22 @@ function MaterialLineCard({
               placeholder="0" className={INPUT} />
           </div>
           <div>
-            <label className={LABEL}>Canto Delgado (m)</label>
-            <input type="number" min="0" step="0.1" value={line.metrosDelgado}
-              onChange={(e) => set({ metrosDelgado: e.target.value })}
-              placeholder="0.00" className={INPUT} />
+            <label className={LABEL}>Canto delgado</label>
+            <div className="relative">
+              <input type="number" min="0" step="0.1" value={line.metrosDelgado}
+                onChange={(e) => set({ metrosDelgado: e.target.value })}
+                placeholder="0.00" className={INPUT + " pr-7"} />
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 pointer-events-none">m</span>
+            </div>
           </div>
           <div>
-            <label className={LABEL}>Canto Grueso (m)</label>
-            <input type="number" min="0" step="0.1" value={line.metrosGrueso}
-              onChange={(e) => set({ metrosGrueso: e.target.value })}
-              placeholder="0.00" className={INPUT} />
+            <label className={LABEL}>Canto grueso</label>
+            <div className="relative">
+              <input type="number" min="0" step="0.1" value={line.metrosGrueso}
+                onChange={(e) => set({ metrosGrueso: e.target.value })}
+                placeholder="0.00" className={INPUT + " pr-7"} />
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 pointer-events-none">m</span>
+            </div>
           </div>
         </div>
       </div>
@@ -314,6 +320,7 @@ export default function NuevoPedidoPage() {
   const [turnoManual, setTurnoManual]           = useState<"mañana" | "tarde" | "auto">("auto");
   const [maquinaManual, setMaquinaManual]       = useState<"auto" | "M1" | "M2" | "M3">("auto");
   const [cargaMaquinas, setCargaMaquinas]       = useState<Record<string, number>>({});
+  const [fechaProgramada, setFechaProgramada]   = useState("");
   const [canAssignMaquina, setCanAssignMaquina] = useState(false);
   const [notas, setNotas]                       = useState("");
 
@@ -329,7 +336,7 @@ export default function NuevoPedidoPage() {
   // ── Draft: guardar automáticamente al cambiar estado ─────────────
   useEffect(() => {
     if (!draftLoaded.current) return;
-    const draft = { clienteNombre, area, lineas, ranuras, perforaciones, corte45, cortesEspeciales, prioridad, turnoManual, notas };
+    const draft = { clienteNombre, area, lineas, ranuras, perforaciones, corte45, cortesEspeciales, prioridad, turnoManual, maquinaManual, fechaProgramada, notas };
     const isEmpty = !clienteNombre.trim() && lineas.length === 1 && !lineas[0].colorMaterial && !lineas[0].planchas;
     try {
       if (isEmpty) sessionStorage.removeItem(DRAFT_KEY);
@@ -349,9 +356,11 @@ export default function NuevoPedidoPage() {
       if (d.perforaciones !== undefined)    setPerforaciones(d.perforaciones);
       if (d.corte45 !== undefined)          setCorte45(d.corte45);
       if (d.cortesEspeciales !== undefined) setCortesEspeciales(d.cortesEspeciales);
-      if (d.prioridad)   setPrioridad(d.prioridad);
-      if (d.turnoManual) setTurnoManual(d.turnoManual);
-      if (d.notas)       setNotas(d.notas);
+      if (d.prioridad)       setPrioridad(d.prioridad);
+      if (d.turnoManual)     setTurnoManual(d.turnoManual);
+      if (d.maquinaManual)   setMaquinaManual(d.maquinaManual);
+      if (d.fechaProgramada) setFechaProgramada(d.fechaProgramada);
+      if (d.notas)           setNotas(d.notas);
     } catch { /* JSON inválido, ignorar */ }
     setShowDraftBanner(false);
   }
@@ -493,10 +502,11 @@ export default function NuevoPedidoPage() {
         corte_45:               corte45,
         cortes_especiales:      cortesEspeciales,
         prioridad,
-        notas:                  notas || null,
+        notas:                    notas || null,
         turno,
-        maquina_asignada:       maquina,
-        fecha_entrega_estimada: entrega.toISOString(),
+        maquina_asignada:         maquina,
+        fecha_entrega_estimada:   entrega.toISOString(),
+        fecha_inicio_programada:  fechaProgramada || null,
       }).select("id").single();
 
       if (insertError) throw insertError;
@@ -681,7 +691,7 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>4</span>
             <h2 className="font-bold text-zinc-900">Prioridad y Turno</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className={LABEL}>Prioridad</label>
               <div className="flex border border-zinc-200 rounded-lg overflow-hidden">
@@ -722,6 +732,19 @@ export default function NuevoPedidoPage() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div>
+              <label className={LABEL}>
+                Inicio programado{" "}
+                <span className="text-zinc-400 font-normal normal-case tracking-normal">(opcional)</span>
+              </label>
+              <input
+                type="date"
+                value={fechaProgramada}
+                onChange={(e) => setFechaProgramada(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+                className={INPUT + " text-zinc-700"}
+              />
             </div>
           </div>
         </div>
