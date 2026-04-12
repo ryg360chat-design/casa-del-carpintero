@@ -418,7 +418,7 @@ export default async function ReportePage() {
                   const estado = p.estado as string;
                   const prioridad = p.prioridad as string;
                   const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
-                  const numeroOrden = `#${String(p.id as string).slice(-4).toUpperCase()}`;
+                  const numeroOrden = `#${String(p.id as string).slice(-6).toUpperCase()}`;
                   return (
                     <tr key={p.id as string} className={`border-b border-zinc-50 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-zinc-50/50"}`}>
                       <td className="px-4 py-3 font-bold text-zinc-700">{numeroOrden}</td>
@@ -484,7 +484,7 @@ export default async function ReportePage() {
                 {(todosActivos ?? []).map((p: Record<string, unknown>, idx: number) => {
                   const estado = p.estado as string;
                   const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
-                  const numeroOrden = `#${String(p.id as string).slice(-4).toUpperCase()}`;
+                  const numeroOrden = `#${String(p.id as string).slice(-6).toUpperCase()}`;
                   const entrega = p.fecha_entrega_estimada
                     ? limaDateTime(p.fecha_entrega_estimada as string)
                     : "—";

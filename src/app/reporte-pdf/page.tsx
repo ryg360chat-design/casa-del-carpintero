@@ -523,7 +523,7 @@ export default async function ReportePDFPage({
                   const estado = p.estado as string;
                   const prioridad = p.prioridad as string;
                   const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
-                  const num = `#${String(p.id as string).slice(-4).toUpperCase()}`;
+                  const num = `#${String(p.id as string).slice(-6).toUpperCase()}`;
                   const estadoClass = estado === "En corte" ? "badge-corte" : estado === "En tapacantos" ? "badge-tapac" : estado === "Listo" ? "badge-listo" : estado === "Cancelado" ? "badge-cancel" : "badge-cola";
                   return (
                     <tr key={p.id as string}>
@@ -575,7 +575,7 @@ export default async function ReportePDFPage({
                   {(todosActivos ?? []).map((p: Record<string, unknown>) => {
                     const estado = p.estado as string;
                     const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
-                    const num = `#${String(p.id as string).slice(-4).toUpperCase()}`;
+                    const num = `#${String(p.id as string).slice(-6).toUpperCase()}`;
                     const estadoClass = estado === "En corte" ? "badge-corte" : estado === "En tapacantos" ? "badge-tapac" : "badge-cola";
                     const entrega = p.fecha_entrega_estimada
                       ? new Date(p.fecha_entrega_estimada as string).toLocaleString("es", { dateStyle: "short", timeStyle: "short" })

@@ -28,7 +28,7 @@ function PedidoCard({ pedido, canAdvance = true }: { pedido: Record<string, unkn
 
   const horaEntrega = fechaEntrega ? limaTime(fechaEntrega) : null;
 
-  const numeroOrden = `#${String(pedido.id as string).slice(-4).toUpperCase()}`;
+  const numeroOrden = `#${String(pedido.id as string).slice(-6).toUpperCase()}`;
 
   return (
     <div className={`bg-white border border-zinc-200 rounded-xl p-5 relative ${isUrgente ? "border-l-[3px] border-l-orange-500" : ""}`}>

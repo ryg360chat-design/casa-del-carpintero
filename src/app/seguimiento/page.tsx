@@ -66,39 +66,19 @@ export default async function SeguimientoPage({
   if (busqueda) {
     const supabase = await createClient();
 
-    // Sanitizar input: solo letras, números, espacios y guiones
-    const busquedaSegura = busqueda.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9 +\-]/g, "").trim().slice(0, 80);
-    if (!busquedaSegura) {
-      pedidos = [];
-    } else {
-    const palabras = busquedaSegura.split(/\s+/).filter(Boolean);
+    // Solo caracteres hexadecimales válidos, máximo 6
+    const codigo = busqueda.replace(/[^a-fA-F0-9]/g, "").toUpperCase().slice(0, 6);
 
-    // Buscar clientes por nombre (una palabra a la vez) o teléfono exacto
-    let clientesQuery = supabase.from("clientes").select("id, nombre, telefono");
-    if (palabras.length === 1) {
-      clientesQuery = clientesQuery.or(`nombre.ilike.%${palabras[0]}%,telefono.ilike.%${palabras[0]}%`);
-    } else {
-      // Múltiples palabras: aplicar filtros encadenados (AND implícito por nombre)
-      for (const p of palabras) {
-        clientesQuery = clientesQuery.ilike("nombre", `%${p}%`);
-      }
-    }
-
-    const { data: clientes } = await clientesQuery;
-
-    if (clientes && clientes.length > 0) {
-      const clienteIds = clientes.map((c: { id: string }) => c.id);
+    if (codigo.length >= 4) {
       const { data } = await supabase
         .from("pedidos")
         .select("id, estado, prioridad, tipo_tablero, marca_melamina, fecha_ingreso, fecha_entrega_estimada, fecha_entrega_real, cliente:clientes(nombre, telefono)")
-        .in("cliente_id", clienteIds)
+        .ilike("id", `%${codigo}`)
         .not("estado", "eq", "Cancelado")
-        .order("fecha_ingreso", { ascending: false })
-        .limit(20);
+        .limit(5);
 
       pedidos = (data ?? []) as Record<string, unknown>[];
     }
-    } // end else busquedaSegura
   }
 
   const PASOS = ["Recibido", "En corte", "En tapacantos", "Listo", "Entregado"];
@@ -144,7 +124,7 @@ export default async function SeguimientoPage({
             </svg>
             <h2 className="font-bold text-zinc-900">¿Cómo va tu pedido?</h2>
           </div>
-          <p className="text-zinc-500 text-sm mb-4 ml-6">Ingresá tu nombre o número de teléfono para ver el estado.</p>
+          <p className="text-zinc-500 text-sm mb-4 ml-6">Ingresá el código de 6 letras que te dio el taller.</p>
           <BuscarForm defaultValue={busqueda} />
         </div>
 
@@ -156,9 +136,9 @@ export default async function SeguimientoPage({
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
             </div>
-            No encontramos pedidos para <strong className="text-zinc-700">&ldquo;{busqueda}&rdquo;</strong>.
+            No encontramos pedidos con el código <strong className="text-zinc-700 font-mono">#{busqueda.replace(/[^a-fA-F0-9]/g, "").toUpperCase().slice(0, 6)}</strong>.
             <br />
-            <span className="text-xs mt-2 block text-zinc-400">Verificá que el nombre o teléfono esté bien escrito.</span>
+            <span className="text-xs mt-2 block text-zinc-400">Verificá que el código esté bien escrito. Lo encontrás en tu comprobante.</span>
           </div>
         )}
 
@@ -177,7 +157,7 @@ export default async function SeguimientoPage({
               const isCancelado = estado === "Cancelado";
               const isListo = estado === "Listo";
               const isVendido = estado === "Despachado" || estado === "Vendido";
-              const numeroOrden = `#${String(p.id as string).slice(-4).toUpperCase()}`;
+              const numeroOrden = `#${String(p.id as string).slice(-6).toUpperCase()}`;
 
               const entregaFecha = p.fecha_entrega_estimada
                 ? new Date(p.fecha_entrega_estimada as string)
@@ -315,7 +295,7 @@ export default async function SeguimientoPage({
                 <path d="M9 12h6M9 16h4"/>
               </svg>
             </div>
-            <p className="text-zinc-500 text-sm">Ingresá tu nombre para ver el estado de tu pedido.</p>
+            <p className="text-zinc-500 text-sm">Ingresá el código de tu pedido para ver el estado.</p>
             <p className="text-zinc-400 text-xs mt-1">Casa del Carpintero · Corte y melamina</p>
           </div>
         )}
