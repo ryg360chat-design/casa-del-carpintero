@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO, IS_ADMIN } from "@/lib/auth";
+import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO, CAN_DESPACHAR } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
@@ -12,6 +12,7 @@ const ESTADO_STYLE: Record<string, string> = {
   "En corte":      "bg-blue-500 text-white",
   "En tapacantos": "bg-violet-500 text-white",
   "Listo":         "bg-emerald-500 text-white",
+  "Despachado":    "bg-teal-600 text-white",
   "Vendido":       "bg-teal-600 text-white",
   "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
   "Pausado":       "bg-amber-100 text-amber-700 border border-amber-200",
@@ -26,7 +27,7 @@ const AREA_COLORS: Record<string, string> = {
   "Logistica":        "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
-const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo", "Vendido"];
+const ESTADOS_FLUJO = ["En cola", "En corte", "En tapacantos", "Listo", "Despachado"];
 
 export default async function PedidoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,7 +35,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   const role = await getUserRole();
   const canAdvance = CAN_ADVANCE_STATE.includes(role);
   const canCancel = CAN_CREATE_PEDIDO.includes(role);
-  const canVender = IS_ADMIN.includes(role);
+  const canVender = CAN_DESPACHAR.includes(role);
 
   const { data: pedido } = await supabase
     .from("pedidos")
@@ -75,7 +76,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
 
   const pasoActual = ESTADOS_FLUJO.indexOf(estado);
   const esListo = estado === "Listo";
-  const esVendido = estado === "Vendido";
+  const esVendido = estado === "Despachado" || estado === "Vendido";
   const esCancelado = estado === "Cancelado";
 
   // Servicios adicionales activos
@@ -150,7 +151,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
               const done = esVendido ? true : idx < pasoActual;
               const current = !esVendido && idx === pasoActual;
               const isLast = idx === ESTADOS_FLUJO.length - 1;
-              const isVendidoStep = s === "Vendido";
+              const isVendidoStep = s === "Despachado";
 
               return (
                 <div key={s} className="flex items-center flex-1 last:flex-none">

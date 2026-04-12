@@ -93,32 +93,22 @@ export default async function ProduccionPage() {
   const canAdvance = CAN_ADVANCE_STATE.includes(role);
   const canCreatePedido = CAN_CREATE_PEDIDO.includes(role);
 
+  const EXCLUIR = '("Listo","Despachado","Vendido","Cancelado")';
   const [
     { data: pedidosM1 },
     { data: pedidosM2 },
+    { data: pedidosM3 },
     { data: maquinas },
   ] = await Promise.all([
-    supabase
-      .from("pedidos")
-      .select("*, cliente:clientes(nombre)")
-      .eq("maquina_asignada", "M1")
-      .not("estado", "in", '("Listo","Vendido","Cancelado")')
-      .order("prioridad", { ascending: true })
-      .order("fecha_ingreso", { ascending: true })
-      .limit(50),
-    supabase
-      .from("pedidos")
-      .select("*, cliente:clientes(nombre)")
-      .eq("maquina_asignada", "M2")
-      .not("estado", "in", '("Listo","Vendido","Cancelado")')
-      .order("prioridad", { ascending: true })
-      .order("fecha_ingreso", { ascending: true })
-      .limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M1").not("estado", "in", EXCLUIR).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M2").not("estado", "in", EXCLUIR).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M3").not("estado", "in", EXCLUIR).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("maquinas").select("*").limit(10),
   ]);
 
   const m1 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M1");
   const m2 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M2");
+  const m3 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M3");
 
   const ahora = new Date().toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
 
@@ -150,10 +140,11 @@ export default async function ProduccionPage() {
       </div>
 
       {/* Columnas de máquinas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {[
           { maquina: m1, id: "M1", pedidos: pedidosM1 ?? [], label: "MÁQUINA 1" },
           { maquina: m2, id: "M2", pedidos: pedidosM2 ?? [], label: "MÁQUINA 2" },
+          { maquina: m3, id: "M3", pedidos: pedidosM3 ?? [], label: "MÁQUINA 3" },
         ].map(({ maquina, id, pedidos, label }) => {
           const activa = maquina?.activa ?? false;
           return (

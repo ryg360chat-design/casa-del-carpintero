@@ -56,12 +56,12 @@ export default async function ReportePage() {
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En tapacantos"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Listo").gte("updated_at", startOfToday),
-    supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Vendido").gte("updated_at", startOfToday),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).in("estado", ["Despachado", "Vendido"]).gte("updated_at", startOfToday),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "Cancelado").gte("updated_at", startOfToday),
     supabase
       .from("pedidos")
       .select("maquina_asignada, updated_at, cant_planchas, cant_piezas")
-      .in("estado", ["Listo", "Vendido"])
+      .in("estado", ["Listo", "Despachado", "Vendido"])
       .gte("updated_at", hace7dias)
       .limit(500),
     supabase

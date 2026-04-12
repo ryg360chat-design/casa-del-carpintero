@@ -46,7 +46,7 @@ export default function MarcarVendidoBtn({ pedidoId }: { pedidoId: string }) {
       } disabled:opacity-60`}
     >
       {loading ? ICON_SPIN : done ? ICON_CHECK : ICON_TRUCK}
-      {loading ? "Registrando..." : done ? "¡Vendido!" : "Marcar como vendido"}
+      {loading ? "Registrando..." : done ? "¡Despachado!" : "Marcar como despachado"}
     </button>
   );
 }

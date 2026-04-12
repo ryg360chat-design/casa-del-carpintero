@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getUserRole, IS_ADMIN, CAN_ADVANCE_STATE } from "@/lib/auth";
+import { getUserRole, IS_ADMIN, CAN_ADVANCE_STATE, CAN_DESPACHAR } from "@/lib/auth";
 import { limaTodayKey } from "@/lib/time";
 
 const SIGUIENTE_ESTADO: Record<string, string> = {
@@ -86,12 +86,12 @@ export async function guardarReporte(stats: {
 
 export async function marcarVendido(pedidoId: string) {
   const role = await getUserRole();
-  if (!IS_ADMIN.includes(role)) return { error: "Sin permisos" };
+  if (!CAN_DESPACHAR.includes(role)) return { error: "Sin permisos" };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("pedidos")
-    .update({ estado: "Vendido", fecha_cierre: new Date().toISOString() })
+    .update({ estado: "Despachado", fecha_cierre: new Date().toISOString() })
     .eq("id", pedidoId)
     .eq("estado", "Listo"); // solo desde Listo
 

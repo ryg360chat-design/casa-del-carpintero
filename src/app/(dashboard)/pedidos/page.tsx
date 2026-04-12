@@ -9,13 +9,14 @@ const ESTADO_STYLE: Record<string, { bg: string; dot: string }> = {
   "En corte":      { bg: "bg-blue-500 text-white", dot: "bg-blue-200" },
   "En tapacantos": { bg: "bg-violet-500 text-white", dot: "bg-violet-200" },
   "Listo":         { bg: "bg-emerald-500 text-white", dot: "bg-emerald-200" },
+  "Despachado":    { bg: "bg-teal-600 text-white", dot: "bg-teal-200" },
   "Vendido":       { bg: "bg-teal-600 text-white", dot: "bg-teal-200" },
   "Cancelado":     { bg: "bg-red-100 text-red-600 border border-red-200", dot: "bg-red-400" },
   "Pausado":       { bg: "bg-amber-100 text-amber-700 border border-amber-200", dot: "bg-amber-400" },
 };
 
 const EN_PRODUCCION = ["En cola", "En corte", "En tapacantos"];
-const ENTREGADOS    = ["Listo", "Vendido"];
+const ENTREGADOS    = ["Listo", "Despachado", "Vendido"];
 const PAGE_SIZE = 40;
 
 // ── Helpers Lima ──────────────────────────────────────────────────

@@ -12,6 +12,7 @@ const ESTADO_PROGRESS: Record<string, number> = {
   "En corte": 50,
   "En tapacantos": 78,
   "Listo": 100,
+  "Despachado": 100,
   "Vendido": 100,
 };
 
@@ -20,6 +21,7 @@ const ESTADO_BADGE: Record<string, string> = {
   "En corte":      "bg-blue-500 text-white",
   "En tapacantos": "bg-violet-500 text-white",
   "Listo":         "bg-emerald-500 text-white",
+  "Despachado":    "bg-teal-600 text-white",
   "Vendido":       "bg-teal-600 text-white",
   "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
   "Pausado":       "bg-amber-100 text-amber-700",
@@ -30,6 +32,7 @@ const CARD_LEFT_BORDER: Record<string, string> = {
   "En corte":      "border-l-blue-500",
   "En tapacantos": "border-l-violet-500",
   "Listo":         "border-l-emerald-500",
+  "Despachado":    "border-l-teal-500",
   "Vendido":       "border-l-teal-500",
   "Cancelado":     "border-l-red-400",
   "Pausado":       "border-l-amber-400",
@@ -122,7 +125,7 @@ function OrderCard({ pedido, delay = 0, canAdvance = true }: { pedido: Record<st
           </p>
         </div>
         <span className={`shrink-0 ml-2 text-[10px] font-bold px-2 py-1 rounded-md tracking-wide ${badgeClass}`}>
-          {estado === "En cola" ? "COLA" : estado === "En corte" ? "CORTE" : estado === "En tapacantos" ? "ENCHAPE" : estado === "Vendido" ? "VENDIDO" : estado.toUpperCase()}
+          {estado === "En cola" ? "COLA" : estado === "En corte" ? "CORTE" : estado === "En tapacantos" ? "ENCHAPE" : (estado === "Despachado" || estado === "Vendido") ? "DESPACHADO" : estado.toUpperCase()}
         </span>
       </div>
 
@@ -221,7 +224,7 @@ export default async function DashboardPage() {
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true })
-      .in("estado", ["Listo", "Vendido"])
+      .in("estado", ["Listo", "Despachado", "Vendido"])
       .gte("updated_at", startOfToday),
     supabase.from("pedidos")
       .select("*, cliente:clientes(nombre)")

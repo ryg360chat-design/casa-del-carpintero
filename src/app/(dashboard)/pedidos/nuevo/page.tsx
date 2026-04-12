@@ -312,6 +312,9 @@ export default function NuevoPedidoPage() {
   const [cortesEspeciales, setCortesEspeciales] = useState(false);
   const [prioridad, setPrioridad]               = useState<"normal" | "urgente" | "vip">("normal");
   const [turnoManual, setTurnoManual]           = useState<"mañana" | "tarde" | "auto">("auto");
+  const [maquinaManual, setMaquinaManual]       = useState<"auto" | "M1" | "M2" | "M3">("auto");
+  const [cargaMaquinas, setCargaMaquinas]       = useState<Record<string, number>>({});
+  const [canAssignMaquina, setCanAssignMaquina] = useState(false);
   const [notas, setNotas]                       = useState("");
 
   // ── Draft: detectar borrador al montar ───────────────────────────
@@ -358,6 +361,28 @@ export default function NuevoPedidoPage() {
     setShowDraftBanner(false);
   }
 
+  // ── Cargar rol + carga de máquinas al montar ─────────────────────
+  useEffect(() => {
+    const sb = createClient();
+    async function loadRoleAndMachines() {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await sb.from("profiles").select("rol").eq("id", user.id).maybeSingle();
+      const rol = profile?.rol ?? "viewer";
+      const CAN_ASSIGN = ["developer", "admin", "gerencia", "ventas", "produccion"];
+      setCanAssignMaquina(CAN_ASSIGN.includes(rol));
+
+      const EXCLUIR = '("Listo","Despachado","Vendido","Cancelado")';
+      const [r1, r2, r3] = await Promise.all([
+        sb.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M1").not("estado", "in", EXCLUIR),
+        sb.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M2").not("estado", "in", EXCLUIR),
+        sb.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M3").not("estado", "in", EXCLUIR),
+      ]);
+      setCargaMaquinas({ M1: r1.count ?? 0, M2: r2.count ?? 0, M3: r3.count ?? 0 });
+    }
+    loadRoleAndMachines();
+  }, []);
+
   // Totales calculados de todas las líneas
   const totalPlanchas = lineas.reduce((s, l) => s + parseFloat(l.planchas || "0"), 0);
   const totalPiezas   = lineas.reduce((s, l) => s + parseInt(l.piezas || "0"), 0);
@@ -394,15 +419,24 @@ export default function NuevoPedidoPage() {
       const hora  = ahora.getHours();
       const turno = turnoManual === "auto" ? (hora < 12 ? "mañana" : "tarde") : turnoManual;
 
-      const [{ count: cM1 }, { count: cM2 }] = await Promise.all([
-        supabase.from("pedidos").select("*", { count: "exact", head: true })
-          .eq("maquina_asignada", "M1").not("estado", "in", '("Listo","Vendido","Cancelado")'),
-        supabase.from("pedidos").select("*", { count: "exact", head: true })
-          .eq("maquina_asignada", "M2").not("estado", "in", '("Listo","Vendido","Cancelado")'),
+      const EXCLUIR = '("Listo","Despachado","Vendido","Cancelado")';
+      const [{ count: cM1 }, { count: cM2 }, { count: cM3 }] = await Promise.all([
+        supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M1").not("estado", "in", EXCLUIR),
+        supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M2").not("estado", "in", EXCLUIR),
+        supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M3").not("estado", "in", EXCLUIR),
       ]);
 
-      const cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? cM1 ?? 0 : cM2 ?? 0;
-      const maquina  = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";
+      let maquina: string;
+      let cMaquina: number;
+      if (maquinaManual !== "auto") {
+        maquina  = maquinaManual;
+        cMaquina = { M1: cM1 ?? 0, M2: cM2 ?? 0, M3: cM3 ?? 0 }[maquinaManual] ?? 0;
+      } else {
+        const opciones = [{ id: "M1", n: cM1 ?? 0 }, { id: "M2", n: cM2 ?? 0 }, { id: "M3", n: cM3 ?? 0 }];
+        const min = opciones.reduce((a, b) => a.n <= b.n ? a : b);
+        maquina  = min.id;
+        cMaquina = min.n;
+      }
 
       // 3. Cálculo de entrega (usa totalPlanchas sumado de todas las líneas)
       const horasCorte  = totalPlanchas > 0 ? totalPlanchas / 6 : 0.5;
@@ -691,6 +725,67 @@ export default function NuevoPedidoPage() {
             </div>
           </div>
         </div>
+
+        {/* Selector de máquina (solo roles con permiso) */}
+        {canAssignMaquina && (
+          <div className={SECTION}>
+            <div className="flex items-center gap-3">
+              <span className={STEP_NUM} style={STEP_NUM_STYLE}>5</span>
+              <div>
+                <h2 className="font-bold text-zinc-900">Máquina asignada</h2>
+                <p className="text-xs text-zinc-400 mt-0.5">Auto elige la menos cargada</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(["auto", "M1", "M2", "M3"] as const).map((m) => {
+                const carga = m === "auto" ? null : (cargaMaquinas[m] ?? 0);
+                const saturada    = carga !== null && carga > 15;
+                const advertencia = carga !== null && carga > 10 && carga <= 15;
+                const seleccionada = maquinaManual === m;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMaquinaManual(m)}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+                      seleccionada
+                        ? saturada    ? "bg-red-600 text-white border-red-600"
+                          : advertencia ? "bg-amber-500 text-white border-amber-500"
+                          : "bg-zinc-900 text-white border-zinc-900"
+                        : saturada    ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
+                          : advertencia ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                          : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300"
+                    }`}
+                  >
+                    {m === "auto" ? (
+                      <span className="flex items-center gap-1.5">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                        Auto
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        {m}
+                        {carga !== null && (
+                          <span className={`font-normal ${seleccionada ? "opacity-70" : "text-zinc-400"}`}>
+                            · {carga} activos
+                          </span>
+                        )}
+                        {saturada && <span className="ml-0.5">⚠</span>}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {maquinaManual !== "auto" && (cargaMaquinas[maquinaManual] ?? 0) > 15 && (
+              <p className="text-[11px] text-red-600 font-semibold">
+                ⚠ {maquinaManual} está saturada con más de 15 pedidos activos. Considerá otra máquina.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Notas */}
         <div className={SECTION}>
