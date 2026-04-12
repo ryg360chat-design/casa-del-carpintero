@@ -17,8 +17,15 @@ export default function MaquinaToggle({ id, nombre, activaInicial }: { id: strin
     <div className="flex items-center justify-between py-4 group">
       <div className="flex items-center gap-3">
         <div className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center transition-all duration-300 ${activa ? "border-zinc-900 bg-zinc-900 shadow-sm" : "border-zinc-200 bg-zinc-50"}`}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={activa ? "white" : "#a1a1aa"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+          <svg
+            width="15" height="15" viewBox="0 0 24 24" fill="none"
+            stroke={activa ? "white" : "#a1a1aa"} strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round"
+            className={activa ? "animate-spin" : ""}
+            style={activa ? { animationDuration: "4s" } : undefined}
+          >
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
           </svg>
         </div>
         <div>
