@@ -589,11 +589,11 @@ export default function NuevoPedidoPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-        {/* 1. Cliente + Área */}
+        {/* 1. Cliente */}
         <div className={SECTION}>
           <div className="flex items-center gap-3">
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>1</span>
-            <h2 className="font-bold text-zinc-900">Cliente y Área</h2>
+            <h2 className="font-bold text-zinc-900">Cliente</h2>
           </div>
           <div>
             <label className={LABEL}>Nombre del cliente</label>
@@ -614,20 +614,6 @@ export default function NuevoPedidoPage() {
             {clienteStatus === "new" && clienteNombre.trim().length >= 2 && (
               <p className="mt-2 text-xs text-blue-600 font-medium">✦ Se registrará como nuevo cliente</p>
             )}
-          </div>
-          <div>
-            <label className={LABEL}>Área responsable</label>
-            <div className="flex flex-wrap gap-2">
-              {AREAS.map((a) => (
-                <button key={a} type="button" onClick={() => setArea(a)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                    area === a ? AREA_COLORS[a] : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -691,17 +677,15 @@ export default function NuevoPedidoPage() {
             <span className={STEP_NUM} style={STEP_NUM_STYLE}>4</span>
             <h2 className="font-bold text-zinc-900">Prioridad y Turno</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={LABEL}>Prioridad</label>
               <div className="flex border border-zinc-200 rounded-lg overflow-hidden">
                 {(["normal", "urgente", "vip"] as const).map((p) => (
                   <button key={p} type="button" onClick={() => setPrioridad(p)}
-                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-1 ${
                       prioridad === p
-                        ? p === "vip"    ? "bg-orange-500 text-white"
-                          : p === "urgente" ? "bg-zinc-900 text-white"
-                          : "bg-zinc-900 text-white"
+                        ? p === "vip" ? "bg-orange-500 text-white" : "bg-zinc-900 text-white"
                         : "bg-white text-zinc-600 hover:bg-zinc-50"
                     }`}
                   >
@@ -733,19 +717,19 @@ export default function NuevoPedidoPage() {
                 ))}
               </div>
             </div>
-            <div>
-              <label className={LABEL}>
-                Inicio programado{" "}
-                <span className="text-zinc-400 font-normal normal-case tracking-normal">(opcional)</span>
-              </label>
-              <input
-                type="date"
-                value={fechaProgramada}
-                onChange={(e) => setFechaProgramada(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-                className={INPUT + " text-zinc-700"}
-              />
-            </div>
+          </div>
+          <div>
+            <label className={LABEL}>
+              Inicio programado{" "}
+              <span className="text-zinc-400 font-normal normal-case tracking-normal">(opcional — si no, entra a la cola inmediatamente)</span>
+            </label>
+            <input
+              type="date"
+              value={fechaProgramada}
+              onChange={(e) => setFechaProgramada(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
+              className={INPUT + " text-zinc-700 max-w-[220px]"}
+            />
           </div>
         </div>
 
