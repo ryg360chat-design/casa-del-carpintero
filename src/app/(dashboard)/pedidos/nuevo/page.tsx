@@ -432,10 +432,9 @@ export default function NuevoPedidoPage() {
         maquina  = maquinaManual;
         cMaquina = { M1: cM1 ?? 0, M2: cM2 ?? 0, M3: cM3 ?? 0 }[maquinaManual] ?? 0;
       } else {
-        const opciones = [{ id: "M1", n: cM1 ?? 0 }, { id: "M2", n: cM2 ?? 0 }, { id: "M3", n: cM3 ?? 0 }];
-        const min = opciones.reduce((a, b) => a.n <= b.n ? a : b);
-        maquina  = min.id;
-        cMaquina = min.n;
+        // Auto solo balancea M1 y M2; M3 solo si se elige manualmente
+        maquina  = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";
+        cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? (cM1 ?? 0) : (cM2 ?? 0);
       }
 
       // 3. Cálculo de entrega (usa totalPlanchas sumado de todas las líneas)
@@ -685,20 +684,21 @@ export default function NuevoPedidoPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={LABEL}>Prioridad</label>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex border border-zinc-200 rounded-lg overflow-hidden">
                 {(["normal", "urgente", "vip"] as const).map((p) => (
-                  <label key={p} className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg cursor-pointer transition-colors capitalize font-medium text-sm flex-1 justify-center ${
-                    prioridad === p
-                      ? p === "urgente" ? "border-zinc-900 bg-zinc-50 text-zinc-900"
-                        : p === "vip"   ? "border-orange-500 bg-orange-50 text-orange-700"
-                                        : "border-zinc-900 bg-zinc-900 text-white"
-                      : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-                  }`}>
-                    <input type="radio" name="prioridad" value={p} checked={prioridad === p} onChange={() => setPrioridad(p)} className="sr-only" />
+                  <button key={p} type="button" onClick={() => setPrioridad(p)}
+                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                      prioridad === p
+                        ? p === "vip"    ? "bg-orange-500 text-white"
+                          : p === "urgente" ? "bg-zinc-900 text-white"
+                          : "bg-zinc-900 text-white"
+                        : "bg-white text-zinc-600 hover:bg-zinc-50"
+                    }`}
+                  >
                     {p === "urgente" && <span>⚡</span>}
                     {p === "vip"     && <span>★</span>}
                     {p.charAt(0).toUpperCase() + p.slice(1)}
-                  </label>
+                  </button>
                 ))}
               </div>
             </div>

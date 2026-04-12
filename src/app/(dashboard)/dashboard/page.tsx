@@ -209,6 +209,7 @@ export default async function DashboardPage() {
   const startOfToday = limaStartOfToday();
   const endOfToday   = limaEndOfToday();
 
+  const ACTIVOS = ["En cola", "En corte", "En tapacantos"];
   const [
     { count: pedidosHoy },
     { count: enCola },
@@ -216,35 +217,21 @@ export default async function DashboardPage() {
     { count: completados },
     { data: pedidosM1 },
     { data: pedidosM2 },
+    { data: pedidosM3 },
     { data: maquinas },
   ] = await Promise.all([
-    supabase.from("pedidos").select("*", { count: "exact", head: true })
-      .gte("created_at", startOfToday)
-      .lte("created_at", endOfToday),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).gte("created_at", startOfToday).lte("created_at", endOfToday),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
-    supabase.from("pedidos").select("*", { count: "exact", head: true })
-      .in("estado", ["Listo", "Despachado", "Vendido"])
-      .gte("updated_at", startOfToday),
-    supabase.from("pedidos")
-      .select("*, cliente:clientes(nombre)")
-      .eq("maquina_asignada", "M1")
-      .in("estado", ["En cola", "En corte", "En tapacantos"])
-      .order("prioridad", { ascending: true })
-      .order("fecha_ingreso", { ascending: true })
-      .limit(5),
-    supabase.from("pedidos")
-      .select("*, cliente:clientes(nombre)")
-      .eq("maquina_asignada", "M2")
-      .in("estado", ["En cola", "En corte", "En tapacantos"])
-      .order("prioridad", { ascending: true })
-      .order("fecha_ingreso", { ascending: true })
-      .limit(5),
+    supabase.from("pedidos").select("*", { count: "exact", head: true }).in("estado", ["Listo", "Despachado", "Vendido"]).gte("updated_at", startOfToday),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
     supabase.from("maquinas").select("*").order("id").limit(10),
   ]);
 
   const maquinaMap = Object.fromEntries(
-    (maquinas ?? []).map((m: { id: number; activa: boolean }) => [m.id === 1 ? "M1" : "M2", m.activa])
+    (maquinas ?? []).map((m: { id: string; activa: boolean }) => [m.id, m.activa])
   );
 
   const stats = [
@@ -277,6 +264,7 @@ export default async function DashboardPage() {
   const maquinasData = [
     { id: "M1", label: "Máquina 1", pedidos: pedidosM1 ?? [] },
     { id: "M2", label: "Máquina 2", pedidos: pedidosM2 ?? [] },
+    { id: "M3", label: "Máquina 3", pedidos: pedidosM3 ?? [] },
   ];
 
   return (
@@ -291,7 +279,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Machines */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {maquinasData.map(({ id, label, pedidos }, colIdx) => {
           const activa = maquinaMap[id] !== false;
           return (
