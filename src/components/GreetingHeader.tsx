@@ -2,11 +2,18 @@
 import { useState, useEffect } from "react";
 
 const ROLE_LABEL: Record<string, string> = {
-  admin:      "Administrador",
-  ventas:     "Equipo de Ventas",
-  produccion: "Jefe de Producción",
-  almacenes:  "Jefe de Almacenes",
-  viewer:     "Invitado",
+  developer:        "Desarrollador",
+  admin:            "Administrador",
+  gerencia:         "Gerencia",
+  administracion:   "Administración",
+  ventas:           "Equipo de Ventas",
+  logistica:        "Logística",
+  produccion:       "Jefe de Producción",
+  almacen_tableros: "Almacén Tableros",
+  almacen_cantos:   "Almacén Cantos",
+  corte_especial:   "Corte Especial",
+  almacenes:        "Almacenes",
+  viewer:           "Invitado",
 };
 
 export default function GreetingHeader({ userRole = "admin" }: { userRole?: string }) {

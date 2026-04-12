@@ -6,12 +6,18 @@ import { RolSelector, BanToggle, RolBadge } from "./RolSelector";
 import type { UserRole } from "./actions";
 
 const ROLE_COLOR: Record<string, string> = {
-  developer:  "bg-zinc-900 text-white border-zinc-700",
-  admin:      "bg-orange-100 text-orange-700 border-orange-200",
-  ventas:     "bg-blue-100 text-blue-700 border-blue-200",
-  produccion: "bg-violet-100 text-violet-700 border-violet-200",
-  almacenes:  "bg-yellow-100 text-yellow-700 border-yellow-200",
-  viewer:     "bg-zinc-100 text-zinc-500 border-zinc-200",
+  developer:        "bg-zinc-900 text-white border-zinc-700",
+  admin:            "bg-orange-100 text-orange-700 border-orange-200",
+  gerencia:         "bg-red-100 text-red-700 border-red-200",
+  administracion:   "bg-amber-100 text-amber-700 border-amber-200",
+  ventas:           "bg-blue-100 text-blue-700 border-blue-200",
+  logistica:        "bg-cyan-100 text-cyan-700 border-cyan-200",
+  produccion:       "bg-violet-100 text-violet-700 border-violet-200",
+  almacen_tableros: "bg-green-100 text-green-700 border-green-200",
+  almacen_cantos:   "bg-teal-100 text-teal-700 border-teal-200",
+  corte_especial:   "bg-pink-100 text-pink-700 border-pink-200",
+  almacenes:        "bg-yellow-100 text-yellow-700 border-yellow-200",
+  viewer:           "bg-zinc-100 text-zinc-500 border-zinc-200",
 };
 
 function fmtDate(iso?: string | null) {
@@ -64,7 +70,12 @@ export default async function UsuariosPage() {
     ultimoAcceso: u.last_sign_in_at,
   })).sort((a, b) => {
     // Ordenar: developer > admin > resto, luego por fecha de creación
-    const ORDEN: Record<string, number> = { developer: 0, admin: 1, ventas: 2, produccion: 3, almacenes: 4, viewer: 5 };
+    const ORDEN: Record<string, number> = {
+      developer: 0, admin: 1, gerencia: 2, administracion: 3,
+      ventas: 4, logistica: 5, produccion: 6,
+      almacen_tableros: 7, almacen_cantos: 8, corte_especial: 9,
+      almacenes: 10, viewer: 11,
+    };
     const diff = (ORDEN[a.rol] ?? 9) - (ORDEN[b.rol] ?? 9);
     if (diff !== 0) return diff;
     return new Date(a.creadoEn).getTime() - new Date(b.creadoEn).getTime();

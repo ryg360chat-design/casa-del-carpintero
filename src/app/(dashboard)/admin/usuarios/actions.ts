@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getUserRole, IS_ADMIN, IS_DEVELOPER } from "@/lib/auth";
+import { getUserRole, IS_ADMIN, IS_DEVELOPER, type UserRole } from "@/lib/auth";
 
-export type UserRole = "developer" | "admin" | "ventas" | "produccion" | "almacenes" | "viewer";
+export type { UserRole };
 
 export async function cambiarRol(targetUserId: string, nuevoRol: UserRole) {
   const supabase = await createClient();

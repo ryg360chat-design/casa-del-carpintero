@@ -130,19 +130,30 @@ export default function Sidebar({
 
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
 
+  const canViewReporte = ["developer","admin","gerencia","administracion"].includes(userRole);
+
   const visibleItems = navItems.filter((item) => {
     if (item.href === "/dev") return isDeveloper;
     if (item.href === "/ajustes" || item.href === "/admin/invitar" || item.href === "/admin/usuarios") return isAdmin;
+    if (item.href === "/reporte") return canViewReporte;
+    // Producción y Calendario: ocultar solo a viewer puro
+    if (item.href === "/produccion" || item.href === "/calendario") return userRole !== "viewer";
     return true;
   });
 
   const ROLE_LABEL: Record<string, string> = {
-    developer: "Desarrollador",
-    admin: "Administrador",
-    ventas: "Ventas",
-    produccion: "Jefe de Producción",
-    almacenes: "Almacenes",
-    viewer: "Visualizador",
+    developer:       "Desarrollador",
+    admin:           "Administrador",
+    gerencia:        "Gerencia",
+    administracion:  "Administración",
+    ventas:          "Ventas",
+    logistica:       "Logística",
+    produccion:      "Producción",
+    almacen_tableros:"Almacén Tableros",
+    almacen_cantos:  "Almacén Cantos",
+    almacenes:       "Almacenes",
+    corte_especial:  "Corte Especial",
+    viewer:          "Visualizador",
   };
 
   return (

@@ -4,12 +4,18 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const ROLE_LABEL: Record<string, string> = {
-  developer: "Desarrollador",
-  admin: "Administrador",
-  ventas: "Ventas",
-  produccion: "Jefe de Producción",
-  almacenes: "Almacenes",
-  viewer: "Visualizador",
+  developer:        "Desarrollador",
+  admin:            "Administrador",
+  gerencia:         "Gerencia",
+  administracion:   "Administración",
+  ventas:           "Ventas",
+  logistica:        "Logística",
+  produccion:       "Jefe de Producción",
+  almacen_tableros: "Almacén Tableros",
+  almacen_cantos:   "Almacén Cantos",
+  corte_especial:   "Corte Especial",
+  almacenes:        "Almacenes",
+  viewer:           "Visualizador",
 };
 
 function validatePassword(pwd: string): string | null {

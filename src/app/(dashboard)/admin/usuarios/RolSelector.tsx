@@ -4,12 +4,17 @@ import { useState, useTransition } from "react";
 import { cambiarRol, desactivarUsuario, type UserRole } from "./actions";
 
 const ROLES: { value: UserRole; label: string; color: string }[] = [
-  { value: "admin",      label: "Administrador",      color: "bg-orange-100 text-orange-700 border-orange-200" },
-  { value: "ventas",     label: "Ventas",              color: "bg-blue-100 text-blue-700 border-blue-200" },
-  { value: "produccion", label: "Jefe de Producción",  color: "bg-violet-100 text-violet-700 border-violet-200" },
-  { value: "almacenes",  label: "Almacenes",           color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-  { value: "viewer",     label: "Visualizador",        color: "bg-zinc-100 text-zinc-500 border-zinc-200" },
-  { value: "developer",  label: "Desarrollador",       color: "bg-zinc-900 text-white border-zinc-700" },
+  { value: "gerencia",        label: "Gerencia",           color: "bg-red-100 text-red-700 border-red-200" },
+  { value: "admin",           label: "Admin sistema",      color: "bg-orange-100 text-orange-700 border-orange-200" },
+  { value: "administracion",  label: "Administración",     color: "bg-amber-100 text-amber-700 border-amber-200" },
+  { value: "ventas",          label: "Ventas",             color: "bg-blue-100 text-blue-700 border-blue-200" },
+  { value: "logistica",       label: "Logística",          color: "bg-cyan-100 text-cyan-700 border-cyan-200" },
+  { value: "produccion",      label: "Producción",         color: "bg-violet-100 text-violet-700 border-violet-200" },
+  { value: "almacen_tableros",label: "Almacén Tableros",   color: "bg-green-100 text-green-700 border-green-200" },
+  { value: "almacen_cantos",  label: "Almacén Cantos",     color: "bg-teal-100 text-teal-700 border-teal-200" },
+  { value: "corte_especial",  label: "Corte Especial",     color: "bg-pink-100 text-pink-700 border-pink-200" },
+  { value: "viewer",          label: "Visualizador",       color: "bg-zinc-100 text-zinc-500 border-zinc-200" },
+  { value: "developer",       label: "Desarrollador",      color: "bg-zinc-900 text-white border-zinc-700" },
 ];
 
 export function RolBadge({ rol }: { rol: string }) {

@@ -4,11 +4,16 @@ import { useState } from "react";
 import { invitarUsuario } from "./actions";
 
 const ROLES = [
-  { value: "viewer",     label: "Visualizador",        desc: "Solo puede ver pedidos" },
-  { value: "ventas",     label: "Ventas",              desc: "Crea y gestiona pedidos" },
-  { value: "produccion", label: "Jefe de Producción",  desc: "Avanza estados de producción" },
-  { value: "almacenes",  label: "Almacenes",           desc: "Acceso a inventario y entregas" },
-  { value: "admin",      label: "Administrador",       desc: "Control total del sistema" },
+  { value: "gerencia",        label: "Gerencia",           desc: "Acceso completo + reportes" },
+  { value: "administracion",  label: "Administración",     desc: "Ve reportes, sin modificar producción" },
+  { value: "ventas",          label: "Ventas",             desc: "Crea y gestiona pedidos, asigna máquinas" },
+  { value: "logistica",       label: "Logística",          desc: "Despacha pedidos listos" },
+  { value: "produccion",      label: "Producción",         desc: "Avanza estados, controla máquinas" },
+  { value: "almacen_tableros",label: "Almacén Tableros",   desc: "Gestiona despacho y tableros" },
+  { value: "almacen_cantos",  label: "Almacén Cantos",     desc: "Vista de lectura, acceso a cantos" },
+  { value: "corte_especial",  label: "Corte Especial",     desc: "Vista de lectura, pedidos especiales" },
+  { value: "viewer",          label: "Visualizador",       desc: "Solo puede ver pedidos" },
+  { value: "admin",           label: "Administrador",      desc: "Control total del sistema" },
 ] as const;
 
 type RolValue = typeof ROLES[number]["value"];

@@ -3,7 +3,12 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserRole, IS_ADMIN, IS_DEVELOPER } from "@/lib/auth";
 
-const ROLES_VALIDOS = ["admin", "ventas", "produccion", "almacenes", "viewer"] as const;
+const ROLES_VALIDOS = [
+  "admin", "gerencia", "administracion",
+  "ventas", "logistica", "produccion",
+  "almacen_tableros", "almacen_cantos", "corte_especial",
+  "viewer",
+] as const;
 type RolInvitacion = typeof ROLES_VALIDOS[number];
 
 export async function invitarUsuario(email: string, rolDeseado: RolInvitacion = "viewer") {
