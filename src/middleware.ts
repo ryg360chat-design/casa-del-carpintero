@@ -5,9 +5,9 @@ export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Si no hay credenciales configuradas, dejar pasar sin auth
+  // Si no hay credenciales configuradas, bloquear acceso
   if (!supabaseUrl || !supabaseUrl.startsWith("http") || !supabaseKey) {
-    return NextResponse.next({ request });
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   let supabaseResponse = NextResponse.next({ request });

@@ -7,6 +7,11 @@ import { getUserRole, IS_ADMIN, IS_DEVELOPER, type UserRole } from "@/lib/auth";
 
 export type { UserRole };
 
+const ROLES_ASIGNABLES: UserRole[] = [
+  "admin", "gerencia", "administracion", "ventas", "logistica",
+  "produccion", "almacen_tableros", "almacen_cantos", "corte_especial", "viewer",
+];
+
 export async function cambiarRol(targetUserId: string, nuevoRol: UserRole) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -17,6 +22,9 @@ export async function cambiarRol(targetUserId: string, nuevoRol: UserRole) {
 
   // No puede cambiarse el propio rol
   if (user.id === targetUserId) return { error: "No podés cambiar tu propio rol." };
+
+  // Validar que el rol sea uno de los permitidos
+  if (!ROLES_ASIGNABLES.includes(nuevoRol)) return { error: "Rol no válido." };
 
   // Solo developer puede asignar rol developer
   if (nuevoRol === "developer" && !IS_DEVELOPER.includes(role)) {

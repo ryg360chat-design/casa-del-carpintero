@@ -33,7 +33,7 @@ export async function invitarUsuario(email: string, rolDeseado: RolInvitacion = 
   try {
     const supabase = createAdminClient();
     const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/confirm`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
       data: { rol: rolDeseado }, // se guarda en user_metadata → trigger lo copia a profiles
     });
 

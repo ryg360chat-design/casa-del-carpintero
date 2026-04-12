@@ -14,9 +14,7 @@ export default async function DashboardLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const supabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL?.startsWith("http");
-
-  if (!user && supabaseConfigured) {
+  if (!user) {
     redirect("/login");
   }
 

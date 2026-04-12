@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient as createAnonClient } from '@supabase/supabase-js'
 import { timingSafeEqual } from 'crypto'
 
 // In-memory rate limiter: 20 requests per minute per IP
@@ -47,7 +47,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = createAdminClient()
+    const supabase = createAnonClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
 
