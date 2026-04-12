@@ -26,6 +26,12 @@ const ESTADO_CONFIG: Record<string, { label: string; icon: string; className: st
     className: "bg-zinc-900 text-white",
     desc: "Tu pedido está listo. ¡Podés pasar a retirarlo!",
   },
+  "Despachado": {
+    label: "Entregado ✓",
+    icon: "🚚",
+    className: "bg-teal-600 text-white",
+    desc: "Tu pedido fue entregado. ¡Gracias por tu compra!",
+  },
   "Vendido": {
     label: "Entregado ✓",
     icon: "🚚",
@@ -101,6 +107,7 @@ export default async function SeguimientoPage({
     "En corte": 1,
     "En tapacantos": 2,
     "Listo": 3,
+    "Despachado": 4,
     "Vendido": 4,
   };
 
@@ -169,7 +176,7 @@ export default async function SeguimientoPage({
               const pasoActual = PASO_IDX[estado] ?? 0;
               const isCancelado = estado === "Cancelado";
               const isListo = estado === "Listo";
-              const isVendido = estado === "Vendido";
+              const isVendido = estado === "Despachado" || estado === "Vendido";
               const numeroOrden = `#${String(p.id as string).slice(-4).toUpperCase()}`;
 
               const entregaFecha = p.fecha_entrega_estimada
