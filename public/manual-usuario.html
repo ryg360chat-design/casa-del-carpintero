@@ -666,7 +666,7 @@
           <div class="mock-stat"><div class="val" style="color:#267A8C;">3</div><div class="lbl">En corte</div></div>
           <div class="mock-stat"><div class="val" style="color:#16a34a;">4</div><div class="lbl">Listos</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
           <div style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;padding:12px;">
             <div style="font-family:sans-serif;font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">⚙️ MÁQUINA M1 · 2 activos</div>
             <div style="background:#f8fafc;border-radius:6px;padding:10px;font-family:sans-serif;font-size:12px;">
@@ -685,6 +685,15 @@
               <span class="mock-badge" style="background:#f4f4f5;color:#52525b;margin-top:6px;display:inline-block;">En cola</span>
             </div>
           </div>
+          <div style="background:#fff;border-radius:8px;border:1px solid #e2e8f0;padding:12px;">
+            <div style="font-family:sans-serif;font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">⚙️ MÁQUINA M3 · 1 activo</div>
+            <div style="background:#f8fafc;border-radius:6px;padding:10px;font-family:sans-serif;font-size:12px;">
+              <div style="font-weight:700;">Distribuidora Ruiz</div>
+              <div style="color:#64748b;font-size:11px;">Triplay 12mm · 3 planchas</div>
+              <div class="prog-track"><div class="prog-fill" style="width:70%;background:#7c3aed;"></div></div>
+              <span class="mock-badge" style="background:#ede9fe;color:#7c3aed;margin-top:6px;display:inline-block;">En tapacantos</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -701,7 +710,7 @@
         <div class="card">
           <h3>⚙️ Columnas de máquinas</h3>
           <ul>
-            <li>Muestra <strong>M1 y M2</strong> en paralelo</li>
+            <li>Muestra <strong>M1, M2 y M3</strong> en paralelo</li>
             <li>Cada tarjeta muestra cliente, material, cantidades</li>
             <li>Barra de progreso visual por estado</li>
             <li>Badges de <span class="badge badge-coral">⚡ URGENTE</span> y <span class="badge badge-amber">★ VIP</span></li>
@@ -744,7 +753,7 @@
           </div>
           <div style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0;">
             <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;">MÁQUINA</div>
-            <p style="font-size:12px;">Filtrar por M1 o M2</p>
+            <p style="font-size:12px;">Filtrar por M1, M2 o M3</p>
           </div>
         </div>
       </div>
@@ -756,7 +765,7 @@
           <li><strong>Cliente</strong> — Nombre + código CDC si tiene</li>
           <li><strong>Material</strong> — Tipo de tablero principal</li>
           <li><strong>Planchas / Piezas</strong> — Cantidades</li>
-          <li><strong>Máquina</strong> — M1 o M2 asignada</li>
+          <li><strong>Máquina</strong> — M1, M2 o M3 asignada</li>
           <li><strong>Estado</strong> — Badge con color de estado actual</li>
           <li><strong>Entrega</strong> — Fecha y hora estimada</li>
           <li><strong>Acción</strong> — Enlace para ver el detalle completo</li>
@@ -819,8 +828,9 @@
         <div class="card" style="border-left:4px solid var(--blue);">
           <h3><span style="background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</span> Cliente y Área</h3>
           <ul>
-            <li><strong>Nombre del cliente</strong> — Campo con búsqueda automática. Si no existe, se crea al guardar.</li>
-            <li><strong>Área solicitante</strong> — Ventas, Producción, Almacenes, Cortes especiales, Administración, Logística</li>
+            <li><strong>Nombre del cliente</strong> — Búsqueda automática. Si el cliente no existe, se crea al guardar con código CDC automático.</li>
+            <li><strong>Área solicitante</strong> — Ventas, Producción, Almacenes, Corte Especial, Administración, Logística</li>
+            <li><strong>Máquina</strong> — Por defecto "Auto" (menor carga). Puedes fijar <strong>M1, M2 o M3</strong> manualmente si el pedido requiere una máquina específica.</li>
           </ul>
         </div>
         <div class="card" style="border-left:4px solid var(--teal);">
@@ -923,9 +933,9 @@
     </div>
     <div class="content">
       <div class="card">
-        <h3>📐 Diseño en dos columnas</h3>
-        <p>La pantalla se divide en dos columnas, una por máquina:</p>
-        <div class="grid-2" style="margin-top:14px;">
+        <h3>📐 Diseño en tres columnas</h3>
+        <p>La pantalla se divide en tres columnas, una por máquina:</p>
+        <div class="grid-3" style="margin-top:14px;">
           <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px;">
             <div style="font-size:11px;font-weight:700;color:#0369a1;margin-bottom:6px;">⚙️ MÁQUINA M1</div>
             <p style="font-size:12px;color:#0c4a6e;">Enchapadora delgada → Sierra circular 1</p>
@@ -935,6 +945,11 @@
             <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;">⚙️ MÁQUINA M2</div>
             <p style="font-size:12px;color:#14532d;">Sierra circular 2 → Enchapadora gruesa</p>
             <p style="font-size:12px;color:#14532d;margin-top:4px;">Cola independiente de M2 con los mismos controles de estado.</p>
+          </div>
+          <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;padding:14px;">
+            <div style="font-size:11px;font-weight:700;color:#7e22ce;margin-bottom:6px;">⚙️ MÁQUINA M3</div>
+            <p style="font-size:12px;color:#581c87;">Tercera línea de corte del taller</p>
+            <p style="font-size:12px;color:#581c87;margin-top:4px;">Cola independiente de M3. Mismos controles de estado que M1 y M2.</p>
           </div>
         </div>
       </div>
@@ -1045,7 +1060,7 @@
       <div class="grid-2" style="margin-top:4px;">
         <div class="card">
           <h3>📊 Gauges de carga</h3>
-          <p>Dos círculos de progreso muestran el porcentaje de carga actual de M1 y M2 en tiempo real.</p>
+          <p>Tres círculos de progreso muestran el porcentaje de carga actual de <strong>M1, M2 y M3</strong> en tiempo real.</p>
           <ul style="margin-top:8px;">
             <li>0–33% → Carga baja (verde)</li>
             <li>34–66% → Carga media (amarillo)</li>
@@ -1054,18 +1069,19 @@
         </div>
         <div class="card">
           <h3>📉 Gráfico 7 días</h3>
-          <p>Comparativo de pedidos completados por M1 y M2 en los últimos 7 días.</p>
+          <p>Comparativo de pedidos completados por <strong>M1, M2 y M3</strong> en los últimos 7 días.</p>
           <ul style="margin-top:8px;">
             <li>Barras azules = M1</li>
             <li>Barras teal = M2</li>
+            <li>Barras púrpura = M3</li>
             <li>Día actual resaltado</li>
           </ul>
         </div>
         <div class="card">
           <h3>📋 Tabla de productividad</h3>
           <ul>
-            <li>Pedidos completados por máquina</li>
-            <li>Promedio diario</li>
+            <li>Pedidos completados por máquina (M1, M2 y M3)</li>
+            <li>Promedio diario por máquina</li>
             <li>Total de planchas y piezas</li>
             <li>Barras de progreso visuales</li>
           </ul>
@@ -1391,7 +1407,7 @@
           <span>¿Cómo sé a qué máquina se asignó un pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          El sistema asigna automáticamente la máquina con menor carga al crear el pedido. Puedes verla:
+          Por defecto el sistema asigna automáticamente la máquina con menor carga (M1, M2 o M3). También puedes asignarla manualmente al crear el pedido. Para ver qué máquina tiene un pedido:
           <ul>
             <li>En la columna "Máquina" de la lista de pedidos</li>
             <li>En el detalle del pedido, junto a la fecha de ingreso</li>
