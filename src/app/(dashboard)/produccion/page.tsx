@@ -9,7 +9,11 @@ const ESTADO_BADGE: Record<string, string> = {
   "En cola": "border border-zinc-300 text-zinc-600 bg-transparent text-xs font-semibold px-3 py-1 rounded-full",
   "En corte": "bg-zinc-900 text-white text-xs font-semibold px-3 py-1 rounded-full",
   "En tapacantos": "bg-zinc-800 text-white text-xs font-semibold px-3 py-1 rounded-full",
+  "Pausado": "border border-amber-300 text-amber-700 bg-amber-50 text-xs font-semibold px-3 py-1 rounded-full",
 };
+
+const PAGE_SIZE = 5;
+const ACTIVOS = ["En cola", "En corte", "En tapacantos", "Pausado"];
 
 function PedidoCard({ pedido, canAdvance = true }: { pedido: Record<string, unknown>; canAdvance?: boolean }) {
   const estado = pedido.estado as string;
@@ -93,16 +97,15 @@ export default async function ProduccionPage() {
   const canAdvance = CAN_ADVANCE_STATE.includes(role);
   const canCreatePedido = CAN_CREATE_PEDIDO.includes(role);
 
-  const EXCLUIR = '("Listo","Despachado","Vendido","Cancelado")';
   const [
-    { data: pedidosM1 },
-    { data: pedidosM2 },
-    { data: pedidosM3 },
+    { data: pedidosM1, count: countM1 },
+    { data: pedidosM2, count: countM2 },
+    { data: pedidosM3, count: countM3 },
     { data: maquinas },
   ] = await Promise.all([
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M1").not("estado", "in", EXCLUIR).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M2").not("estado", "in", EXCLUIR).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M3").not("estado", "in", EXCLUIR).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(PAGE_SIZE),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(PAGE_SIZE),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(PAGE_SIZE),
     supabase.from("maquinas").select("*").limit(10),
   ]);
 
@@ -142,15 +145,23 @@ export default async function ProduccionPage() {
       {/* Columnas de máquinas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {[
-          { maquina: m1, id: "M1", pedidos: pedidosM1 ?? [], label: "MÁQUINA 1" },
-          { maquina: m2, id: "M2", pedidos: pedidosM2 ?? [], label: "MÁQUINA 2" },
-          { maquina: m3, id: "M3", pedidos: pedidosM3 ?? [], label: "MÁQUINA 3" },
-        ].map(({ maquina, id, pedidos, label }) => {
+          { maquina: m1, id: "M1", pedidos: pedidosM1 ?? [], count: countM1 ?? 0, label: "MÁQUINA 1" },
+          { maquina: m2, id: "M2", pedidos: pedidosM2 ?? [], count: countM2 ?? 0, label: "MÁQUINA 2" },
+          { maquina: m3, id: "M3", pedidos: pedidosM3 ?? [], count: countM3 ?? 0, label: "MÁQUINA 3" },
+        ].map(({ maquina, id, pedidos, count, label }) => {
           const activa = maquina?.activa ?? false;
+          const hayMas = count > PAGE_SIZE;
           return (
             <div key={id}>
               <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-200">
-                <h2 className="text-base font-extrabold text-zinc-900 uppercase tracking-wider">{label}</h2>
+                <div>
+                  <h2 className="text-base font-extrabold text-zinc-900 uppercase tracking-wider">{label}</h2>
+                  {count > 0 && (
+                    <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                      {count} pedido{count !== 1 ? "s" : ""} activo{count !== 1 ? "s" : ""}
+                    </p>
+                  )}
+                </div>
                 <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${activa ? "bg-zinc-900 text-white" : "border border-zinc-300 text-zinc-500"}`}>
                   {activa ? "ACTIVA" : "INACTIVA"}
                 </span>
@@ -162,9 +173,22 @@ export default async function ProduccionPage() {
                     Sin pedidos en cola
                   </div>
                 ) : (
-                  pedidos.map((p: Record<string, unknown>) => (
-                    <PedidoCard key={p.id as string} pedido={p} canAdvance={canAdvance} />
-                  ))
+                  <>
+                    {pedidos.map((p: Record<string, unknown>) => (
+                      <PedidoCard key={p.id as string} pedido={p} canAdvance={canAdvance} />
+                    ))}
+                    {hayMas && (
+                      <Link
+                        href="/pedidos"
+                        className="flex items-center justify-center gap-2 py-3 text-sm font-semibold text-zinc-500 border border-dashed border-zinc-300 rounded-xl hover:border-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-all"
+                      >
+                        Ver {count - PAGE_SIZE} más
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </Link>
+                    )}
+                  </>
                 )}
               </div>
             </div>

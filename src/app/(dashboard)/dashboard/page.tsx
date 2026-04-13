@@ -215,18 +215,18 @@ export default async function DashboardPage() {
     { count: enCola },
     { count: enCorte },
     { count: completados },
-    { data: pedidosM1 },
-    { data: pedidosM2 },
-    { data: pedidosM3 },
+    { data: pedidosM1, count: countM1 },
+    { data: pedidosM2, count: countM2 },
+    { data: pedidosM3, count: countM3 },
     { data: maquinas },
   ] = await Promise.all([
     supabase.from("pedidos").select("*", { count: "exact", head: true }).gte("created_at", startOfToday).lte("created_at", endOfToday),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).in("estado", ["Listo", "Despachado", "Vendido"]).gte("updated_at", startOfToday),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)").eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
     supabase.from("maquinas").select("*").order("id").limit(10),
   ]);
 
@@ -262,9 +262,9 @@ export default async function DashboardPage() {
   ];
 
   const maquinasData = [
-    { id: "M1", label: "Máquina 1", pedidos: pedidosM1 ?? [] },
-    { id: "M2", label: "Máquina 2", pedidos: pedidosM2 ?? [] },
-    { id: "M3", label: "Máquina 3", pedidos: pedidosM3 ?? [] },
+    { id: "M1", label: "Máquina 1", pedidos: pedidosM1 ?? [], count: countM1 ?? 0 },
+    { id: "M2", label: "Máquina 2", pedidos: pedidosM2 ?? [], count: countM2 ?? 0 },
+    { id: "M3", label: "Máquina 3", pedidos: pedidosM3 ?? [], count: countM3 ?? 0 },
   ];
 
   return (
@@ -280,8 +280,9 @@ export default async function DashboardPage() {
 
       {/* Machines */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {maquinasData.map(({ id, label, pedidos }, colIdx) => {
+        {maquinasData.map(({ id, label, pedidos, count }, colIdx) => {
           const activa = maquinaMap[id] !== false;
+          const hayMas = count > 5;
           return (
             <div key={id} className="animate-fade-in-up" style={{ animationDelay: `${200 + colIdx * 80}ms` }}>
               {/* Machine header */}
@@ -315,7 +316,7 @@ export default async function DashboardPage() {
                     {activa ? "Operativa" : "Pausada"}
                   </span>
                   <span className="text-zinc-300">·</span>
-                  <span className="text-xs text-zinc-400 font-medium">{pedidos.length} activos</span>
+                  <span className="text-xs text-zinc-400 font-medium">{count} activos</span>
                 </div>
               </div>
 
@@ -330,14 +331,27 @@ export default async function DashboardPage() {
                     Sin pedidos activos
                   </div>
                 ) : (
-                  pedidos.map((p: Record<string, unknown>, idx: number) => (
-                    <OrderCard
-                      key={p.id as string}
-                      pedido={p as Record<string, unknown>}
-                      delay={300 + colIdx * 80 + idx * 50}
-                      canAdvance={canAdvance}
-                    />
-                  ))
+                  <>
+                    {pedidos.map((p: Record<string, unknown>, idx: number) => (
+                      <OrderCard
+                        key={p.id as string}
+                        pedido={p as Record<string, unknown>}
+                        delay={300 + colIdx * 80 + idx * 50}
+                        canAdvance={canAdvance}
+                      />
+                    ))}
+                    {hayMas && (
+                      <Link
+                        href="/produccion"
+                        className="flex items-center justify-center gap-2 py-3 text-xs font-semibold text-zinc-400 border border-dashed border-zinc-200 rounded-xl hover:border-zinc-300 hover:text-zinc-600 hover:bg-zinc-50/80 transition-all"
+                      >
+                        Ver {count - 5} más en producción
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </Link>
+                    )}
+                  </>
                 )}
               </div>
             </div>
