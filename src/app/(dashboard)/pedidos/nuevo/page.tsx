@@ -410,16 +410,24 @@ export default function NuevoPedidoPage() {
       // 1. Buscar o crear cliente
       let clienteId: string | null = null;
       if (clienteNombre.trim()) {
-        const { data: existing } = await supabase
+        const { data: existing, error: lookupError } = await supabase
           .from("clientes").select("id")
           .ilike("nombre", clienteNombre.trim()).maybeSingle();
         if (existing) {
           clienteId = existing.id;
-        } else {
+        } else if (!lookupError) {
+          // No existe aún — insertar
           const { data: nuevo } = await supabase
             .from("clientes").insert({ nombre: clienteNombre.trim() })
             .select("id").single();
           clienteId = nuevo?.id ?? null;
+        } else {
+          // Múltiples coincidencias u otro error: buscar por match exacto
+          const { data: exacto } = await supabase
+            .from("clientes").select("id")
+            .ilike("nombre", clienteNombre.trim())
+            .limit(1).single();
+          clienteId = exacto?.id ?? null;
         }
       }
 
@@ -463,26 +471,38 @@ export default function NuevoPedidoPage() {
       }
       function addWorkHours(base: Date, horas: number): Date {
         const result = new Date(base);
-        let remaining = horas;
+        // Sanitize input so NaN/Infinity never enter the loop
+        let remaining = (!isFinite(horas) || isNaN(horas) || horas < 0) ? 0.5 : horas;
         const h0 = hFrac(result);
         if (h0 < INICIO) setHFrac(result, INICIO);
         else if (h0 >= FIN) { result.setDate(result.getDate() + 1); setHFrac(result, INICIO); }
         else if (h0 >= ALMUERZO_IN && h0 < ALMUERZO_OUT) setHFrac(result, ALMUERZO_OUT);
         skipWeekend(result);
-        while (remaining > 0) {
+        let safety = 0;
+        while (remaining > 0.001 && safety < 500) {
+          safety++;
           const h = hFrac(result);
-          const tope = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + remaining) : Math.min(FIN, h + remaining);
-          remaining -= tope - h;
-          setHFrac(result, tope);
-          if (remaining > 0) {
-            const hNow = hFrac(result);
-            if (hNow >= ALMUERZO_IN && hNow < ALMUERZO_OUT) setHFrac(result, ALMUERZO_OUT);
-            else { result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); }
+          // If current position is past end-of-day or in lunch, advance first
+          if (h >= FIN) {
+            result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); continue;
           }
+          if (h >= ALMUERZO_IN && h < ALMUERZO_OUT) {
+            setHFrac(result, ALMUERZO_OUT); continue;
+          }
+          // Work window: [h, ALMUERZO_IN) or [ALMUERZO_OUT, FIN)
+          const tope = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + remaining) : Math.min(FIN, h + remaining);
+          const avance = tope - h;
+          if (avance <= 0) {
+            // Should not happen, but guard against infinite loop
+            result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); continue;
+          }
+          remaining -= avance;
+          setHFrac(result, tope);
         }
         return result;
       }
       const entrega = addWorkHours(ahora, totalHoras);
+      if (isNaN(entrega.getTime())) throw new Error("No se pudo calcular la fecha de entrega (fecha inválida)");
 
       // 4. Insertar pedido (columnas legacy = primera línea para backwards compat)
       const primera = lineas[0];

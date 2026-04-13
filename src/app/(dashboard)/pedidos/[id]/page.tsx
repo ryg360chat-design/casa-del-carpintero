@@ -34,8 +34,9 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   const supabase = await createClient();
   const role = await getUserRole();
   const canAdvance = CAN_ADVANCE_STATE.includes(role);
-  const canCancel = CAN_CREATE_PEDIDO.includes(role);
-  const canVender = CAN_DESPACHAR.includes(role);
+  const canCancel  = CAN_CREATE_PEDIDO.includes(role);
+  const canEdit    = CAN_CREATE_PEDIDO.includes(role);
+  const canVender  = CAN_DESPACHAR.includes(role);
 
   const { data: pedido } = await supabase
     .from("pedidos")
@@ -135,9 +136,23 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
             <span className="font-medium text-zinc-500">{pedido.maquina_asignada ?? "Sin máquina"}</span>
           </p>
         </div>
-        <span className={`animate-badge-pop text-sm font-bold px-3 py-1.5 rounded-full ${badgeClass}`}>
-          {estado}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span className={`animate-badge-pop text-sm font-bold px-3 py-1.5 rounded-full ${badgeClass}`}>
+            {estado}
+          </span>
+          {canEdit && !esCancelado && (
+            <Link
+              href={`/pedidos/${id}/editar`}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 border border-zinc-200 px-3 py-1.5 rounded-lg hover:bg-zinc-50 hover:text-zinc-700 hover:border-zinc-300 transition-all"
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Editar pedido
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Progress stepper */}
