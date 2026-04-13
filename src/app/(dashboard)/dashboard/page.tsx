@@ -3,6 +3,7 @@ import { getUserRole, CAN_ADVANCE_STATE } from "@/lib/auth";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 import GreetingHeader from "@/components/GreetingHeader";
+import ShowMoreList from "@/components/ShowMoreList";
 import Link from "next/link";
 import React from "react";
 import { limaTime, limaDate, esHoyLima, esMañanaLima, limaStartOfToday, limaEndOfToday } from "@/lib/time";
@@ -224,9 +225,9 @@ export default async function DashboardPage() {
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).in("estado", ["Listo", "Despachado", "Vendido"]).gte("updated_at", startOfToday),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(5),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("maquinas").select("*").order("id").limit(10),
   ]);
 
@@ -282,7 +283,6 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {maquinasData.map(({ id, label, pedidos, count }, colIdx) => {
           const activa = maquinaMap[id] !== false;
-          const hayMas = count > 5;
           return (
             <div key={id} className="animate-fade-in-up" style={{ animationDelay: `${200 + colIdx * 80}ms` }}>
               {/* Machine header */}
@@ -321,39 +321,26 @@ export default async function DashboardPage() {
               </div>
 
               {/* Orders */}
-              <div className="flex flex-col gap-3">
-                {pedidos.length === 0 ? (
-                  <div className="text-center py-12 text-zinc-400 text-sm border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-                    <svg className="mx-auto mb-2 text-zinc-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                      <rect width="6" height="4" x="9" y="3" rx="1"/>
-                    </svg>
-                    Sin pedidos activos
-                  </div>
-                ) : (
-                  <>
-                    {pedidos.map((p: Record<string, unknown>, idx: number) => (
-                      <OrderCard
-                        key={p.id as string}
-                        pedido={p as Record<string, unknown>}
-                        delay={300 + colIdx * 80 + idx * 50}
-                        canAdvance={canAdvance}
-                      />
-                    ))}
-                    {hayMas && (
-                      <Link
-                        href="/produccion"
-                        className="flex items-center justify-center gap-2 py-3 text-xs font-semibold text-zinc-400 border border-dashed border-zinc-200 rounded-xl hover:border-zinc-300 hover:text-zinc-600 hover:bg-zinc-50/80 transition-all"
-                      >
-                        Ver {count - 5} más en producción
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                      </Link>
-                    )}
-                  </>
-                )}
-              </div>
+              {pedidos.length === 0 ? (
+                <div className="text-center py-12 text-zinc-400 text-sm border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
+                  <svg className="mx-auto mb-2 text-zinc-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                    <rect width="6" height="4" x="9" y="3" rx="1"/>
+                  </svg>
+                  Sin pedidos activos
+                </div>
+              ) : (
+                <ShowMoreList gap="gap-3">
+                  {pedidos.map((p: Record<string, unknown>, idx: number) => (
+                    <OrderCard
+                      key={p.id as string}
+                      pedido={p as Record<string, unknown>}
+                      delay={300 + colIdx * 80 + idx * 50}
+                      canAdvance={canAdvance}
+                    />
+                  ))}
+                </ShowMoreList>
+              )}
             </div>
           );
         })}

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole, CAN_ADVANCE_STATE, CAN_CREATE_PEDIDO } from "@/lib/auth";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
+import ShowMoreList from "@/components/ShowMoreList";
 import { TZ, limaTime } from "@/lib/time";
 
 const ESTADO_BADGE: Record<string, string> = {
@@ -12,7 +13,6 @@ const ESTADO_BADGE: Record<string, string> = {
   "Pausado": "border border-amber-300 text-amber-700 bg-amber-50 text-xs font-semibold px-3 py-1 rounded-full",
 };
 
-const PAGE_SIZE = 5;
 const ACTIVOS = ["En cola", "En corte", "En tapacantos", "Pausado"];
 
 function PedidoCard({ pedido, canAdvance = true }: { pedido: Record<string, unknown>; canAdvance?: boolean }) {
@@ -103,9 +103,9 @@ export default async function ProduccionPage() {
     { data: pedidosM3, count: countM3 },
     { data: maquinas },
   ] = await Promise.all([
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(PAGE_SIZE),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(PAGE_SIZE),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(PAGE_SIZE),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("maquinas").select("*").limit(10),
   ]);
 
@@ -150,7 +150,6 @@ export default async function ProduccionPage() {
           { maquina: m3, id: "M3", pedidos: pedidosM3 ?? [], count: countM3 ?? 0, label: "MÁQUINA 3" },
         ].map(({ maquina, id, pedidos, count, label }) => {
           const activa = maquina?.activa ?? false;
-          const hayMas = count > PAGE_SIZE;
           return (
             <div key={id}>
               <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-200">
@@ -167,30 +166,17 @@ export default async function ProduccionPage() {
                 </span>
               </div>
 
-              <div className="flex flex-col gap-4">
-                {pedidos.length === 0 ? (
-                  <div className="text-center py-12 text-zinc-400 text-sm border border-dashed border-zinc-300 rounded-xl">
-                    Sin pedidos en cola
-                  </div>
-                ) : (
-                  <>
-                    {pedidos.map((p: Record<string, unknown>) => (
-                      <PedidoCard key={p.id as string} pedido={p} canAdvance={canAdvance} />
-                    ))}
-                    {hayMas && (
-                      <Link
-                        href="/pedidos"
-                        className="flex items-center justify-center gap-2 py-3 text-sm font-semibold text-zinc-500 border border-dashed border-zinc-300 rounded-xl hover:border-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-all"
-                      >
-                        Ver {count - PAGE_SIZE} más
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                      </Link>
-                    )}
-                  </>
-                )}
-              </div>
+              {pedidos.length === 0 ? (
+                <div className="text-center py-12 text-zinc-400 text-sm border border-dashed border-zinc-300 rounded-xl">
+                  Sin pedidos en cola
+                </div>
+              ) : (
+                <ShowMoreList gap="gap-4">
+                  {pedidos.map((p: Record<string, unknown>) => (
+                    <PedidoCard key={p.id as string} pedido={p} canAdvance={canAdvance} />
+                  ))}
+                </ShowMoreList>
+              )}
             </div>
           );
         })}
