@@ -112,26 +112,31 @@ export default async function ReportePage() {
       isToday,
       M1: dayRecs.filter((p: Record<string, unknown>) => p.maquina_asignada === "M1").length,
       M2: dayRecs.filter((p: Record<string, unknown>) => p.maquina_asignada === "M2").length,
+      M3: dayRecs.filter((p: Record<string, unknown>) => p.maquina_asignada === "M3").length,
     };
   });
 
-  const maxBar = Math.max(...chartData.map(d => Math.max(d.M1, d.M2)), 1);
+  const maxBar = Math.max(...chartData.map(d => Math.max(d.M1, d.M2, d.M3)), 1);
 
   // ── Gauge carga actual ────────────────────────────────────────────────
   const loadM1 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M1").length;
   const loadM2 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M2").length;
-  const totalLoad = loadM1 + loadM2 || 1;
+  const loadM3 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M3").length;
+  const totalLoad = loadM1 + loadM2 + loadM3 || 1;
 
   // ── Productividad ─────────────────────────────────────────────────────
   type PRow = { maquina_asignada: string | null; cant_planchas: number | null; cant_piezas: number | null };
   const rows = (completadosSemana ?? []) as PRow[];
 
-  const maquinaStats = (["M1", "M2"] as const).map((maq, idx) => {
+  const MAQUINA_COLORS: Record<string, string> = { M1: "#1957A6", M2: "#267A8C", M3: "#7c3aed" };
+  const MAQUINA_LOADS:  Record<string, number>  = { M1: loadM1, M2: loadM2, M3: loadM3 };
+
+  const maquinaStats = (["M1", "M2", "M3"] as const).map((maq) => {
     const recs = rows.filter(p => p.maquina_asignada === maq);
-    const carga = idx === 0 ? loadM1 : loadM2;
+    const carga = MAQUINA_LOADS[maq];
     return {
       id: maq,
-      color: idx === 0 ? "#1957A6" : "#267A8C",
+      color: MAQUINA_COLORS[maq],
       completados: recs.length,
       planchas: recs.reduce((a, p) => a + (p.cant_planchas ?? 0), 0),
       piezas:   recs.reduce((a, p) => a + (p.cant_piezas   ?? 0), 0),
@@ -245,7 +250,7 @@ export default async function ReportePage() {
           <div className="bg-white border border-zinc-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-bold text-zinc-900">Carga actual por máquina</h2>
-              <span className="text-xs text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full font-semibold">{loadM1 + loadM2} activos</span>
+              <span className="text-xs text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full font-semibold">{loadM1 + loadM2 + loadM3} activos</span>
             </div>
             <div className="flex items-center justify-around">
               {maquinaStats.map(m => {
@@ -272,7 +277,7 @@ export default async function ReportePage() {
                 );
               })}
             </div>
-            {(loadM1 + loadM2) === 0 && (
+            {(loadM1 + loadM2 + loadM3) === 0 && (
               <p className="text-center text-xs text-zinc-400 mt-2">Sin pedidos activos ahora mismo</p>
             )}
           </div>
@@ -283,12 +288,13 @@ export default async function ReportePage() {
               <h2 className="font-bold text-zinc-900">Completados por día</h2>
               <div className="flex items-center gap-3 text-xs font-semibold">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#1957A6" }}/>
-                  M1
+                  <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#1957A6" }}/>M1
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#267A8C" }}/>
-                  M2
+                  <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#267A8C" }}/>M2
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#7c3aed" }}/>M3
                 </span>
               </div>
             </div>
@@ -303,39 +309,28 @@ export default async function ReportePage() {
               {chartData.map((d, i) => {
                 const groupW = 391 / 7;
                 const centerX = 24 + i * groupW + groupW / 2;
-                const barW = 16;
-                const gap = 4;
+                const barW = 10;
+                const gap = 3;
                 const m1H = (d.M1 / maxBar) * 95;
                 const m2H = (d.M2 / maxBar) * 95;
+                const m3H = (d.M3 / maxBar) * 95;
                 return (
                   <g key={i}>
                     {/* M1 bar */}
-                    <rect
-                      x={centerX - barW - gap / 2} y={110 - m1H}
-                      width={barW} height={Math.max(m1H, 0)}
-                      fill="#1957A6" rx="3"
-                      opacity={d.isToday ? 1 : 0.65}
-                    />
+                    <rect x={centerX - barW - gap - barW / 2} y={110 - m1H} width={barW} height={Math.max(m1H, 0)} fill="#1957A6" rx="2" opacity={d.isToday ? 1 : 0.65}/>
                     {/* M2 bar */}
-                    <rect
-                      x={centerX + gap / 2} y={110 - m2H}
-                      width={barW} height={Math.max(m2H, 0)}
-                      fill="#267A8C" rx="3"
-                      opacity={d.isToday ? 1 : 0.65}
-                    />
+                    <rect x={centerX - barW / 2} y={110 - m2H} width={barW} height={Math.max(m2H, 0)} fill="#267A8C" rx="2" opacity={d.isToday ? 1 : 0.65}/>
+                    {/* M3 bar */}
+                    <rect x={centerX + barW / 2 + gap} y={110 - m3H} width={barW} height={Math.max(m3H, 0)} fill="#7c3aed" rx="2" opacity={d.isToday ? 1 : 0.65}/>
                     {/* Count labels */}
-                    {d.M1 > 0 && <text x={centerX - barW / 2 - gap / 2} y={110 - m1H - 3} textAnchor="middle" fontSize="9" fill="#1957A6" fontWeight="700">{d.M1}</text>}
-                    {d.M2 > 0 && <text x={centerX + barW / 2 + gap / 2} y={110 - m2H - 3} textAnchor="middle" fontSize="9" fill="#267A8C" fontWeight="700">{d.M2}</text>}
+                    {d.M1 > 0 && <text x={centerX - barW - gap - barW / 2 + barW / 2} y={110 - m1H - 3} textAnchor="middle" fontSize="8" fill="#1957A6" fontWeight="700">{d.M1}</text>}
+                    {d.M2 > 0 && <text x={centerX} y={110 - m2H - 3} textAnchor="middle" fontSize="8" fill="#267A8C" fontWeight="700">{d.M2}</text>}
+                    {d.M3 > 0 && <text x={centerX + barW / 2 + gap + barW / 2} y={110 - m3H - 3} textAnchor="middle" fontSize="8" fill="#7c3aed" fontWeight="700">{d.M3}</text>}
                     {/* Day label */}
-                    <text x={centerX} y={126} textAnchor="middle" fontSize="9.5"
-                      fill={d.isToday ? "#1957A6" : "#a1a1aa"}
-                      fontWeight={d.isToday ? "700" : "400"}
-                    >
+                    <text x={centerX} y={126} textAnchor="middle" fontSize="9.5" fill={d.isToday ? "#1957A6" : "#a1a1aa"} fontWeight={d.isToday ? "700" : "400"}>
                       {d.label}
                     </text>
-                    {d.isToday && (
-                      <text x={centerX} y={137} textAnchor="middle" fontSize="8" fill="#1957A6" fontWeight="600">hoy</text>
-                    )}
+                    {d.isToday && <text x={centerX} y={137} textAnchor="middle" fontSize="8" fill="#1957A6" fontWeight="600">hoy</text>}
                   </g>
                 );
               })}
