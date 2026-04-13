@@ -324,6 +324,7 @@
     <div class="sidebar-section-title">Referencia</div>
     <a class="nav-item" data-section="estados"><span class="icon">🔄</span> Estados del pedido</a>
     <a class="nav-item" data-section="faq"><span class="icon">❓</span> Preguntas frecuentes</a>
+    <a class="nav-item" data-section="novedades"><span class="icon">🆕</span> Novedades</a>
   </div>
 
   <div class="sidebar-footer">
@@ -356,9 +357,9 @@
       <p>Guía completa para gestionar pedidos, producción y reportes en la herramienta digital de Casa del Carpintero.</p>
       <div class="hero-meta">
         <div><strong>5</strong> módulos principales</div>
-        <div><strong>6</strong> roles de usuario</div>
-        <div><strong>4</strong> estados de pedido</div>
-        <div><strong>2</strong> máquinas de corte</div>
+        <div><strong>12</strong> roles de usuario</div>
+        <div><strong>5</strong> estados de pedido</div>
+        <div><strong>3</strong> máquinas de corte</div>
       </div>
     </div>
     <div class="content">
@@ -414,6 +415,10 @@
           <h3>❓ Preguntas frecuentes</h3>
           <p style="font-size:12.5px;">Soluciones a los problemas más comunes.</p>
         </div>
+        <div class="card" style="cursor:pointer;padding:16px 20px;border-top:3px solid #0f172a;" onclick="goTo('novedades')">
+          <h3>🆕 Novedades</h3>
+          <p style="font-size:12.5px;">Últimas actualizaciones: nuevo estado Despachado, 12 roles, seguimiento por código y más.</p>
+        </div>
       </div>
     </div>
     <div class="page-footer">
@@ -440,6 +445,7 @@
               <th>Rol</th>
               <th>Crear pedidos</th>
               <th>Avanzar estados</th>
+              <th>Marcar Despachado</th>
               <th>Ver reportes</th>
               <th>Ajustes</th>
               <th>Invitar usuarios</th>
@@ -448,27 +454,51 @@
           <tbody>
             <tr>
               <td><span class="badge badge-purple">🛠 Desarrollador</span></td>
-              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
             </tr>
             <tr>
               <td><span class="badge badge-blue">👑 Administrador</span></td>
-              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff;">💼 Gerencia</span></td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#eff6ff;color:#1e40af;border-color:#bfdbfe;">🏢 Administración</span></td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
             <tr>
               <td><span class="badge badge-teal">🛒 Ventas</span></td>
-              <td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+              <td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
             <tr>
               <td><span class="badge badge-orange">⚙️ Producción</span></td>
-              <td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+              <td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
             <tr>
-              <td><span class="badge" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;">📦 Almacenes</span></td>
-              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+              <td><span class="badge" style="background:#fff7ed;color:#c2410c;border-color:#fed7aa;">✂️ Corte Especial</span></td>
+              <td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#f0fdf4;color:#15803d;border-color:#bbf7d0;">🚚 Logística</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;">📦 Almacén Tableros</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#fafaf0;color:#5a5a1a;border-color:#d5d5a0;">🪚 Almacén Cantos</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;">📦 Almacenes (genérico)</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
             <tr>
               <td><span class="badge badge-zinc">👁 Visualizador</span></td>
-              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
           </tbody>
         </table>
@@ -484,12 +514,36 @@
           <p>Gestión operativa completa: pedidos, reportes, máquinas, usuarios e invitaciones. Rol del dueño o encargado del taller.</p>
         </div>
         <div class="card">
+          <h3>💼 Gerencia</h3>
+          <p>Visibilidad total de operaciones y reportes. Puede crear pedidos, avanzar estados y marcar como Despachado. Sin acceso a ajustes de sistema.</p>
+        </div>
+        <div class="card">
+          <h3>🏢 Administración</h3>
+          <p>Igual que Gerencia en capacidades operativas: crea pedidos, avanza estados, marca Despachado. Sin acceso a configuración de sistema.</p>
+        </div>
+        <div class="card">
           <h3>🛒 Ventas</h3>
-          <p>Puede crear pedidos y consultarlos. No puede avanzar estados ni administrar usuarios. Rol para el área comercial.</p>
+          <p>Puede crear pedidos y consultarlos. No puede avanzar estados en producción ni despachar. Rol para el área comercial.</p>
         </div>
         <div class="card">
           <h3>⚙️ Producción</h3>
-          <p>Puede avanzar estados de pedidos y ver reportes. No crea pedidos. Rol para operarios de la planta.</p>
+          <p>Avanza estados de pedidos en planta (En cola → En corte → En tapacantos → Listo). No crea pedidos. Para operarios de máquinas.</p>
+        </div>
+        <div class="card">
+          <h3>✂️ Corte Especial</h3>
+          <p>Igual que Producción. Avanza estados pero no crea pedidos. Diseñado para el área de cortes especiales del taller.</p>
+        </div>
+        <div class="card">
+          <h3>🚚 Logística</h3>
+          <p>Puede marcar pedidos como <strong>Despachado</strong> una vez están Listos. Coordina la salida y entrega de material al cliente.</p>
+        </div>
+        <div class="card">
+          <h3>📦 Almacén Tableros</h3>
+          <p>Puede marcar pedidos como Despachado. Gestiona la entrega de tableros terminados desde el almacén.</p>
+        </div>
+        <div class="card">
+          <h3>🪚 Almacén Cantos</h3>
+          <p>Rol de solo visualización con acceso a reportes. Para el personal de almacén de cantos que necesita consultar el estado de producción.</p>
         </div>
       </div>
 
@@ -1058,16 +1112,25 @@
         <div class="card">
           <h3>⚙️ Control de máquinas</h3>
           <ul>
-            <li>Activa o desactiva M1 y M2 individualmente</li>
-            <li>Una máquina inactiva no recibirá nuevos pedidos</li>
+            <li>Activa o desactiva <strong>M1, M2 y M3</strong> individualmente</li>
+            <li>Una máquina <strong>activa</strong> muestra un engranaje animado girando</li>
+            <li>Una máquina inactiva no recibirá nuevos pedidos automáticos</li>
             <li>El cambio es inmediato y se refleja en toda la app</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🔀 Asignación de máquina</h3>
+          <ul>
+            <li>Por defecto el sistema asigna la máquina con <strong>menor carga</strong> automáticamente</li>
+            <li>Al crear un pedido puedes <strong>asignar manualmente</strong> una máquina específica</li>
+            <li>Útil para pedidos que solo pueden ir a una máquina por su tipo de corte</li>
           </ul>
         </div>
         <div class="card">
           <h3>🔗 Link de seguimiento</h3>
           <ul>
             <li>Copia el enlace público de seguimiento para clientes</li>
-            <li>Los clientes pueden buscar su pedido por nombre o teléfono</li>
+            <li>Los clientes usan su <strong>código de 6 caracteres</strong> para consultar</li>
             <li>No requiere login para acceder</li>
           </ul>
         </div>
@@ -1124,14 +1187,24 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:16px;">
+        <h3>📊 Panel de estadísticas</h3>
+        <p>En la parte superior del panel de usuarios verás tres contadores en tiempo real:</p>
+        <div class="grid-3" style="margin-top:12px;">
+          <div class="mock-stat"><div class="val" style="color:#16a34a;font-size:20px;">8</div><div class="lbl">Activos</div></div>
+          <div class="mock-stat"><div class="val" style="color:#d97706;font-size:20px;">2</div><div class="lbl">Pendientes</div></div>
+          <div class="mock-stat"><div class="val" style="color:#94a3b8;font-size:20px;">1</div><div class="lbl">Inactivos</div></div>
+        </div>
+      </div>
+
       <div class="grid-2">
         <div class="card">
-          <h3>🔄 Cambiar rol</h3>
-          <p>Desde la tabla de usuarios, selecciona el nuevo rol en el desplegable de cada fila. El cambio es inmediato.</p>
+          <h3>🔄 Cambiar rol directamente en la tabla</h3>
+          <p>Cada fila de usuario tiene un <strong>selector de rol desplegable</strong> integrado. Selecciona el nuevo rol y el cambio se aplica al instante, sin pantallas adicionales.</p>
         </div>
         <div class="card">
-          <h3>🚫 Desactivar usuario</h3>
-          <p>El botón Desactivar bloquea el acceso del usuario sin eliminarlo. Puedes reactivarlo en cualquier momento.</p>
+          <h3>🟢 Activar / Desactivar usuario</h3>
+          <p>El botón en cada fila alterna entre <strong>Activar</strong> y <strong>Desactivar</strong>. Desactivar bloquea el acceso sin eliminar el usuario. Puedes reactivarlo cuando sea necesario.</p>
         </div>
       </div>
     </div>
@@ -1157,21 +1230,30 @@
         <p>Esta pantalla <strong>no requiere login</strong>. Comparte el enlace directamente con tus clientes por WhatsApp o correo desde Ajustes → Copiar link.</p>
       </div>
 
+      <div class="card" style="border-left:4px solid var(--orange);margin-bottom:16px;">
+        <h3>🔑 Código de seguimiento</h3>
+        <p>Al confirmar un pedido, el sistema genera automáticamente un <strong>código de 6 caracteres</strong> (ej: <code>#4AF2C1</code>). El vendedor debe compartir este código con el cliente al momento de confirmar la orden.</p>
+        <div class="tip" style="margin-top:12px;margin-bottom:0;">
+          <div class="tip-icon">📲</div>
+          <p>Incluye el código en el mensaje de WhatsApp al cliente: <em>"Tu pedido está registrado. Consulta el estado aquí: [link] — tu código es <strong>#4AF2C1</strong>"</em></p>
+        </div>
+      </div>
+
       <div class="grid-2">
         <div class="card">
           <h3>🔍 Cómo busca el cliente</h3>
           <ul>
-            <li>El cliente ingresa su <strong>nombre</strong> o <strong>número de teléfono</strong></li>
-            <li>Aparecen todos sus pedidos activos</li>
-            <li>Muestra estado actual con stepper visual</li>
-            <li>Fecha y hora estimada de entrega</li>
+            <li>El cliente abre el enlace de seguimiento</li>
+            <li>Ingresa su <strong>código de 6 caracteres</strong> (ej: <code>#4AF2C1</code>)</li>
+            <li>El sistema muestra su pedido con estado en tiempo real</li>
+            <li>No necesita cuenta ni contraseña</li>
           </ul>
         </div>
         <div class="card">
           <h3>📱 Información que ve el cliente</h3>
           <ul>
             <li>Número de pedido y estado actual</li>
-            <li>Progreso: Recibido → En corte → En tapacantos → Listo</li>
+            <li>Progreso: Recibido → En corte → En tapacantos → Listo → Despachado</li>
             <li>Material y marca del tablero</li>
             <li>Fecha de entrega estimada</li>
           </ul>
@@ -1180,7 +1262,7 @@
 
       <div class="tip">
         <div class="tip-icon">📲</div>
-        <p><strong>Comparte el enlace</strong> desde Ajustes → "Copiar link de seguimiento". Puedes incluirlo en mensajes automáticos de WhatsApp al confirmar un pedido.</p>
+        <p><strong>Comparte el enlace</strong> desde Ajustes → "Copiar link de seguimiento". El código del pedido lo ve el vendedor en la pantalla de confirmación tras registrar el pedido.</p>
       </div>
     </div>
     <div class="page-footer">
@@ -1221,6 +1303,11 @@
             <div class="state-circle" style="background:#d1fae5;border-color:#16a34a;color:#15803d;">✅</div>
             <div class="state-label">Listo</div>
           </div>
+          <div class="state-arrow">→</div>
+          <div class="state-node">
+            <div class="state-circle" style="background:#ecfdf5;border-color:#0d9488;color:#0f766e;">🚚</div>
+            <div class="state-label">Despachado</div>
+          </div>
         </div>
         <div style="margin-top:8px;padding-top:16px;border-top:1px solid #f1f5f9;">
           <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#64748b;">
@@ -1239,17 +1326,22 @@
         <div class="card">
           <h3>✂️ En corte</h3>
           <p>El operador inició el corte en la sierra circular. El pedido está siendo procesado activamente.</p>
-          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:50%;background:#3b82f6;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">50% progreso</p></div>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:40%;background:#3b82f6;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">40% progreso</p></div>
         </div>
         <div class="card">
           <h3>🔲 En tapacantos</h3>
           <p>El corte terminó y las piezas están pasando por la enchapadora para aplicar el canto de PVC o ABS.</p>
-          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:78%;background:#7c3aed;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">78% progreso</p></div>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:65%;background:#7c3aed;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">65% progreso</p></div>
         </div>
         <div class="card">
           <h3>✅ Listo</h3>
           <p>El pedido está completo y disponible para entrega. Se registra automáticamente la hora exacta de finalización.</p>
-          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:100%;background:#16a34a;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">100% completado</p></div>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:85%;background:#16a34a;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">85% — en almacén</p></div>
+        </div>
+        <div class="card" style="border-top:3px solid #0d9488;">
+          <h3>🚚 Despachado</h3>
+          <p>El material fue entregado al cliente. Estado final del ciclo de vida del pedido. Solo pueden marcarlo: <span class="badge badge-blue" style="font-size:10px;">Administrador</span> <span class="badge" style="background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff;font-size:10px;">Gerencia</span> <span class="badge" style="background:#f1f5f0;color:#4a5a48;border-color:#c8d5c5;font-size:10px;">Almacén Tableros</span> <span class="badge" style="background:#f0fdf4;color:#15803d;border-color:#bbf7d0;font-size:10px;">Logística</span></p>
+          <div style="margin-top:8px;"><div class="prog-track"><div class="prog-fill" style="width:100%;background:#0d9488;"></div></div><p style="font-size:11px;color:#94a3b8;margin-top:4px;">100% — entregado</p></div>
         </div>
       </div>
     </div>
@@ -1312,7 +1404,7 @@
           <span>¿Cómo busca el cliente su pedido?</span><span class="chevron">▼</span>
         </div>
         <div class="accordion-body">
-          Comparte el enlace de seguimiento desde <strong>Ajustes → Copiar link</strong>. El cliente entra a esa URL y escribe su nombre o teléfono. No necesita crear cuenta ni contraseña.
+          El cliente necesita el <strong>código de seguimiento de 6 caracteres</strong> (ej: <code>#4AF2C1</code>) que el vendedor le proporciona al confirmar el pedido. Luego entra al enlace de seguimiento (cópialo desde <strong>Ajustes → Copiar link</strong>), ingresa su código y ve el estado en tiempo real. No necesita cuenta ni contraseña.
         </div>
       </div>
       <div class="accordion">
@@ -1375,6 +1467,66 @@
     <div class="page-footer">
       <button class="page-footer-prev" onclick="navStep(-1)">← Estados del pedido</button>
       <span class="page-pos" id="pos-faq"></span>
+      <button class="page-footer-next" onclick="navStep(1)">Novedades →</button>
+    </div>
+  </div>
+
+  <!-- ══════════ NOVEDADES ══════════ -->
+  <div class="page" id="page-novedades">
+    <div class="page-hero" style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);">
+      <div class="page-hero-icon" style="background:rgba(255,255,255,0.1);">🆕</div>
+      <div>
+        <h2>Novedades</h2>
+        <p>Últimas actualizaciones y mejoras del Production OS</p>
+      </div>
+    </div>
+    <div class="content">
+
+      <div class="card" style="border-left:4px solid #0d9488;margin-bottom:8px;">
+        <h3>🚚 Nuevo estado: Despachado</h3>
+        <p>Se agregó un estado final al ciclo del pedido. Después de <strong>Listo</strong>, el pedido puede marcarse como <strong>Despachado</strong> cuando el material sale del taller hacia el cliente.</p>
+        <p style="margin-top:8px;font-size:12.5px;color:#64748b;">Quién puede marcarlo: Administrador, Gerencia, Almacén Tableros, Logística.</p>
+      </div>
+
+      <div class="card" style="border-left:4px solid var(--orange);margin-bottom:8px;">
+        <h3>🔑 Seguimiento por código de pedido</h3>
+        <p>El portal de seguimiento ya no busca por nombre o teléfono. Ahora el cliente usa un <strong>código único de 6 caracteres</strong> (ej: <code>#4AF2C1</code>) que el vendedor le entrega al confirmar el pedido. Más rápido y sin ambigüedades.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" style="border-left:4px solid var(--blue);">
+          <h3>👥 12 roles de usuario</h3>
+          <p>Se agregaron 6 roles especializados: <strong>Gerencia, Administración, Logística, Almacén Tableros, Almacén Cantos</strong> y <strong>Corte Especial</strong>. Cada uno con permisos ajustados a su función.</p>
+        </div>
+        <div class="card" style="border-left:4px solid var(--teal);">
+          <h3>⚙️ Tercera máquina M3</h3>
+          <p>El sistema ahora gestiona <strong>tres máquinas de corte</strong>. Las máquinas activas muestran un engranaje animado. También puedes asignar una máquina manualmente al crear un pedido.</p>
+        </div>
+        <div class="card" style="border-left:4px solid var(--sage);">
+          <h3>👤 Panel de usuarios rediseñado</h3>
+          <p>El panel de Administración → Usuarios ahora muestra <strong>estadísticas en tiempo real</strong> (activos, pendientes, inactivos) y permite cambiar el rol directamente desde la tabla sin abrir pantallas adicionales.</p>
+        </div>
+        <div class="card" style="border-left:4px solid var(--coral);">
+          <h3>📋 Vista de pedidos por día</h3>
+          <p>La lista de pedidos incluye una vista tipo calendario donde puedes navegar semana por semana y ver los pedidos agrupados por día, separados entre "En producción" y "Entregados".</p>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #e2e8f0;padding-top:28px;margin-top:16px;text-align:center;">
+        <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1957A6,#267A8C);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;">CDC</div>
+          <div style="text-align:left;">
+            <div style="font-size:12px;font-weight:700;color:#0f172a;">Casa del Carpintero</div>
+            <div style="font-size:11px;color:#94a3b8;">Production OS · Manual de Usuario</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:#94a3b8;">Comercial Casa del Carpintero SAC · Versión 1.1 · 2025</p>
+        <p style="font-size:11px;color:#cbd5e1;margin-top:6px;">Para soporte técnico contacta al equipo de desarrollo</p>
+      </div>
+    </div>
+    <div class="page-footer">
+      <button class="page-footer-prev" onclick="navStep(-1)">← Preguntas frecuentes</button>
+      <span class="page-pos" id="pos-novedades"></span>
       <span class="page-footer-next invisible">—</span>
     </div>
   </div>
@@ -1397,6 +1549,7 @@
     { id: 'seguimiento',  label: 'Seguimiento' },
     { id: 'estados',      label: 'Estados del pedido' },
     { id: 'faq',          label: 'Preguntas frecuentes' },
+    { id: 'novedades',    label: 'Novedades' },
   ];
 
   let currentIndex = 0;
