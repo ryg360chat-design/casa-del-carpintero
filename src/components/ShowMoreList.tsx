@@ -22,19 +22,19 @@ export default function ShowMoreList({
       {extras > 0 && (
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="mt-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold text-zinc-500 border border-dashed border-zinc-300 rounded-xl hover:border-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-semibold text-zinc-500 border border-dashed border-zinc-300 rounded-xl hover:border-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-all"
         >
           {expanded ? (
             <>
               Ver menos
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M18 15l-6-6-6 6"/>
               </svg>
             </>
           ) : (
             <>
               Ver {extras} más
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M6 9l6 6 6-6"/>
               </svg>
             </>
