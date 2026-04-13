@@ -3,7 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserRole, IS_DEVELOPER } from "@/lib/auth";
 
-export default async function DevPage() {
+export default async function DevPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const role = await getUserRole();
   if (!IS_DEVELOPER.includes(role)) redirect("/dashboard");
 
@@ -65,11 +69,17 @@ export default async function DevPage() {
   let commits: GitHubCommit[] = [];
   try {
     const res = await fetch(
-      "https://api.github.com/repos/ryg360chat-design/casa-del-carpintero/commits?per_page=15",
+      "https://api.github.com/repos/ryg360chat-design/casa-del-carpintero/commits?per_page=25",
       { next: { revalidate: 300 }, headers: { Accept: "application/vnd.github.v3+json" } }
     );
     if (res.ok) commits = await res.json() as GitHubCommit[];
   } catch { /* ignora errores de red */ }
+
+  const { page: pageParam } = await searchParams;
+  const commitPage  = Math.max(1, parseInt(pageParam ?? "1", 10));
+  const PAGE_SIZE   = 5;
+  const totalPages  = Math.max(1, Math.ceil(commits.length / PAGE_SIZE));
+  const pageCommits = commits.slice((commitPage - 1) * PAGE_SIZE, commitPage * PAGE_SIZE);
 
   const envVars = [
     { key: "NEXT_PUBLIC_SUPABASE_URL",      present: !!process.env.NEXT_PUBLIC_SUPABASE_URL },
@@ -242,64 +252,78 @@ export default async function DevPage() {
       {/* Changelog — commits de GitHub */}
       <div className={CARD}>
         <div className="flex items-center justify-between mb-3">
-          <p className={LABEL + " mb-0"}>Changelog · últimos commits</p>
-          <a
-            href="https://github.com/ryg360chat-design/casa-del-carpintero/commits"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] text-zinc-400 hover:text-zinc-600 transition-colors font-mono"
-          >
-            ryg360chat-design/casa-del-carpintero ↗
-          </a>
+          <p className={LABEL + " mb-0"}>Changelog · actualizaciones</p>
+          {commits.length > 0 && (
+            <span className="text-[10px] text-zinc-400">
+              Pág. {commitPage} / {totalPages}
+            </span>
+          )}
         </div>
 
         {commits.length === 0 ? (
           <p className="text-xs text-zinc-400 italic">Sin datos del repositorio.</p>
         ) : (
-          <div className="flex flex-col">
-            {commits.map((c, i) => {
-              const [title, ...bodyLines] = c.commit.message.split("\n");
-              const extras = bodyLines.filter(l => l.trim());
-              return (
-                <div key={c.sha} className="flex gap-3">
-                  {/* línea de tiempo */}
-                  <div className="flex flex-col items-center shrink-0 pt-1">
-                    <div className="w-2 h-2 rounded-full bg-zinc-700 shrink-0" />
-                    {i < commits.length - 1 && <div className="w-px flex-1 bg-zinc-100 my-1" />}
-                  </div>
-
-                  {/* contenido */}
-                  <div className={`flex-1 min-w-0 ${i < commits.length - 1 ? "pb-3.5" : ""}`}>
-                    <div className="flex items-start justify-between gap-2">
-                      <a
-                        href={c.html_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-semibold text-zinc-800 hover:text-zinc-500 transition-colors leading-snug"
-                      >
-                        {title.length > 80 ? title.slice(0, 80) + "…" : title}
-                      </a>
-                      <span className="text-[10px] text-zinc-400 shrink-0 mt-0.5 whitespace-nowrap">
-                        {fmtRelative(c.commit.author.date)}
-                      </span>
+          <>
+            <div className="flex flex-col">
+              {pageCommits.map((c, i) => {
+                const [title, ...bodyLines] = c.commit.message.split("\n");
+                const extras = bodyLines.filter(l => l.trim());
+                return (
+                  <div key={c.sha} className="flex gap-3">
+                    <div className="flex flex-col items-center shrink-0 pt-1">
+                      <div className="w-2 h-2 rounded-full bg-zinc-700 shrink-0" />
+                      {i < pageCommits.length - 1 && <div className="w-px flex-1 bg-zinc-100 my-1" />}
                     </div>
-
-                    {extras.length > 0 && (
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed line-clamp-2">
-                        {extras.slice(0, 2).join(" · ")}
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <code className="text-[10px] text-zinc-300 font-mono">{c.sha.slice(0, 7)}</code>
-                      <span className="text-[10px] text-zinc-300">·</span>
-                      <span className="text-[10px] text-zinc-400">{c.commit.author.name}</span>
+                    <div className={`flex-1 min-w-0 ${i < pageCommits.length - 1 ? "pb-3.5" : ""}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-zinc-800 leading-snug">
+                          {title.length > 80 ? title.slice(0, 80) + "…" : title}
+                        </p>
+                        <span className="text-[10px] text-zinc-400 shrink-0 mt-0.5 whitespace-nowrap">
+                          {fmtRelative(c.commit.author.date)}
+                        </span>
+                      </div>
+                      {extras.length > 0 && (
+                        <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed line-clamp-2">
+                          {extras.slice(0, 2).join(" · ")}
+                        </p>
+                      )}
+                      <code className="text-[10px] text-zinc-300 font-mono mt-0.5 block">{c.sha.slice(0, 7)}</code>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+
+            {/* Paginación */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-100">
+                {commitPage > 1
+                  ? <a href={`/dev?page=${commitPage - 1}`} className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors">← Anterior</a>
+                  : <span />
+                }
+                <div className="flex gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <a
+                      key={p}
+                      href={`/dev?page=${p}`}
+                      className={`w-6 h-6 flex items-center justify-center rounded-full text-[11px] font-bold transition-colors ${
+                        p === commitPage
+                          ? "bg-zinc-900 text-white"
+                          : "text-zinc-400 hover:text-zinc-700"
+                      }`}
+                    >
+                      {p}
+                    </a>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+                {commitPage < totalPages
+                  ? <a href={`/dev?page=${commitPage + 1}`} className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors">Siguiente →</a>
+                  : <span />
+                }
+              </div>
+            )}
+          </>
         )}
       </div>
 
