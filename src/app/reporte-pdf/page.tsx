@@ -270,23 +270,29 @@ export default async function ReportePDFPage({
   // Machine data
   const loadM1 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M1").length;
   const loadM2 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M2").length;
-  const totalLoad = loadM1 + loadM2 || 1;
+  const loadM3 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M3").length;
+  const totalLoad = loadM1 + loadM2 + loadM3 || 1;
 
   type PRow = { maquina_asignada: string | null; cant_planchas: number | null; cant_piezas: number | null };
   const rows = (completadosSemana ?? []) as PRow[];
 
-  const maquinaStats = (["M1", "M2"] as const).map((maq, idx) => {
-    const recs = rows.filter(p => p.maquina_asignada === maq);
-    const carga = idx === 0 ? loadM1 : loadM2;
+  const MAQUINA_META_PDF = [
+    { id: "M1", color: "#1957A6", load: loadM1 },
+    { id: "M2", color: "#267A8C", load: loadM2 },
+    { id: "M3", color: "#7c3aed", load: loadM3 },
+  ] as const;
+
+  const maquinaStats = MAQUINA_META_PDF.map(({ id, color, load }) => {
+    const recs = rows.filter(p => p.maquina_asignada === id);
     return {
-      id: maq,
-      color: idx === 0 ? "#1957A6" : "#267A8C",
+      id,
+      color,
       completados: recs.length,
       planchas: recs.reduce((a, p) => a + (p.cant_planchas ?? 0), 0),
       piezas:   recs.reduce((a, p) => a + (p.cant_piezas   ?? 0), 0),
       porDia: (recs.length / 7).toFixed(1),
-      cargaActual: carga,
-      pctCarga: Math.round((carga / totalLoad) * 100),
+      cargaActual: load,
+      pctCarga: Math.round((load / totalLoad) * 100),
     };
   });
 
@@ -307,9 +313,10 @@ export default async function ReportePDFPage({
       isToday,
       M1: dayRecs.filter((p: Record<string, unknown>) => p.maquina_asignada === "M1").length,
       M2: dayRecs.filter((p: Record<string, unknown>) => p.maquina_asignada === "M2").length,
+      M3: dayRecs.filter((p: Record<string, unknown>) => p.maquina_asignada === "M3").length,
     };
   });
-  const maxBar = Math.max(...chartData.map(d => Math.max(d.M1, d.M2)), 1);
+  const maxBar = Math.max(...chartData.map(d => Math.max(d.M1, d.M2, d.M3)), 1);
 
   return (
     <>
@@ -391,7 +398,7 @@ export default async function ReportePDFPage({
                 <div className="maq-title">Reporte por máquina</div>
                 <div className="maq-sub">Carga actual · Productividad últimos 7 días</div>
               </div>
-              <div style={{ fontSize: 10, color: "#a1a1aa", fontWeight: 600 }}>{loadM1 + loadM2} activos ahora</div>
+              <div style={{ fontSize: 10, color: "#a1a1aa", fontWeight: 600 }}>{loadM1 + loadM2 + loadM3} activos ahora</div>
             </div>
 
             {/* Gauges + bar chart */}
@@ -435,6 +442,9 @@ export default async function ReportePDFPage({
                     <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       <span style={{ width: 8, height: 8, borderRadius: 2, background: "#267A8C", display: "inline-block" }}/>M2
                     </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: 2, background: "#7c3aed", display: "inline-block" }}/>M3
+                    </span>
                   </div>
                 </div>
                 <svg viewBox="0 0 380 130" style={{ width: "100%" }}>
@@ -442,16 +452,19 @@ export default async function ReportePDFPage({
                   {chartData.map((d, i) => {
                     const groupW = 355 / 7;
                     const centerX = 20 + i * groupW + groupW / 2;
-                    const barW = 14;
-                    const gap = 3;
+                    const barW = 9;
+                    const gap = 2;
                     const m1H = (d.M1 / maxBar) * 90;
                     const m2H = (d.M2 / maxBar) * 90;
+                    const m3H = (d.M3 / maxBar) * 90;
                     return (
                       <g key={i}>
-                        <rect x={centerX - barW - gap / 2} y={105 - m1H} width={barW} height={Math.max(m1H, 0)} fill="#1957A6" rx="2" opacity={d.isToday ? 1 : 0.6}/>
-                        <rect x={centerX + gap / 2}         y={105 - m2H} width={barW} height={Math.max(m2H, 0)} fill="#267A8C" rx="2" opacity={d.isToday ? 1 : 0.6}/>
-                        {d.M1 > 0 && <text x={centerX - barW / 2 - gap / 2} y={105 - m1H - 3} textAnchor="middle" fontSize="8" fill="#1957A6" fontWeight="700">{d.M1}</text>}
-                        {d.M2 > 0 && <text x={centerX + barW / 2 + gap / 2} y={105 - m2H - 3} textAnchor="middle" fontSize="8" fill="#267A8C" fontWeight="700">{d.M2}</text>}
+                        <rect x={centerX - barW - gap - barW / 2} y={105 - m1H} width={barW} height={Math.max(m1H, 0)} fill="#1957A6" rx="2" opacity={d.isToday ? 1 : 0.6}/>
+                        <rect x={centerX - barW / 2}               y={105 - m2H} width={barW} height={Math.max(m2H, 0)} fill="#267A8C" rx="2" opacity={d.isToday ? 1 : 0.6}/>
+                        <rect x={centerX + barW / 2 + gap}         y={105 - m3H} width={barW} height={Math.max(m3H, 0)} fill="#7c3aed" rx="2" opacity={d.isToday ? 1 : 0.6}/>
+                        {d.M1 > 0 && <text x={centerX - barW - gap - barW / 2 + barW / 2} y={105 - m1H - 3} textAnchor="middle" fontSize="7" fill="#1957A6" fontWeight="700">{d.M1}</text>}
+                        {d.M2 > 0 && <text x={centerX} y={105 - m2H - 3} textAnchor="middle" fontSize="7" fill="#267A8C" fontWeight="700">{d.M2}</text>}
+                        {d.M3 > 0 && <text x={centerX + barW / 2 + gap + barW / 2} y={105 - m3H - 3} textAnchor="middle" fontSize="7" fill="#7c3aed" fontWeight="700">{d.M3}</text>}
                         <text x={centerX} y={120} textAnchor="middle" fontSize="9" fill={d.isToday ? "#1957A6" : "#a1a1aa"} fontWeight={d.isToday ? "700" : "400"}>
                           {d.label}
                         </text>
