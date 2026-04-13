@@ -56,6 +56,21 @@ export default async function DevPage() {
   const activosAhora = usuariosConAcceso.filter(u => u.activo1h).length;
   const activos24h   = usuariosConAcceso.filter(u => u.activo24h).length;
 
+  // GitHub commits (repo público, sin token)
+  type GitHubCommit = {
+    sha: string;
+    commit: { message: string; author: { name: string; date: string } };
+    html_url: string;
+  };
+  let commits: GitHubCommit[] = [];
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/ryg360chat-design/casa-del-carpintero/commits?per_page=15",
+      { next: { revalidate: 300 }, headers: { Accept: "application/vnd.github.v3+json" } }
+    );
+    if (res.ok) commits = await res.json() as GitHubCommit[];
+  } catch { /* ignora errores de red */ }
+
   const envVars = [
     { key: "NEXT_PUBLIC_SUPABASE_URL",      present: !!process.env.NEXT_PUBLIC_SUPABASE_URL },
     { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", present: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
@@ -222,6 +237,70 @@ export default async function DevPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Changelog — commits de GitHub */}
+      <div className={CARD}>
+        <div className="flex items-center justify-between mb-3">
+          <p className={LABEL + " mb-0"}>Changelog · últimos commits</p>
+          <a
+            href="https://github.com/ryg360chat-design/casa-del-carpintero/commits"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-zinc-400 hover:text-zinc-600 transition-colors font-mono"
+          >
+            ryg360chat-design/casa-del-carpintero ↗
+          </a>
+        </div>
+
+        {commits.length === 0 ? (
+          <p className="text-xs text-zinc-400 italic">Sin datos del repositorio.</p>
+        ) : (
+          <div className="flex flex-col">
+            {commits.map((c, i) => {
+              const [title, ...bodyLines] = c.commit.message.split("\n");
+              const extras = bodyLines.filter(l => l.trim());
+              return (
+                <div key={c.sha} className="flex gap-3">
+                  {/* línea de tiempo */}
+                  <div className="flex flex-col items-center shrink-0 pt-1">
+                    <div className="w-2 h-2 rounded-full bg-zinc-700 shrink-0" />
+                    {i < commits.length - 1 && <div className="w-px flex-1 bg-zinc-100 my-1" />}
+                  </div>
+
+                  {/* contenido */}
+                  <div className={`flex-1 min-w-0 ${i < commits.length - 1 ? "pb-3.5" : ""}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <a
+                        href={c.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-zinc-800 hover:text-zinc-500 transition-colors leading-snug"
+                      >
+                        {title.length > 80 ? title.slice(0, 80) + "…" : title}
+                      </a>
+                      <span className="text-[10px] text-zinc-400 shrink-0 mt-0.5 whitespace-nowrap">
+                        {fmtRelative(c.commit.author.date)}
+                      </span>
+                    </div>
+
+                    {extras.length > 0 && (
+                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed line-clamp-2">
+                        {extras.slice(0, 2).join(" · ")}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <code className="text-[10px] text-zinc-300 font-mono">{c.sha.slice(0, 7)}</code>
+                      <span className="text-[10px] text-zinc-300">·</span>
+                      <span className="text-[10px] text-zinc-400">{c.commit.author.name}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
     </div>
