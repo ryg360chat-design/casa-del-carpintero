@@ -302,8 +302,6 @@ export default function EditarPedidoPage() {
 
       // 2. Recalcular máquina y entrega (excluir pedido actual)
       const ahora  = new Date();
-      const horaAct = ahora.getHours();
-      const turno  = turnoManual === "auto" ? (horaAct < 12 ? "mañana" : "tarde") : turnoManual;
       const EXCLUIR = '("Listo","Despachado","Vendido","Cancelado")';
       const [{ count: cM1 }, { count: cM2 }, { count: cM3 }] = await Promise.all([
         sb.from("pedidos").select("*", { count: "exact", head: true }).eq("maquina_asignada", "M1").not("estado", "in", EXCLUIR).neq("id", id),
@@ -353,6 +351,9 @@ export default function EditarPedidoPage() {
       }
       const entrega = addWorkHours(ahora, totalHoras);
       if (isNaN(entrega.getTime())) throw new Error("No se pudo calcular la fecha de entrega");
+
+      // Turno basado en la hora de ENTREGA estimada, no en la hora actual
+      const turno = turnoManual === "auto" ? (entrega.getHours() < 12 ? "mañana" : "tarde") : turnoManual;
 
       // 3. Actualizar pedido
       const primera = lineas[0];

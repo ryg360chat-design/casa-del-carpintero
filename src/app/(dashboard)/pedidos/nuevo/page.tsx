@@ -434,7 +434,6 @@ export default function NuevoPedidoPage() {
       // 2. Asignación de máquina
       const ahora = new Date();
       const hora  = ahora.getHours();
-      const turno = turnoManual === "auto" ? (hora < 12 ? "mañana" : "tarde") : turnoManual;
 
       const EXCLUIR = '("Listo","Despachado","Vendido","Cancelado")';
       const [{ count: cM1 }, { count: cM2 }, { count: cM3 }] = await Promise.all([
@@ -503,6 +502,9 @@ export default function NuevoPedidoPage() {
       }
       const entrega = addWorkHours(ahora, totalHoras);
       if (isNaN(entrega.getTime())) throw new Error("No se pudo calcular la fecha de entrega (fecha inválida)");
+
+      // Turno basado en la hora de ENTREGA estimada, no en la hora actual
+      const turno = turnoManual === "auto" ? (entrega.getHours() < 12 ? "mañana" : "tarde") : turnoManual;
 
       // 4. Insertar pedido (columnas legacy = primera línea para backwards compat)
       const primera = lineas[0];
