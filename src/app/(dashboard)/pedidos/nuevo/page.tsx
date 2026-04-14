@@ -214,7 +214,7 @@ function MaterialLineCard({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div>
             <label className={LABEL}>Planchas</label>
-            <input type="number" min="0" step="0.5" value={line.planchas}
+            <input type="number" min="0" step="0.25" value={line.planchas}
               onChange={(e) => set({ planchas: e.target.value })}
               placeholder="0" className={INPUT} />
           </div>
