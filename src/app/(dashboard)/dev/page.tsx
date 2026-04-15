@@ -69,8 +69,8 @@ export default async function DevPage({
   let commits: GitHubCommit[] = [];
   try {
     const res = await fetch(
-      "https://api.github.com/repos/ryg360chat-design/casa-del-carpintero/commits?per_page=25",
-      { next: { revalidate: 300 }, headers: { Accept: "application/vnd.github.v3+json" } }
+      "https://api.github.com/repos/ryg360chat-design/casa-del-carpintero/commits?per_page=50",
+      { cache: "no-store", headers: { Accept: "application/vnd.github.v3+json" } }
     );
     if (res.ok) commits = await res.json() as GitHubCommit[];
   } catch { /* ignora errores de red */ }
