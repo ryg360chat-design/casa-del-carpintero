@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import AvanzarEstadoBtn from "@/components/AvanzarEstadoBtn";
 import { TZ } from "@/lib/time";
 import CancelarPedidoBtn from "@/components/CancelarPedidoBtn";
+import MarcarListoDirectoBtn from "@/components/MarcarListoDirectoBtn";
 import MarcarVendidoBtn from "@/components/MarcarVendidoBtn";
 
 const ESTADO_STYLE: Record<string, string> = {
@@ -209,9 +210,16 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
           </div>
 
           {estaActivo && (canAdvance || canCancel) && (
-            <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
-              {canCancel && <CancelarPedidoBtn pedidoId={pedido.id} />}
-              <AvanzarEstadoBtn pedidoId={pedido.id} estadoActual={estado} showLabel canAdvance={canAdvance} />
+            <div className="mt-5 pt-4 border-t border-zinc-100">
+              <div className="flex items-center justify-between">
+                {canCancel && <CancelarPedidoBtn pedidoId={pedido.id} />}
+                <AvanzarEstadoBtn pedidoId={pedido.id} estadoActual={estado} showLabel canAdvance={canAdvance} />
+              </div>
+              {canAdvance && estado !== "En tapacantos" && (
+                <div className="mt-3 flex justify-end">
+                  <MarcarListoDirectoBtn pedidoId={pedido.id} estadoActual={estado} />
+                </div>
+              )}
             </div>
           )}
 

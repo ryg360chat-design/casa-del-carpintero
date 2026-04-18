@@ -38,6 +38,24 @@ export async function avanzarEstado(pedidoId: string, estadoActual: string) {
   return { ok: true, nuevoEstado: siguiente };
 }
 
+export async function marcarComoListo(pedidoId: string) {
+  const role = await getUserRole();
+  if (!CAN_ADVANCE_STATE.includes(role)) return { error: "Sin permisos" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("pedidos")
+    .update({ estado: "Listo", fecha_entrega_real: new Date().toISOString() })
+    .eq("id", pedidoId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/produccion");
+  revalidatePath("/pedidos");
+  return { ok: true };
+}
+
 export async function toggleMaquina(maquinaId: string, activa: boolean) {
   const role = await getUserRole();
   if (!IS_ADMIN.includes(role)) return { error: "Sin permisos" };
