@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { PROD, TZ } from "@/lib/productividad";
 
 const DRAFT_KEY = "nuevo-pedido-draft";
 
@@ -454,7 +455,8 @@ export default function NuevoPedidoPage() {
       }
 
       // 3. Cálculo de entrega (usa totalPlanchas sumado de todas las líneas)
-      const horasCorte  = totalPlanchas > 0 ? totalPlanchas / 6 : 0.5;
+      // Productividad ideal: 5 planchas/hora (cortadora real)
+      const horasCorte  = totalPlanchas > 0 ? totalPlanchas / PROD.PL_POR_HORA : 0.5;
       const horasExtra  =
         (ranuras ? 1 : 0) +
         (totalCanto > 0 ? 1 : 0) +
@@ -462,39 +464,50 @@ export default function NuevoPedidoPage() {
       const horasEspera = cMaquina * 2;
       const totalHoras  = horasCorte + horasExtra + horasEspera;
 
-      const INICIO = 8, ALMUERZO_IN = 12, ALMUERZO_OUT = 13, FIN = 17.5;
+      // Horarios reales: inicio 8:15 (post-limpieza), fin L-V 17:15, Sáb 13:15
+      const diaNombre = ahora.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" });
+      const esSabado  = diaNombre === "Sat";
+      const INICIO      = 8.25;                          // 8:15
+      const ALMUERZO_IN = esSabado ? 99 : 12;
+      const ALMUERZO_OUT= esSabado ? 99 : 13;
+      const FIN         = esSabado ? 13.25 : 17.25;      // 13:15 sáb · 17:15 L-V
+
       function hFrac(d: Date) { return d.getHours() + d.getMinutes() / 60; }
       function setHFrac(d: Date, h: number) { d.setHours(Math.floor(h), Math.round((h % 1) * 60), 0, 0); }
       function skipWeekend(d: Date) {
         while (d.getDay() === 0 || d.getDay() === 6) { d.setDate(d.getDate() + 1); setHFrac(d, INICIO); }
       }
+      function finDelDia(d: Date): number {
+        const dn = d.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" });
+        return dn === "Sat" ? 13.25 : 17.25;
+      }
+      function almuerzoIn(d: Date): number {
+        return d.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" }) === "Sat" ? 99 : 12;
+      }
+      function almuerzoOut(d: Date): number {
+        return d.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" }) === "Sat" ? 99 : 13;
+      }
       function addWorkHours(base: Date, horas: number): Date {
         const result = new Date(base);
-        // Sanitize input so NaN/Infinity never enter the loop
         let remaining = (!isFinite(horas) || isNaN(horas) || horas < 0) ? 0.5 : horas;
         const h0 = hFrac(result);
+        const fin0 = finDelDia(result);
         if (h0 < INICIO) setHFrac(result, INICIO);
-        else if (h0 >= FIN) { result.setDate(result.getDate() + 1); setHFrac(result, INICIO); }
-        else if (h0 >= ALMUERZO_IN && h0 < ALMUERZO_OUT) setHFrac(result, ALMUERZO_OUT);
+        else if (h0 >= fin0) { result.setDate(result.getDate() + 1); setHFrac(result, INICIO); }
+        else if (h0 >= almuerzoIn(result) && h0 < almuerzoOut(result)) setHFrac(result, almuerzoOut(result));
         skipWeekend(result);
         let safety = 0;
         while (remaining > 0.001 && safety < 500) {
           safety++;
           const h = hFrac(result);
-          // If current position is past end-of-day or in lunch, advance first
-          if (h >= FIN) {
-            result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); continue;
-          }
-          if (h >= ALMUERZO_IN && h < ALMUERZO_OUT) {
-            setHFrac(result, ALMUERZO_OUT); continue;
-          }
-          // Work window: [h, ALMUERZO_IN) or [ALMUERZO_OUT, FIN)
-          const tope = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + remaining) : Math.min(FIN, h + remaining);
+          const FD = finDelDia(result);
+          const AI = almuerzoIn(result);
+          const AO = almuerzoOut(result);
+          if (h >= FD) { result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); continue; }
+          if (h >= AI && h < AO) { setHFrac(result, AO); continue; }
+          const tope   = h < AI ? Math.min(AI, h + remaining) : Math.min(FD, h + remaining);
           const avance = tope - h;
-          if (avance <= 0) {
-            // Should not happen, but guard against infinite loop
-            result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); continue;
-          }
+          if (avance <= 0) { result.setDate(result.getDate() + 1); setHFrac(result, INICIO); skipWeekend(result); continue; }
           remaining -= avance;
           setHFrac(result, tope);
         }

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { PROD, TZ } from "@/lib/productividad";
 
 // ─── Estilos compartidos ──────────────────────────────────────────
 const SECTION = "flex flex-col gap-4 bg-white border border-zinc-200 rounded-2xl p-6";
@@ -319,36 +320,42 @@ export default function EditarPedidoPage() {
         cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? (cM1 ?? 0) : (cM2 ?? 0);
       }
 
-      const horasCorte = totalPlanchas > 0 ? totalPlanchas / 6 : 0.5;
+      // Productividad real: 5 planchas/hora
+      const horasCorte = totalPlanchas > 0 ? totalPlanchas / PROD.PL_POR_HORA : 0.5;
       const horasExtra = (ranuras ? 1 : 0) + (totalCanto > 0 ? 1 : 0) + ((corte45 || cortesEspeciales) ? 0.5 : 0);
       const totalHoras = horasCorte + horasExtra + cMaquina * 2;
 
-      // Cálculo de fecha de entrega (versión robusta)
-      const INICIO = 8, ALMUERZO_IN = 12, ALMUERZO_OUT = 13, FIN = 17.5;
+      // Horarios reales: inicio 8:15, fin L-V 17:15, Sáb 13:15
+      const diaNombre = ahora.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" });
+      const INICIO = 8.25;
       function hFrac(d: Date) { return d.getHours() + d.getMinutes() / 60; }
       function setHFrac(d: Date, h: number) { d.setHours(Math.floor(h), Math.round((h % 1) * 60), 0, 0); }
       function skipWeekend(d: Date) { while (d.getDay() === 0 || d.getDay() === 6) { d.setDate(d.getDate() + 1); setHFrac(d, INICIO); } }
+      function finDia(d: Date) { return d.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" }) === "Sat" ? 13.25 : 17.25; }
+      function alIn(d: Date)  { return d.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" }) === "Sat" ? 99 : 12; }
+      function alOut(d: Date) { return d.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" }) === "Sat" ? 99 : 13; }
       function addWorkHours(base: Date, horas: number): Date {
         const r = new Date(base);
         let rem = (!isFinite(horas) || isNaN(horas) || horas < 0) ? 0.5 : horas;
-        const h0 = hFrac(r);
+        const h0 = hFrac(r); const fd0 = finDia(r);
         if (h0 < INICIO) setHFrac(r, INICIO);
-        else if (h0 >= FIN) { r.setDate(r.getDate() + 1); setHFrac(r, INICIO); }
-        else if (h0 >= ALMUERZO_IN && h0 < ALMUERZO_OUT) setHFrac(r, ALMUERZO_OUT);
+        else if (h0 >= fd0) { r.setDate(r.getDate() + 1); setHFrac(r, INICIO); }
+        else if (h0 >= alIn(r) && h0 < alOut(r)) setHFrac(r, alOut(r));
         skipWeekend(r);
         let safety = 0;
         while (rem > 0.001 && safety < 500) {
           safety++;
-          const h = hFrac(r);
-          if (h >= FIN) { r.setDate(r.getDate() + 1); setHFrac(r, INICIO); skipWeekend(r); continue; }
-          if (h >= ALMUERZO_IN && h < ALMUERZO_OUT) { setHFrac(r, ALMUERZO_OUT); continue; }
-          const tope = h < ALMUERZO_IN ? Math.min(ALMUERZO_IN, h + rem) : Math.min(FIN, h + rem);
+          const h = hFrac(r); const FD = finDia(r); const AI = alIn(r); const AO = alOut(r);
+          if (h >= FD) { r.setDate(r.getDate() + 1); setHFrac(r, INICIO); skipWeekend(r); continue; }
+          if (h >= AI && h < AO) { setHFrac(r, AO); continue; }
+          const tope = h < AI ? Math.min(AI, h + rem) : Math.min(FD, h + rem);
           const av = tope - h;
           if (av <= 0) { r.setDate(r.getDate() + 1); setHFrac(r, INICIO); skipWeekend(r); continue; }
           rem -= av; setHFrac(r, tope);
         }
         return r;
       }
+      void diaNombre;
       const entrega = addWorkHours(ahora, totalHoras);
       if (isNaN(entrega.getTime())) throw new Error("No se pudo calcular la fecha de entrega");
 
