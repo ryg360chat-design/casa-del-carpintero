@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import PrintButton from "@/components/PrintButton";
 import { limaTime } from "@/lib/time";
+import { horasProductivasHasta, PROD } from "@/lib/productividad";
 
 export const metadata = {
   title: "Reporte Diario — Casa del Carpintero",
@@ -163,6 +164,48 @@ const STYLES = `
   .bar-fill { height: 100%; border-radius: 99px; }
   .bar-pct { font-size: 10px; color: #a1a1aa; font-weight: 600; min-width: 30px; }
 
+  /* ── Rendimiento ──────────────────────────────── */
+  .rend-section {
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .rend-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e4e4e7;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .rend-title { font-size: 13px; font-weight: 700; color: #18181b; }
+  .rend-sub { font-size: 10px; color: #a1a1aa; margin-top: 2px; }
+  .rend-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .rend-cell {
+    padding: 20px 24px;
+    border-right: 1px solid #f4f4f5;
+  }
+  .rend-cell:last-child { border-right: none; }
+  .rend-cell-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+  }
+  .rend-maq-name {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; color: #18181b;
+  }
+  .rend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .rend-pct { font-size: 16px; font-weight: 900; }
+  .rend-track {
+    width: 100%; height: 8px; background: #f4f4f5; border-radius: 99px; overflow: hidden; margin-bottom: 6px;
+  }
+  .rend-fill { height: 100%; border-radius: 99px; }
+  .rend-nums { font-size: 10px; color: #a1a1aa; }
+
   .footer {
     padding: 20px 40px;
     border-top: 1px solid #e4e4e7;
@@ -218,7 +261,10 @@ export default async function ReportePDFPage({
   const hace7dias = new Date(hoy);
   hace7dias.setDate(hace7dias.getDate() - 6);
 
+  const jornadaPDF = horasProductivasHasta(new Date());
+
   const [
+    { data: historialRendPDF },
     { data: pedidosHoy },
     { data: todosActivos },
     { count: enCola },
@@ -229,6 +275,12 @@ export default async function ReportePDFPage({
     { data: completadosSemana },
     { data: activosXMaquina },
   ] = await Promise.all([
+    supabase
+      .from("pedido_historial")
+      .select("pedido_id, created_at")
+      .eq("estado_nuevo", "En corte")
+      .gte("created_at", hoy.toISOString())
+      .lt("created_at", manana.toISOString()),
     supabase
       .from("pedidos")
       .select("*, cliente:clientes(nombre, telefono)")
@@ -295,6 +347,26 @@ export default async function ReportePDFPage({
       pctCarga: Math.round((load / totalLoad) * 100),
     };
   });
+
+  // Rendimiento del día
+  type HistRowPDF = { pedido_id: string };
+  const histRowsPDF = (historialRendPDF ?? []) as HistRowPDF[];
+  const rendIdsPDF = [...new Set(histRowsPDF.map((h) => h.pedido_id))];
+  type RendRowPDF = { id: string; maquina_asignada: string | null; cant_planchas: number; cant_piezas: number };
+  const { data: rendPedidosPDF } = rendIdsPDF.length
+    ? await supabase.from("pedidos").select("id, maquina_asignada, cant_planchas, cant_piezas").in("id", rendIdsPDF)
+    : { data: [] as RendRowPDF[] };
+  const rendMapPDF = new Map<string, RendRowPDF>(((rendPedidosPDF ?? []) as RendRowPDF[]).map((p) => [p.id, p]));
+  const rendPorMaqPDF: Record<string, { planchas: number; piezas: number }> = {};
+  for (const h of histRowsPDF) {
+    const p = rendMapPDF.get(h.pedido_id);
+    if (!p?.maquina_asignada) continue;
+    if (!rendPorMaqPDF[p.maquina_asignada]) rendPorMaqPDF[p.maquina_asignada] = { planchas: 0, piezas: 0 };
+    rendPorMaqPDF[p.maquina_asignada].planchas += p.cant_planchas;
+    rendPorMaqPDF[p.maquina_asignada].piezas   += p.cant_piezas;
+  }
+  const idealPlanchasPDF = jornadaPDF.horas * PROD.PL_POR_HORA;
+  const REND_COLORS_PDF: Record<string, string> = { M1: "#1957A6", M2: "#267A8C", M3: "#7c3aed" };
 
   // Bar chart data
   const diasSemana = Array.from({ length: 7 }, (_, i) => {
@@ -512,6 +584,46 @@ export default async function ReportePDFPage({
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Rendimiento del día */}
+          <div className="rend-section">
+            <div className="rend-header">
+              <div>
+                <div className="rend-title">Rendimiento del día</div>
+                <div className="rend-sub">
+                  Planchas cortadas vs. ideal · {jornadaPDF.horas.toFixed(1)}h trabajadas · {idealPlanchasPDF.toFixed(1)} pl/máq. ideal
+                </div>
+              </div>
+              <div style={{ fontSize: 10, color: "#71717a", fontWeight: 600 }}>
+                {Object.values(rendPorMaqPDF).reduce((a, v) => a + v.planchas, 0).toFixed(1)} pl cortadas
+              </div>
+            </div>
+            <div className="rend-grid">
+              {(["M1", "M2", "M3"] as const).map((maq) => {
+                const real = rendPorMaqPDF[maq]?.planchas ?? 0;
+                const pct  = idealPlanchasPDF > 0 ? Math.min(Math.round((real / idealPlanchasPDF) * 100), 100) : 0;
+                const barColor = pct >= 85 ? "#22c55e" : pct >= 60 ? "#f59e0b" : "#ef4444";
+                const color = REND_COLORS_PDF[maq];
+                return (
+                  <div key={maq} className="rend-cell">
+                    <div className="rend-cell-top">
+                      <div className="rend-maq-name">
+                        <span className="rend-dot" style={{ background: color }} />
+                        Máquina {maq.slice(1)}
+                      </div>
+                      <span className="rend-pct" style={{ color: barColor }}>{pct}%</span>
+                    </div>
+                    <div className="rend-track">
+                      <div className="rend-fill" style={{ width: `${pct}%`, background: barColor }} />
+                    </div>
+                    <div className="rend-nums">
+                      {real.toFixed(1)} / {idealPlanchasPDF.toFixed(1)} pl · {rendPorMaqPDF[maq]?.piezas ?? 0} pzs
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Tabla pedidos de hoy */}

@@ -5,6 +5,7 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 import { limaTime, limaDateTime, limaStartOfToday, limaEndOfToday, limaTodayKey, TZ } from "@/lib/time";
 import { horasProductivasHasta, PROD } from "@/lib/productividad";
 import Link from "next/link";
+import ColaPaginadaTable from "@/components/ColaPaginadaTable";
 
 const ESTADO_LABEL: Record<string, string> = {
   "En cola":       "En Cola",
@@ -548,48 +549,9 @@ export default async function ReportePage() {
                 {todosActivos?.length ?? 0} en proceso
               </span>
             </div>
-            <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[520px]">
-              <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  {["#", "Cliente", "Material", "Planchas", "Máquina", "Estado", "Entrega est."].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(todosActivos ?? []).map((p: Record<string, unknown>, idx: number) => {
-                  const estado = p.estado as string;
-                  const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
-                  const numeroOrden = `#${String(p.id as string).slice(-6).toUpperCase()}`;
-                  const entrega = p.fecha_entrega_estimada
-                    ? limaDateTime(p.fecha_entrega_estimada as string)
-                    : "—";
-                  return (
-                    <tr key={p.id as string} className={`border-b border-zinc-50 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-zinc-50/50"}`}>
-                      <td className="px-4 py-3 font-bold text-zinc-700">{numeroOrden}</td>
-                      <td className="px-4 py-3 font-semibold text-zinc-900">{cliente}</td>
-                      <td className="px-4 py-3 text-zinc-600">{p.tipo_tablero as string}</td>
-                      <td className="px-4 py-3 font-bold text-zinc-900">{p.cant_planchas as string}</td>
-                      <td className="px-4 py-3">
-                        <span className="bg-zinc-900 text-white text-xs font-bold px-2 py-0.5 rounded">{p.maquina_asignada as string ?? "—"}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          estado === "En corte"      ? "bg-zinc-900 text-white" :
-                          estado === "En tapacantos" ? "bg-zinc-700 text-white" :
-                          "bg-zinc-100 text-zinc-600"
-                        }`}>
-                          {ESTADO_LABEL[estado] ?? estado}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-zinc-500">{entrega}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            </div>
+            <ColaPaginadaTable
+              pedidos={(todosActivos ?? []) as Parameters<typeof ColaPaginadaTable>[0]["pedidos"]}
+            />
           </div>
         )}
 
