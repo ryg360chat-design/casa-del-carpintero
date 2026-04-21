@@ -178,8 +178,8 @@ function DonutView({ maquinas, idealPlanchas }: Pick<Props, "maquinas" | "idealP
 }
 
 function TimelineView({ maquinas, idealPlanchas, finJornada, inicioJornada, esSabado, timelineEvents, ahoraFrac }: Omit<Props, "idealPiezas" | "horasElapsed" | "horasTotal">) {
-  const W = 700; const H = 300;
-  const PAD = { l: 40, r: 20, t: 16, b: 40 };
+  const W = 700; const H = 240;
+  const PAD = { l: 40, r: 20, t: 16, b: 36 };
   const cw = W - PAD.l - PAD.r;
   const ch = H - PAD.t - PAD.b;
 
@@ -248,7 +248,7 @@ function TimelineView({ maquinas, idealPlanchas, finJornada, inicioJornada, esSa
           ))}
         </div>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ minHeight: 200 }}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 340 }}>
         {/* Grid lines */}
         {yTicks.map(v => (
           <g key={v}>
@@ -315,7 +315,7 @@ export default function RendimientoCharts(props: Props) {
   return (
     <div className="flex flex-col gap-6">
       {/* Toggle */}
-      <div className="flex items-center gap-1 flex-wrap bg-zinc-50 border border-zinc-200 p-1 rounded-2xl">
+      <div className="flex items-center gap-1 flex-wrap bg-zinc-50 border border-zinc-200 p-1 rounded-2xl w-fit">
         {TAB("barras", "Barras", <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="12" width="5" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="17" y="3" width="5" height="18" rx="1"/></svg>)}
         {TAB("donuts", "Donuts", <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>)}
         {TAB("timeline", "Timeline", <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>)}
