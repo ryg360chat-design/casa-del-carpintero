@@ -3,6 +3,7 @@ import ImprimirBtn from "@/components/ImprimirBtn";
 import GuardarReporteBtn from "@/components/GuardarReporteBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 import { limaTime, limaDateTime, limaStartOfToday, limaEndOfToday, limaTodayKey, TZ } from "@/lib/time";
+import { horasProductivasHasta, PROD } from "@/lib/productividad";
 import Link from "next/link";
 
 const ESTADO_LABEL: Record<string, string> = {
@@ -26,7 +27,10 @@ export default async function ReportePage() {
   hace7diasDate.setDate(hace7diasDate.getDate() - 6);
   const hace7dias = hace7diasDate.toISOString();
 
+  const jornada = horasProductivasHasta(new Date());
+
   const [
+    { data: historialRendimiento },
     { data: pedidosHoy },
     { data: todosActivos },
     { count: enCola },
@@ -38,6 +42,12 @@ export default async function ReportePage() {
     { data: completadosSemana },
     { data: activosXMaquina },
   ] = await Promise.all([
+    supabase
+      .from("pedido_historial")
+      .select("pedido_id, created_at")
+      .eq("estado_nuevo", "En corte")
+      .gte("created_at", startOfToday)
+      .lte("created_at", endOfToday),
     supabase
       .from("pedidos")
       .select("*, cliente:clientes(nombre, telefono)")
@@ -123,6 +133,32 @@ export default async function ReportePage() {
   const loadM2 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M2").length;
   const loadM3 = (activosXMaquina ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === "M3").length;
   const totalLoad = loadM1 + loadM2 + loadM3 || 1;
+
+  // ── Rendimiento del día (planchas cortadas hoy) ───────────────────────
+  type HistRow = { pedido_id: string };
+  const histRowsRend = (historialRendimiento ?? []) as HistRow[];
+  const rendPedidoIds = [...new Set(histRowsRend.map((h) => h.pedido_id))];
+  type RendPedidoRow = { id: string; maquina_asignada: string | null; cant_planchas: number; cant_piezas: number };
+  const { data: rendPedidos } = rendPedidoIds.length
+    ? await supabase
+        .from("pedidos")
+        .select("id, maquina_asignada, cant_planchas, cant_piezas")
+        .in("id", rendPedidoIds)
+    : { data: [] as RendPedidoRow[] };
+  const rendMap = new Map<string, RendPedidoRow>(
+    ((rendPedidos ?? []) as RendPedidoRow[]).map((p) => [p.id, p])
+  );
+  const rendPorMaquina: Record<string, { planchas: number; piezas: number }> = {};
+  for (const h of histRowsRend) {
+    const p = rendMap.get(h.pedido_id);
+    if (!p?.maquina_asignada) continue;
+    if (!rendPorMaquina[p.maquina_asignada]) rendPorMaquina[p.maquina_asignada] = { planchas: 0, piezas: 0 };
+    rendPorMaquina[p.maquina_asignada].planchas += p.cant_planchas;
+    rendPorMaquina[p.maquina_asignada].piezas   += p.cant_piezas;
+  }
+  const idealPlanchasHoy = jornada.horas * PROD.PL_POR_HORA;
+  const MAQUINAS_REND = ["M1", "M2", "M3"] as const;
+  const REND_COLORS: Record<string, string> = { M1: "#1957A6", M2: "#267A8C", M3: "#7c3aed" };
 
   // ── Productividad ─────────────────────────────────────────────────────
   type PRow = { maquina_asignada: string | null; cant_planchas: number | null; cant_piezas: number | null };
@@ -338,6 +374,52 @@ export default async function ReportePage() {
               <text x="20" y={110 - 95 + 4} textAnchor="middle" fontSize="9" fill="#a1a1aa">{maxBar}</text>
               <text x="20" y="113" textAnchor="middle" fontSize="9" fill="#a1a1aa">0</text>
             </svg>
+          </div>
+        </div>
+
+        {/* ── Rendimiento del día ───────────────────────────────────────────── */}
+        <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden mb-4">
+          <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-zinc-900">Rendimiento del día</h2>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Planchas cortadas vs. ideal ({jornada.horas.toFixed(1)}h trabajadas · {idealPlanchasHoy.toFixed(1)} pl/máq. ideal)
+              </p>
+            </div>
+            <span className="text-xs text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full font-semibold">
+              {Object.values(rendPorMaquina).reduce((a, v) => a + v.planchas, 0).toFixed(1)} pl cortadas
+            </span>
+          </div>
+          <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {MAQUINAS_REND.map((maq) => {
+              const real = rendPorMaquina[maq]?.planchas ?? 0;
+              const pct  = idealPlanchasHoy > 0 ? Math.min(Math.round((real / idealPlanchasHoy) * 100), 150) : 0;
+              const color = REND_COLORS[maq];
+              const barColor = pct >= 85 ? "#22c55e" : pct >= 60 ? "#f59e0b" : "#ef4444";
+              return (
+                <div key={maq}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                      <span className="text-sm font-bold text-zinc-800">Máquina {maq.slice(1)}</span>
+                    </div>
+                    <span className="text-sm font-black" style={{ color: barColor }}>{pct}%</span>
+                  </div>
+                  <div className="relative h-5 bg-zinc-100 rounded-full overflow-hidden">
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full"
+                      style={{ width: `${Math.min(pct, 100)}%`, background: barColor }}
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-500">
+                      {real.toFixed(1)} / {idealPlanchasHoy.toFixed(1)} pl
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400 mt-1.5">
+                    {rendPorMaquina[maq]?.piezas ?? 0} piezas cortadas
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
 
