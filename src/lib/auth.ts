@@ -47,7 +47,7 @@ export const IS_ADMIN: UserRole[] = [
 
 // ── Ver reportes ─────────────────────────────────────────────────────
 export const CAN_VIEW_REPORTE: UserRole[] = [
-  "developer", "admin", "gerencia", "administracion",
+  "developer", "admin", "gerencia", "administracion", "produccion",
 ];
 
 // ── Solo developer ───────────────────────────────────────────────────

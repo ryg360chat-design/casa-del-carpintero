@@ -142,7 +142,7 @@ export default function Sidebar({
 
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
 
-  const canViewReporte = ["developer","admin","gerencia","administracion"].includes(userRole);
+  const canViewReporte = ["developer","admin","gerencia","administracion","produccion"].includes(userRole);
 
   const visibleItems = navItems.filter((item) => {
     if (item.href === "/dev") return isDeveloper;
