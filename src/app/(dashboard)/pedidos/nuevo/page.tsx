@@ -324,6 +324,7 @@ export default function NuevoPedidoPage() {
   const [fechaProgramada, setFechaProgramada]   = useState("");
   const [canAssignMaquina, setCanAssignMaquina] = useState(false);
   const [notas, setNotas]                       = useState("");
+  const [numeroBoleta, setNumeroBoleta]         = useState("");
 
   // ── Draft: detectar borrador al montar ───────────────────────────
   useEffect(() => {
@@ -337,7 +338,7 @@ export default function NuevoPedidoPage() {
   // ── Draft: guardar automáticamente al cambiar estado ─────────────
   useEffect(() => {
     if (!draftLoaded.current) return;
-    const draft = { clienteNombre, area, lineas, ranuras, perforaciones, corte45, cortesEspeciales, prioridad, turnoManual, maquinaManual, fechaProgramada, notas };
+    const draft = { clienteNombre, area, lineas, ranuras, perforaciones, corte45, cortesEspeciales, prioridad, turnoManual, maquinaManual, fechaProgramada, notas, numeroBoleta };
     const isEmpty = !clienteNombre.trim() && lineas.length === 1 && !lineas[0].colorMaterial && !lineas[0].planchas;
     try {
       if (isEmpty) sessionStorage.removeItem(DRAFT_KEY);
@@ -362,6 +363,7 @@ export default function NuevoPedidoPage() {
       if (d.maquinaManual)   setMaquinaManual(d.maquinaManual);
       if (d.fechaProgramada) setFechaProgramada(d.fechaProgramada);
       if (d.notas)           setNotas(d.notas);
+      if (d.numeroBoleta)    setNumeroBoleta(d.numeroBoleta);
     } catch { /* JSON inválido, ignorar */ }
     setShowDraftBanner(false);
   }
@@ -553,6 +555,7 @@ export default function NuevoPedidoPage() {
         cortes_especiales:      cortesEspeciales,
         prioridad,
         notas:                    notas || null,
+        numero_boleta:            numeroBoleta.trim() || null,
         turno,
         maquina_asignada:         maquina,
         fecha_entrega_estimada:   entrega.toISOString(),
@@ -664,6 +667,19 @@ export default function NuevoPedidoPage() {
             {clienteStatus === "new" && clienteNombre.trim().length >= 2 && (
               <p className="mt-2 text-xs text-blue-600 font-medium">✦ Se registrará como nuevo cliente</p>
             )}
+          </div>
+          <div>
+            <label className={LABEL}>
+              N° Boleta / Factura{" "}
+              <span className="text-zinc-400 font-normal normal-case tracking-normal">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              value={numeroBoleta}
+              onChange={(e) => setNumeroBoleta(e.target.value)}
+              placeholder="Ej: B001-00123"
+              className={INPUT}
+            />
           </div>
         </div>
 

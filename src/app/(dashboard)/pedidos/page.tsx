@@ -63,7 +63,10 @@ function PedidoRow({ p, num }: { p: Pedido; num: number }) {
   const entrega = entregaDate ? limaDate(entregaDate, { day: "2-digit", month: "2-digit" }) : "—";
   const hora    = entregaDate ? limaTime(entregaDate) : null;
   const cliente = (p.cliente as Record<string, unknown>)?.nombre as string ?? "—";
-  const clienteCodigo = (p.cliente as Record<string, unknown>)?.codigo as string | null;
+  const clienteCodigo  = (p.cliente as Record<string, unknown>)?.codigo as string | null;
+  const numeroBoleta   = p.numero_boleta as string | null;
+  const codigoDisplay  = numeroBoleta || clienteCodigo;
+  const esBoleta       = !!numeroBoleta;
   const isUrgente = p.prioridad === "urgente";
 
   return (
@@ -72,8 +75,10 @@ function PedidoRow({ p, num }: { p: Pedido; num: number }) {
       <td className="px-3 py-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-zinc-900 text-sm">{cliente}</span>
-          {clienteCodigo && (
-            <span className="font-mono text-[9px] font-bold text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">{clienteCodigo}</span>
+          {codigoDisplay && (
+            <span className={`font-mono text-[9px] font-bold px-1.5 py-0.5 rounded ${esBoleta ? "text-blue-700 bg-blue-50" : "text-zinc-400 bg-zinc-100"}`}>
+              {codigoDisplay}
+            </span>
           )}
           {isUrgente && (
             <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded" style={{ background: "linear-gradient(135deg,#f97316,#dc2626)" }}>⚡</span>

@@ -108,11 +108,17 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
             <h1 className="text-2xl font-bold text-zinc-900">
               {cliente?.nombre as string ?? "Sin cliente"}
             </h1>
-            {(cliente?.codigo as string | null) && (
-              <span className="font-mono text-xs font-bold bg-zinc-100 text-zinc-500 border border-zinc-200 px-2 py-0.5 rounded-full">
-                {cliente!.codigo as string}
-              </span>
-            )}
+            {(() => {
+              const boleta = pedido.numero_boleta as string | null;
+              const cdc    = cliente?.codigo as string | null;
+              const display = boleta || cdc;
+              if (!display) return null;
+              return (
+                <span className={`font-mono text-xs font-bold border px-2 py-0.5 rounded-full ${boleta ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-zinc-100 text-zinc-500 border-zinc-200"}`}>
+                  {display}
+                </span>
+              );
+            })()}
             {prioridad === "urgente" && (
               <span className="animate-badge-pop text-xs font-bold text-white px-2.5 py-0.5 rounded-md tracking-wide" style={{ background: "linear-gradient(135deg,#f97316,#dc2626)", boxShadow: "0 0 10px rgba(249,115,22,0.4)" }}>
                 ⚡ URGENTE

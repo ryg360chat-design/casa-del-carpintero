@@ -200,6 +200,7 @@ export default function EditarPedidoPage() {
   const [cargaMaquinas, setCargaMaquinas] = useState<Record<string, number>>({});
   const [fechaProgramada, setFechaProgramada] = useState("");
   const [notas, setNotas]                 = useState("");
+  const [numeroBoleta, setNumeroBoleta]   = useState("");
 
   // Cargar datos del pedido al montar
   useEffect(() => {
@@ -236,6 +237,7 @@ export default function EditarPedidoPage() {
       setMaquinaManual((p.maquina_asignada as "auto" | "M1" | "M2" | "M3") ?? "auto");
       setFechaProgramada(p.fecha_inicio_programada ? (p.fecha_inicio_programada as string).split("T")[0] : "");
       setNotas((p.notas as string) ?? "");
+      setNumeroBoleta((p.numero_boleta as string) ?? "");
 
       // Cargar líneas de material
       const { data: ls } = await sb.from("pedido_lineas")
@@ -404,7 +406,7 @@ export default function EditarPedidoPage() {
         metros_canto:            totalCanto,
         tipo_canto:              parseFloat(primera.metrosGrueso || "0") > 0 ? "grueso" : "delgado",
         ranuras, perforaciones, corte_45: corte45, cortes_especiales: cortesEspeciales,
-        prioridad, notas: notas || null, turno,
+        prioridad, notas: notas || null, numero_boleta: numeroBoleta.trim() || null, turno,
         maquina_asignada:        maquina,
         fecha_entrega_estimada:  entrega.toISOString(),
         fecha_inicio_programada: fechaProgramada || null,
@@ -549,6 +551,20 @@ export default function EditarPedidoPage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className={LABEL}>
+              N° Boleta / Factura{" "}
+              <span className="text-zinc-400 font-normal normal-case tracking-normal">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              value={numeroBoleta}
+              onChange={(e) => setNumeroBoleta(e.target.value)}
+              placeholder="Ej: B001-00123"
+              className={INPUT}
+            />
           </div>
         </div>
 
