@@ -311,22 +311,13 @@ export default function EditarPedidoPage() {
       ]);
 
       let maquina: string;
-      let cMaquina: number;
       if (maquinaManual !== "auto") {
-        maquina  = maquinaManual;
-        cMaquina = { M1: cM1 ?? 0, M2: cM2 ?? 0, M3: cM3 ?? 0 }[maquinaManual] ?? 0;
+        maquina = maquinaManual;
       } else {
-        maquina  = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";
-        cMaquina = (cM1 ?? 0) <= (cM2 ?? 0) ? (cM1 ?? 0) : (cM2 ?? 0);
+        maquina = (cM1 ?? 0) <= (cM2 ?? 0) ? "M1" : "M2";
       }
 
-      // Productividad real: 5 planchas/hora
-      const horasCorte = totalPlanchas > 0 ? totalPlanchas / PROD.PL_POR_HORA : 0.5;
-      const horasExtra = (ranuras ? 1 : 0) + (totalCanto > 0 ? 1 : 0) + ((corte45 || cortesEspeciales) ? 0.5 : 0);
-      const totalHoras = horasCorte + horasExtra + cMaquina * 2;
-
-      // Horarios reales: inicio 8:15, fin L-V 17:15, Sáb 13:15
-      const diaNombre = ahora.toLocaleDateString("en-US", { timeZone: TZ, weekday: "short" });
+      // Helpers de horario laboral
       const INICIO = 8.25;
       function hFrac(d: Date) { return d.getHours() + d.getMinutes() / 60; }
       function setHFrac(d: Date, h: number) { d.setHours(Math.floor(h), Math.round((h % 1) * 60), 0, 0); }
@@ -355,11 +346,48 @@ export default function EditarPedidoPage() {
         }
         return r;
       }
-      void diaNombre;
-      const entrega = addWorkHours(ahora, totalHoras);
+
+      // Base de tiempo: donde termina el último pedido en cola (excluyendo este pedido)
+      const { data: lastInQueue } = await sb
+        .from("pedidos")
+        .select("fecha_entrega_estimada")
+        .eq("maquina_asignada", maquina)
+        .not("estado", "in", EXCLUIR)
+        .not("fecha_entrega_estimada", "is", null)
+        .neq("id", id)
+        .order("fecha_entrega_estimada", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const lastEnd = lastInQueue?.fecha_entrega_estimada ? new Date(lastInQueue.fecha_entrega_estimada as string) : null;
+      let baseTime = lastEnd && lastEnd > ahora ? new Date(lastEnd) : new Date(ahora);
+
+      // Ajustar baseTime según turno elegido manualmente
+      if (turnoManual === "tarde") {
+        const h = hFrac(baseTime);
+        const fd = finDia(baseTime);
+        if (h >= fd) {
+          baseTime.setDate(baseTime.getDate() + 1);
+          skipWeekend(baseTime);
+          setHFrac(baseTime, 13);
+        } else if (h < 13) {
+          setHFrac(baseTime, 13);
+        }
+      } else if (turnoManual === "mañana") {
+        const h = hFrac(baseTime);
+        if (h >= 12) {
+          baseTime.setDate(baseTime.getDate() + 1);
+          skipWeekend(baseTime);
+          setHFrac(baseTime, INICIO);
+        }
+      }
+
+      const horasCorte = totalPlanchas > 0 ? totalPlanchas / PROD.PL_POR_HORA : 0.5;
+      const horasExtra = (ranuras ? 1 : 0) + (totalCanto > 0 ? 1 : 0) + ((corte45 || cortesEspeciales) ? 0.5 : 0);
+      const entrega = addWorkHours(baseTime, horasCorte + horasExtra);
       if (isNaN(entrega.getTime())) throw new Error("No se pudo calcular la fecha de entrega");
 
-      // Turno basado en la hora de ENTREGA estimada, no en la hora actual
+      // Turno: si fue manual, respetar; si auto, deducir de la hora de entrega real
       const turno = turnoManual === "auto" ? (entrega.getHours() < 12 ? "mañana" : "tarde") : turnoManual;
 
       // 3. Actualizar pedido

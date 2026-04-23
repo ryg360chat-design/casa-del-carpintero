@@ -8,6 +8,8 @@ const ESTADO_STYLE: Record<string, string> = {
   "En corte": "bg-zinc-800 text-white",
   "En tapacantos": "bg-zinc-600 text-white",
   "Listo": "bg-zinc-100 text-zinc-400",
+  "Despachado": "bg-teal-100 text-teal-600",
+  "Vendido": "bg-teal-100 text-teal-600",
   "Cancelado": "bg-red-100 text-red-400",
   "Pausado": "bg-yellow-100 text-yellow-700",
 };
@@ -70,7 +72,7 @@ function DiaLista({ fecha, pedidos, atrasado = false }: { fecha: string; pedidos
           return (
             <div
               key={p.id as string}
-              className={`flex items-center justify-between px-4 py-3 ${i < pedidos.length - 1 ? "border-b border-zinc-50" : ""} ${estado === "Listo" ? "opacity-40" : ""}`}
+              className={`flex items-center justify-between px-4 py-3 ${i < pedidos.length - 1 ? "border-b border-zinc-50" : ""} ${["Listo", "Despachado", "Vendido"].includes(estado) ? "opacity-40" : ""}`}
             >
               <div className="flex items-center gap-3">
                 {hora && <span className="text-xs font-mono text-zinc-400 w-10 shrink-0">{hora}</span>}
