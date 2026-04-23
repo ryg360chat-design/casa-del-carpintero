@@ -224,7 +224,7 @@ export default async function DashboardPage() {
     supabase.from("pedidos").select("*", { count: "exact", head: true }).gte("created_at", startOfToday).lte("created_at", endOfToday),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
-    supabase.from("pedidos").select("*", { count: "exact", head: true }).in("estado", ["Listo", "Despachado", "Vendido"]).gte("fecha_entrega_real", startOfToday).lte("fecha_entrega_real", endOfToday),
+    supabase.from("pedido_historial").select("*", { count: "exact", head: true }).eq("estado_nuevo", "Listo").gte("created_at", startOfToday).lte("created_at", endOfToday),
     supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
