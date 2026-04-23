@@ -153,11 +153,15 @@ const TABLE_HEAD = (
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; estado?: string; maquina?: string; page?: string; vista?: string; dia?: string; semana?: string }>;
+  searchParams: Promise<{ q?: string; estado?: string; maquina?: string; page?: string; vista?: string; dia?: string; semana?: string; diaPage?: string }>;
 }) {
-  const { q, estado, maquina, page: pageParam, vista, dia, semana } = await searchParams;
+  const { q, estado, maquina, page: pageParam, vista, dia, semana, diaPage: diaPageParam } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam ?? "1"));
   const vistaActual = vista === "lista" ? "lista" : "dias";
+  const DIA_PAGE_SIZE = 10;
+  const diaCurrentPage = Math.max(1, parseInt(diaPageParam ?? "1"));
+  const diaFrom = (diaCurrentPage - 1) * DIA_PAGE_SIZE;
+  const diaTo = diaFrom + DIA_PAGE_SIZE - 1;
   const supabase = await createClient();
 
   const startOfToday = limaStartOfToday();
@@ -217,7 +221,8 @@ export default async function PedidosPage({
     // Solo pedidos del día seleccionado
     dataQuery = dataQuery
       .gte("fecha_ingreso", diaStart)
-      .lte("fecha_ingreso", diaEnd);
+      .lte("fecha_ingreso", diaEnd)
+      .range(diaFrom, diaTo);
   } else {
     dataQuery = dataQuery.range(from, to);
   }
@@ -236,6 +241,7 @@ export default async function PedidosPage({
   const { data: pedidosFiltrados, count: filteredCount } = await dataQuery;
   const pedidos = pedidosFiltrados ?? [];
   const totalPages = Math.ceil((filteredCount ?? 0) / PAGE_SIZE);
+  const diaTotalPages = Math.ceil((filteredCount ?? 0) / DIA_PAGE_SIZE);
 
   // Conteo por día de la semana (para los puntos del selector)
   const { data: pedidosSemana } = await supabase
@@ -267,6 +273,7 @@ export default async function PedidosPage({
     if (params.dia) p.set("dia", params.dia);
     if (params.semana) p.set("semana", params.semana);
     if (params.page && params.page !== "1") p.set("page", params.page);
+    if (params.diaPage && params.diaPage !== "1") p.set("diaPage", params.diaPage);
     return `/pedidos?${p.toString()}`;
   };
 
@@ -436,43 +443,67 @@ export default async function PedidosPage({
                 {hayFiltros ? "Sin resultados para los filtros aplicados." : "No hay pedidos registrados este día."}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  {TABLE_HEAD}
-                  <tbody>
-                    {/* En producción */}
-                    {enProd.length > 0 && (
-                      <tr>
-                        <td colSpan={8} className="px-3 pt-3 pb-1">
-                          <span className="inline-block text-[9px] font-bold uppercase tracking-widest text-orange-500 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
-                            En producción
-                          </span>
-                        </td>
-                      </tr>
-                    )}
-                    {enProd.map((p: Pedido, i: number) => (
-                      <PedidoRow key={p.id as string} p={p} num={i + 1} />
-                    ))}
-                    {/* Entregados */}
-                    {entregados.length > 0 && (
-                      <tr>
-                        <td colSpan={8} className={`px-3 ${enProd.length > 0 ? "pt-3" : "pt-3"} pb-1`}>
-                          <span className="inline-block text-[9px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                            Entregados
-                          </span>
-                        </td>
-                      </tr>
-                    )}
-                    {entregados.map((p: Pedido, i: number) => (
-                      <PedidoRow key={p.id as string} p={p} num={enProd.length + i + 1} />
-                    ))}
-                    {/* Otros */}
-                    {otros.map((p: Pedido, i: number) => (
-                      <PedidoRow key={p.id as string} p={p} num={enProd.length + entregados.length + i + 1} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    {TABLE_HEAD}
+                    <tbody>
+                      {/* En producción */}
+                      {enProd.length > 0 && (
+                        <tr>
+                          <td colSpan={8} className="px-3 pt-3 pb-1">
+                            <span className="inline-block text-[9px] font-bold uppercase tracking-widest text-orange-500 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
+                              En producción
+                            </span>
+                          </td>
+                        </tr>
+                      )}
+                      {enProd.map((p: Pedido, i: number) => (
+                        <PedidoRow key={p.id as string} p={p} num={diaFrom + i + 1} />
+                      ))}
+                      {/* Entregados */}
+                      {entregados.length > 0 && (
+                        <tr>
+                          <td colSpan={8} className="px-3 pt-3 pb-1">
+                            <span className="inline-block text-[9px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                              Entregados
+                            </span>
+                          </td>
+                        </tr>
+                      )}
+                      {entregados.map((p: Pedido, i: number) => (
+                        <PedidoRow key={p.id as string} p={p} num={diaFrom + enProd.length + i + 1} />
+                      ))}
+                      {/* Otros */}
+                      {otros.map((p: Pedido, i: number) => (
+                        <PedidoRow key={p.id as string} p={p} num={diaFrom + enProd.length + entregados.length + i + 1} />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {diaTotalPages > 1 && (
+                  <div className="px-5 py-3 border-t border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+                    <p className="text-xs text-zinc-400">
+                      {diaFrom + 1}–{diaFrom + pedidos.length} de {filteredCount ?? "?"} pedidos
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={buildUrl({ vista: "dias", dia: diaSeleccionado, semana: semanaBase, diaPage: String(diaCurrentPage - 1) })}
+                        className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs transition-all ${diaCurrentPage <= 1 ? "text-zinc-300 pointer-events-none" : "text-zinc-600 hover:bg-zinc-200"}`}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                      </Link>
+                      <span className="text-xs font-semibold text-zinc-600 px-2">{diaCurrentPage} / {diaTotalPages}</span>
+                      <Link
+                        href={buildUrl({ vista: "dias", dia: diaSeleccionado, semana: semanaBase, diaPage: String(diaCurrentPage + 1) })}
+                        className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs transition-all ${diaCurrentPage >= diaTotalPages ? "text-zinc-300 pointer-events-none" : "text-zinc-600 hover:bg-zinc-200"}`}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </>

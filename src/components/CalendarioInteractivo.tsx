@@ -43,6 +43,10 @@ function getWeekDays(offset: number): string[] {
 
 function DiaLista({ fecha, pedidos, atrasado = false }: { fecha: string; pedidos: Pedido[]; atrasado?: boolean }) {
   const { label, esHoy, esManana } = formatDayLabel(fecha);
+  const [page, setPage] = useState(0);
+  const PAGE = 10;
+  const totalPages = Math.ceil(pedidos.length / PAGE);
+  const paginados = pedidos.slice(page * PAGE, (page + 1) * PAGE);
   const pendientes = pedidos.filter((p) => !["Listo", "Cancelado"].includes(p.estado as string)).length;
 
   return (
@@ -63,7 +67,7 @@ function DiaLista({ fecha, pedidos, atrasado = false }: { fecha: string; pedidos
         </span>
       </div>
       <div>
-        {pedidos.map((p, i) => {
+        {paginados.map((p, i) => {
           const estado = p.estado as string;
           const cliente = ((p.cliente as Record<string, unknown>)?.nombre as string) ?? "—";
           const hora = p.fecha_entrega_estimada
@@ -72,7 +76,7 @@ function DiaLista({ fecha, pedidos, atrasado = false }: { fecha: string; pedidos
           return (
             <div
               key={p.id as string}
-              className={`flex items-center justify-between px-4 py-3 ${i < pedidos.length - 1 ? "border-b border-zinc-50" : ""} ${["Listo", "Despachado", "Vendido"].includes(estado) ? "opacity-40" : ""}`}
+              className={`flex items-center justify-between px-4 py-3 ${i < paginados.length - 1 ? "border-b border-zinc-50" : ""} ${["Listo", "Despachado", "Vendido"].includes(estado) ? "opacity-40" : ""}`}
             >
               <div className="flex items-center gap-3">
                 {hora && <span className="text-xs font-mono text-zinc-400 w-10 shrink-0">{hora}</span>}
@@ -101,6 +105,30 @@ function DiaLista({ fecha, pedidos, atrasado = false }: { fecha: string; pedidos
           );
         })}
       </div>
+      {totalPages > 1 && (
+        <div className="px-4 py-2.5 border-t border-zinc-100 flex items-center justify-between bg-zinc-50/40">
+          <span className="text-xs text-zinc-400">
+            {page * PAGE + 1}–{Math.min((page + 1) * PAGE, pedidos.length)} de {pedidos.length}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors text-zinc-500 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span className="text-xs font-semibold text-zinc-500">{page + 1} / {totalPages}</span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors text-zinc-500 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
