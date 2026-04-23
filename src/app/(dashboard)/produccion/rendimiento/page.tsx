@@ -157,8 +157,8 @@ export default async function RendimientoPage({
     };
   });
 
-  const idealPlanchas = jornada.horas * PROD.PL_POR_HORA;
-  const idealPiezas   = jornada.horas * PROD.PZ_POR_HORA;
+  const idealPlanchas = jornada.horasTotal * PROD.PL_POR_HORA;
+  const idealPiezas   = jornada.horasTotal * PROD.PZ_POR_HORA;
 
   const nowStr = ahora.toLocaleTimeString("en-US", {
     timeZone: TZ,

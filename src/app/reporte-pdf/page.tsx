@@ -365,7 +365,7 @@ export default async function ReportePDFPage({
     rendPorMaqPDF[p.maquina_asignada].planchas += p.cant_planchas;
     rendPorMaqPDF[p.maquina_asignada].piezas   += p.cant_piezas;
   }
-  const idealPlanchasPDF = jornadaPDF.horas * PROD.PL_POR_HORA;
+  const idealPlanchasPDF = jornadaPDF.horasTotal * PROD.PL_POR_HORA;
   const REND_COLORS_PDF: Record<string, string> = { M1: "#1957A6", M2: "#267A8C", M3: "#7c3aed" };
 
   // Bar chart data
@@ -592,7 +592,7 @@ export default async function ReportePDFPage({
               <div>
                 <div className="rend-title">Rendimiento del día</div>
                 <div className="rend-sub">
-                  Planchas cortadas vs. ideal · {jornadaPDF.horas.toFixed(1)}h trabajadas · {idealPlanchasPDF.toFixed(1)} pl/máq. ideal
+                  Planchas cortadas vs. ideal del día · {jornadaPDF.horasTotal}h jornada · {idealPlanchasPDF.toFixed(0)} pl/máq.
                 </div>
               </div>
               <div style={{ fontSize: 10, color: "#71717a", fontWeight: 600 }}>

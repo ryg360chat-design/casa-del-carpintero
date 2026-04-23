@@ -157,7 +157,7 @@ export default async function ReportePage() {
     rendPorMaquina[p.maquina_asignada].planchas += p.cant_planchas;
     rendPorMaquina[p.maquina_asignada].piezas   += p.cant_piezas;
   }
-  const idealPlanchasHoy = jornada.horas * PROD.PL_POR_HORA;
+  const idealPlanchasHoy = jornada.horasTotal * PROD.PL_POR_HORA;
   const MAQUINAS_REND = ["M1", "M2", "M3"] as const;
   const REND_COLORS: Record<string, string> = { M1: "#1957A6", M2: "#267A8C", M3: "#7c3aed" };
 
@@ -384,7 +384,7 @@ export default async function ReportePage() {
             <div>
               <h2 className="font-bold text-zinc-900">Rendimiento del día</h2>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Planchas cortadas vs. ideal ({jornada.horas.toFixed(1)}h trabajadas · {idealPlanchasHoy.toFixed(1)} pl/máq. ideal)
+                Planchas cortadas vs. ideal del día ({jornada.horasTotal}h jornada · {idealPlanchasHoy.toFixed(0)} pl/máq.)
               </p>
             </div>
             <span className="text-xs text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-full font-semibold">
