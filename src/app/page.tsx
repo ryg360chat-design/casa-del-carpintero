@@ -96,42 +96,41 @@ export default function Page() {
 
       {/* HERO */}
       <section className="kl-hero" id="inicio">
-        <div className="kl-hero-inner">
+        <div className="kl-hero-content">
           <div className="kl-eyebrow">● RYG SAAS · SISTEMA OPERATIVO PARA TALLERES DE CORTE</div>
           <h1 className="kl-hero-title">
             El taller que <em>sabe</em><br />lo que está pasando.
           </h1>
-          <p className="kl-hero-sub">
-            Mientras otros talleres siguen con cuadernos, WhatsApp y suposiciones, los tuyos saben <strong>en segundos</strong> qué está en cola, qué máquina está libre y qué pedido lleva retraso.
-          </p>
-          <div className="kl-hero-ctas">
-            <Link href="/dashboard" className="kl-btn-primary">Solicitar demo →</Link>
-            <a href="#modulos" className="kl-btn-outline">Ver módulos ↓</a>
+          <div className="kl-hero-bottom">
+            <p className="kl-hero-sub">
+              Mientras otros talleres siguen con cuadernos, WhatsApp y suposiciones, los tuyos saben <strong>en segundos</strong> qué está en cola, qué máquina está libre y qué pedido lleva retraso.
+            </p>
+            <div className="kl-hero-ctas">
+              <Link href="/dashboard" className="kl-btn-primary">Solicitar demo →</Link>
+              <a href="#modulos" className="kl-btn-outline">Ver módulos ↓</a>
+            </div>
           </div>
-          <div className="kl-metrics-strip">
-            <div className="kl-metric">
-              <div className="kl-metric-label">Hora del taller</div>
-              <div className="kl-metric-val kl-mono">{clock || "00:00:00"}</div>
-              <div className="kl-metric-sub">GL Santamaría</div>
-            </div>
-            <div className="kl-metric-divider" />
-            <div className="kl-metric">
-              <div className="kl-metric-label">Máquina 1 · Activa</div>
-              <div className="kl-metric-val kl-maccent">{rend}%</div>
-              <div className="kl-metric-sub">rendimiento vs ideal</div>
-            </div>
-            <div className="kl-metric-divider" />
-            <div className="kl-metric">
-              <div className="kl-metric-label">En cola</div>
-              <div className="kl-metric-val">{cola}</div>
-              <div className="kl-metric-sub">pedidos esperando corte</div>
-            </div>
-            <div className="kl-metric-divider" />
-            <div className="kl-metric">
-              <div className="kl-metric-label">Listos hoy</div>
-              <div className="kl-metric-val kl-mok">12</div>
-              <div className="kl-metric-sub">47 esta semana</div>
-            </div>
+        </div>
+        <div className="kl-metrics-strip">
+          <div className="kl-metric">
+            <div className="kl-metric-label">Hora del taller</div>
+            <div className="kl-metric-val kl-mono">{clock || "00:00:00"}</div>
+            <div className="kl-metric-sub">GL Santamaría</div>
+          </div>
+          <div className="kl-metric">
+            <div className="kl-metric-label">Máquina 1 · Activa</div>
+            <div className="kl-metric-val kl-maccent">{rend}%</div>
+            <div className="kl-metric-sub">rendimiento vs ideal</div>
+          </div>
+          <div className="kl-metric">
+            <div className="kl-metric-label">En cola</div>
+            <div className="kl-metric-val">{cola}</div>
+            <div className="kl-metric-sub">pedidos esperando corte</div>
+          </div>
+          <div className="kl-metric">
+            <div className="kl-metric-label">Listos hoy</div>
+            <div className="kl-metric-val kl-mok">12</div>
+            <div className="kl-metric-sub">47 esta semana</div>
           </div>
         </div>
       </section>
@@ -467,55 +466,59 @@ const css = `
 .kl-hero {
   min-height: calc(100vh - 60px);
   display: flex; flex-direction: column;
-  align-items: flex-start; justify-content: center;
-  padding: 80px 48px 64px;
 }
-.kl-hero-inner { max-width: 1100px; width: 100%; }
+.kl-hero-content {
+  flex: 1;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 48px 52px;
+}
 .kl-hero-title {
   font-family: 'Instrument Serif', serif;
-  font-size: clamp(48px, 6.5vw, 92px);
+  font-size: clamp(56px, 10vw, 148px);
   line-height: 0.94;
   letter-spacing: -0.02em;
   color: var(--ink);
   margin-bottom: 28px;
-  text-align: left;
 }
 .kl-hero-title em { font-style: italic; color: var(--accent); }
+.kl-hero-bottom {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 48px;
+}
 .kl-hero-sub {
-  max-width: 500px;
+  max-width: 460px;
   font-size: 16px; color: var(--ink2);
   line-height: 1.7;
-  margin-bottom: 32px;
-  text-align: left;
 }
 .kl-hero-sub strong { color: var(--ink); font-weight: 600; }
 
 /* METRICS STRIP */
 .kl-metrics-strip {
   display: flex; align-items: stretch;
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 18px;
-  margin-top: 40px;
-  width: fit-content;
+  border-top: 1px solid var(--border);
 }
-.kl-metric { padding: 16px 28px; text-align: left; }
+.kl-metric {
+  flex: 1; padding: 20px 48px 28px;
+  border-right: 1px solid var(--border);
+}
+.kl-metric:last-child { border-right: none; }
 .kl-metric-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--ink3); margin-bottom: 5px;
+  color: var(--ink3); margin-bottom: 6px;
 }
 .kl-metric-val {
-  font-size: 22px; font-weight: 600; color: var(--ink);
+  font-size: 24px; font-weight: 600; color: var(--ink);
   line-height: 1;
 }
-.kl-metric-val.kl-mono { font-size: 17px; letter-spacing: -0.02em; }
-.kl-metric-sub { font-size: 10px; color: var(--ink3); margin-top: 3px; }
+.kl-metric-val.kl-mono { font-size: 18px; letter-spacing: -0.02em; }
+.kl-metric-sub { font-size: 10px; color: var(--ink3); margin-top: 4px; }
 .kl-maccent { color: var(--accent) !important; }
 .kl-mok { color: #16a34a !important; }
-.kl-metric-divider { width: 1px; background: var(--border); flex-shrink: 0; }
+.kl-metric-divider { display: none; }
 
 /* BUTTONS */
-.kl-hero-ctas { display: flex; gap: 12px; }
+.kl-hero-ctas { display: flex; gap: 12px; flex-shrink: 0; }
 .kl-btn-primary {
   padding: 13px 28px; border-radius: 99px;
   font-size: 15px; font-weight: 500;
