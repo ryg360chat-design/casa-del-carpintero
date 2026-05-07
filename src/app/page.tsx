@@ -470,10 +470,10 @@ const css = `
   align-items: flex-start; justify-content: center;
   padding: 80px 48px 64px;
 }
-.kl-hero-inner { max-width: 800px; width: 100%; }
+.kl-hero-inner { max-width: 1100px; width: 100%; }
 .kl-hero-title {
   font-family: 'Instrument Serif', serif;
-  font-size: clamp(52px, 9vw, 136px);
+  font-size: clamp(48px, 6.5vw, 92px);
   line-height: 0.94;
   letter-spacing: -0.02em;
   color: var(--ink);
