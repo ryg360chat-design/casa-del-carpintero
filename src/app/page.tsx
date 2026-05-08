@@ -3,15 +3,49 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const modules = [
-  { mark: "⊞", name: "Dashboard", desc: "Vista principal de control · métricas al instante" },
-  { mark: "◻", name: "Pedidos", desc: "Gestión completa e historial de estados" },
-  { mark: "⚙", name: "Producción", desc: "Pantalla operativa del taller en tiempo real" },
-  { mark: "◑", name: "Rendimiento", desc: "Analítica por máquina y por turno" },
-  { mark: "▦", name: "Calendario", desc: "Planificación visual por fecha de entrega" },
-  { mark: "◧", name: "Reporte", desc: "Informes diarios y exportación PDF" },
-  { mark: "◎", name: "Roles", desc: "Permisos por persona y por rol" },
-  { mark: "◇", name: "Historial", desc: "Trazabilidad completa de cada pedido" },
+const flowStages = [
+  {
+    step: "01", label: "Ingresa", module: "Pedidos",
+    title: "El pedido entra al sistema",
+    desc: "Cliente, material, planchas, piezas y fecha de entrega — registrado en 30 segundos. Sin papeles, sin llamadas internas al taller.",
+    before: "Cuaderno, WhatsApp, hojas sueltas",
+    after: "Pedido digital con todos los datos",
+  },
+  {
+    step: "02", label: "En cola", module: "Dashboard",
+    title: "El taller sabe lo que viene",
+    desc: "El panel en tiempo real muestra cuántos pedidos esperan, qué máquina está libre y cuál tiene prioridad ahora mismo.",
+    before: "Ir a preguntar físicamente al taller",
+    after: "Ver en pantalla desde cualquier lugar",
+  },
+  {
+    step: "03", label: "Al corte", module: "Producción",
+    title: "Se asigna a la máquina",
+    desc: "El operario ve en pantalla qué procesar, en qué máquina y con qué detalle exacto. Sin papeles, sin confusiones.",
+    before: "Buscar el papel o preguntar al jefe",
+    after: "Instrucción clara en pantalla",
+  },
+  {
+    step: "04", label: "Terminado", module: "Rendimiento",
+    title: "Se mide lo que se produce",
+    desc: "Al marcar listo, el sistema registra planchas, piezas y calcula rendimiento real vs ideal de cada máquina en tiempo real.",
+    before: "No se sabe si el ritmo es bueno",
+    after: "Métricas y comparativo en vivo",
+  },
+  {
+    step: "05", label: "Despachado", module: "Historial",
+    title: "Sale con trazabilidad total",
+    desc: "Queda registrado quién lo cortó, a qué hora salió y qué máquina se usó. Historial completo visible para siempre.",
+    before: "Nadie sabe qué pasó con el pedido",
+    after: "Historial completo con responsable",
+  },
+  {
+    step: "06", label: "Reportado", module: "Reporte",
+    title: "El día queda documentado",
+    desc: "Un PDF automático con todo lo producido, pendiente y el rendimiento de cada máquina. Listo para compartir en segundos.",
+    before: "Contar a mano o no documentar nada",
+    after: "PDF automático al cerrar el día",
+  },
 ];
 
 const chips = [
@@ -40,7 +74,7 @@ const ecoApps = [
 ];
 
 export default function Page() {
-  const [active, setActive] = useState(0);
+  const [flowStage, setFlowStage] = useState(0);
   const [clock, setClock] = useState("");
   const [rend, setRend] = useState(91);
   const [cola, setCola] = useState(28);
@@ -144,91 +178,178 @@ export default function Page() {
         </div>
       </div>
 
-      {/* MODULES */}
-      <section className="kl-modules-section" id="modulos">
+      {/* FLOW */}
+      <section className="kl-flow-section" id="modulos">
         <div className="kl-container">
-          <div className="kl-eyebrow">◆ Plataforma completa</div>
-          <h2 className="kl-section-title">
-            8 módulos.<br /><span className="kl-title-muted">Un solo sistema.</span>
-          </h2>
-          <p className="kl-section-sub">Desde que entra el pedido hasta que sale el despacho — todo conectado, todo visible. Click en cualquier módulo para ver la vista.</p>
+          <div className="kl-eyebrow">◆ Así funciona Kuadra</div>
+          <h2 className="kl-section-title">De la llamada<br /><span className="kl-title-muted">al despacho.</span></h2>
+          <p className="kl-section-sub">Cada pedido recorre 6 etapas. Click en cualquiera para ver qué módulo la gestiona y qué cambia.</p>
 
-          <div className="kl-modules-grid">
-            <div className="kl-module-list">
-              {modules.map((m, i) => (
-                <div
-                  key={i}
-                  className={`kl-module-item${active === i ? " kl-active" : ""}`}
-                  onClick={() => setActive(i)}
-                >
-                  <div className="kl-module-mark">{m.mark}</div>
-                  <div className="kl-module-text">
-                    <div className="kl-module-name">{m.name}</div>
-                    <div className="kl-module-desc">{m.desc}</div>
-                  </div>
-                  <div className="kl-module-arrow">→</div>
+          {/* FLOW NAV */}
+          <div className="kl-flow-nav">
+            {flowStages.map((s, i) => (
+              <button key={i} className={`kl-flow-step${flowStage === i ? " kl-fs-active" : i < flowStage ? " kl-fs-done" : ""}`} onClick={() => setFlowStage(i)}>
+                <div className="kl-fs-node kl-mono">
+                  {i < flowStage ? "✓" : s.step}
                 </div>
-              ))}
+                <div className="kl-fs-label">{s.label}</div>
+                {i < flowStages.length - 1 && <div className="kl-fs-line" />}
+              </button>
+            ))}
+          </div>
+
+          {/* FLOW PANEL */}
+          <div className="kl-flow-panel">
+            <div className="kl-flow-left">
+              <div className="kl-flow-stepnum kl-mono">{flowStages[flowStage].step} / 06</div>
+              <h3 className="kl-flow-title">{flowStages[flowStage].title}</h3>
+              <div className="kl-flow-module-pill kl-mono">◆ {flowStages[flowStage].module}</div>
+              <p className="kl-flow-desc">{flowStages[flowStage].desc}</p>
+              <div className="kl-flow-ba">
+                <div className="kl-benefit-row">
+                  <span className="kl-ba-label kl-ba-before kl-mono">ANTES</span>
+                  <span className="kl-benefit-before">{flowStages[flowStage].before}</span>
+                </div>
+                <div className="kl-benefit-row" style={{ marginTop: 8 }}>
+                  <span className="kl-ba-label kl-ba-after kl-mono">AHORA</span>
+                  <span className="kl-benefit-after">{flowStages[flowStage].after}</span>
+                </div>
+              </div>
+              <div className="kl-flow-nav-btns">
+                {flowStage > 0 && <button className="kl-flow-prev" onClick={() => setFlowStage(flowStage - 1)}>← Anterior</button>}
+                {flowStage < flowStages.length - 1 && <button className="kl-flow-next" onClick={() => setFlowStage(flowStage + 1)}>Siguiente →</button>}
+              </div>
             </div>
 
-            <div className="kl-mockup">
-              <div className="kl-mockup-bar">
-                <div className="kl-mockup-dots">
-                  <div className="kl-mockup-dot" style={{ background: "#ef4444" }} />
-                  <div className="kl-mockup-dot" style={{ background: "#f59e0b" }} />
-                  <div className="kl-mockup-dot" style={{ background: "#10b981" }} />
+            <div className="kl-flow-right">
+              <div className="kl-flow-mock">
+                <div className="kl-flow-mock-bar">
+                  <div style={{ display: "flex", gap: 5 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444" }} />
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b" }} />
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981" }} />
+                  </div>
+                  <div className="kl-flow-mock-url kl-mono">kuadra.app/{flowStages[flowStage].module.toLowerCase()}</div>
                 </div>
-                <div className="kl-mockup-url kl-mono">kuadra.app/dash</div>
-                <div className="kl-mockup-live kl-mono"><span className="kl-live-dot" />EN VIVO</div>
-              </div>
-              <div className="kl-mockup-content">
-                <div className="kl-mockup-header-row">
-                  <span className="kl-mockup-eyebrow kl-mono">PANEL DE PRODUCCIÓN · JUEVES 7 DE MAYO</span>
-                  <span className="kl-mockup-updated kl-mono">actualizado hace 59s</span>
-                </div>
-                <div className="kl-mockup-stats">
-                  {[
-                    { label: "Ingresados", val: "00", cls: "kl-mv-blue" },
-                    { label: "En cola", val: "04", cls: "kl-mv-accent" },
-                    { label: "En corte", val: "02", cls: "kl-mv-warn" },
-                    { label: "Listos", val: "12", cls: "kl-mv-ok" },
-                  ].map((s) => (
-                    <div key={s.label} className="kl-mockup-stat">
-                      <div className="kl-mockup-stat-label kl-mono">{s.label}</div>
-                      <div className={`kl-mockup-stat-val ${s.cls}`}>{s.val}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="kl-mockup-machines">
-                  {[
-                    { name: "Máquina 1", status: "OPERATIVA", order: "GL Santamaria · Cocina 303", planchas: "8.5", piezas: "163", pct: 65 },
-                    { name: "Máquina 2", status: "OPERATIVA", order: "Yammy Guillén", planchas: "2.5", piezas: "35", pct: 30 },
-                    { name: "Máquina 3", status: "LIBRE", order: null, planchas: null, piezas: null, pct: 0 },
-                  ].map((m) => (
-                    <div key={m.name} className="kl-mockup-machine">
-                      <div className="kl-mockup-machine-top">
-                        <span className="kl-mockup-machine-name kl-mono">{m.name}</span>
-                        <span className={`kl-machine-status-badge kl-mono ${m.status === "LIBRE" ? "kl-status-libre" : "kl-status-activa"}`}>
-                          <span className={`kl-status-dot ${m.status === "LIBRE" ? "kl-dot-libre" : "kl-dot-activa"}`} />
-                          {m.status}
-                        </span>
+                <div className="kl-flow-mock-body">
+                  {flowStage === 0 && (
+                    <>
+                      <div className="kl-fm-header kl-mono">NUEVO PEDIDO · #2847</div>
+                      <div className="kl-fm-fields">
+                        {[["CLIENTE","GL Santamaría",false],["MATERIAL","MDF 15mm · Blanco",false],["PLANCHAS","8.5",true],["PIEZAS","163",true],["ENTREGA","12 mayo 2026",false]].map(([l,v,a]) => (
+                          <div key={String(l)} className="kl-fm-field">
+                            <span className="kl-fm-label kl-mono">{String(l)}</span>
+                            <span className={`kl-fm-val${a ? " kl-fm-accent" : ""}`}>{String(v)}</span>
+                          </div>
+                        ))}
                       </div>
-                      {m.order ? (
-                        <>
-                          <div className="kl-mockup-order-name">{m.order}</div>
-                          <div className="kl-mockup-order-nums">
-                            <span className="kl-mockup-order-num kl-mono">{m.planchas} <span className="kl-mockup-unit">planchas</span></span>
-                            <span className="kl-mockup-order-num kl-mono">{m.piezas} <span className="kl-mockup-unit">piezas</span></span>
+                      <div className="kl-fm-status"><span className="kl-fm-dot-green" /><span className="kl-mono">INGRESADO</span></div>
+                    </>
+                  )}
+                  {flowStage === 1 && (
+                    <>
+                      <div className="kl-fm-header kl-mono">PANEL EN VIVO · 7 MAYO</div>
+                      <div className="kl-fm-stats4">
+                        {[["EN COLA","28","kl-fm-accent"],["EN CORTE","04","kl-fm-warn"],["LISTOS","12","kl-fm-ok"],["TOTAL HOY","18",""]].map(([l,v,c]) => (
+                          <div key={String(l)} className="kl-fm-stat">
+                            <div className="kl-fm-stat-label kl-mono">{String(l)}</div>
+                            <div className={`kl-fm-stat-val ${String(c)}`}>{String(v)}</div>
                           </div>
-                          <div className="kl-progress-outer">
-                            <div className="kl-progress-inner" style={{ width: `${m.pct}%` }} />
+                        ))}
+                      </div>
+                      <div className="kl-fm-machines">
+                        {[["M1","GL Santamaría","activa"],["M2","Yammy Guillén","activa"],["M3","Sin pedidos","libre"]].map(([m,o,s]) => (
+                          <div key={String(m)} className="kl-fm-machine-row">
+                            <span className="kl-fm-m-name kl-mono">{String(m)}</span>
+                            <span className="kl-fm-m-order">{String(o)}</span>
+                            <span className={`kl-fm-m-dot ${String(s) === "libre" ? "kl-fm-dot-gray" : "kl-fm-dot-green"}`} />
                           </div>
-                        </>
-                      ) : (
-                        <div className="kl-mockup-empty">Sin pedidos activos</div>
-                      )}
-                    </div>
-                  ))}
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {flowStage === 2 && (
+                    <>
+                      <div className="kl-fm-header kl-mono">PRODUCCIÓN · MÁQUINA 1</div>
+                      <div className="kl-fm-machine-card">
+                        <div className="kl-fm-mc-top">
+                          <span className="kl-fm-mc-name kl-mono">GL Santamaría · Cocina 303</span>
+                          <span className="kl-fm-mc-status"><span className="kl-fm-dot-green" /><span className="kl-mono">EN CORTE</span></span>
+                        </div>
+                        <div className="kl-fm-mc-nums">
+                          <div><span className="kl-fm-big">8.5</span><span className="kl-fm-unit"> planchas</span></div>
+                          <div><span className="kl-fm-big">163</span><span className="kl-fm-unit"> piezas</span></div>
+                        </div>
+                        <div className="kl-fm-progress-label kl-mono">65% completado</div>
+                        <div className="kl-fm-progress"><div className="kl-fm-progress-fill" style={{ width: "65%" }} /></div>
+                      </div>
+                      <div className="kl-fm-field" style={{ marginTop: 12 }}>
+                        <span className="kl-fm-label kl-mono">OPERARIO</span>
+                        <span className="kl-fm-val">Juan Pérez</span>
+                      </div>
+                    </>
+                  )}
+                  {flowStage === 3 && (
+                    <>
+                      <div className="kl-fm-header kl-mono">RENDIMIENTO · HOY</div>
+                      {[["M1",91,65],["M2",74,30],["M3",0,0]].map(([m,pct,filled]) => (
+                        <div key={String(m)} className="kl-fm-rend-row">
+                          <span className="kl-fm-r-name kl-mono">{String(m)}</span>
+                          <div className="kl-fm-r-bar-wrap">
+                            <div className="kl-fm-progress"><div className="kl-fm-progress-fill" style={{ width: `${filled}%` }} /></div>
+                          </div>
+                          <span className={`kl-fm-r-pct kl-mono${Number(pct) >= 80 ? " kl-fm-ok" : Number(pct) > 0 ? " kl-fm-warn" : ""}`}>{pct}%</span>
+                        </div>
+                      ))}
+                      <div className="kl-fm-field" style={{ marginTop: 16 }}>
+                        <span className="kl-fm-label kl-mono">PROMEDIO TALLER</span>
+                        <span className="kl-fm-val kl-fm-ok" style={{ fontSize: 22, fontWeight: 700 }}>83%</span>
+                      </div>
+                      <div className="kl-fm-field">
+                        <span className="kl-fm-label kl-mono">VS IDEAL</span>
+                        <span className="kl-fm-val" style={{ fontSize: 13 }}>42.5 / 55 planchas</span>
+                      </div>
+                    </>
+                  )}
+                  {flowStage === 4 && (
+                    <>
+                      <div className="kl-fm-header kl-mono">HISTORIAL · #2847</div>
+                      <div className="kl-fm-timeline">
+                        {[
+                          ["✓","Ingresado","08:14","Rosa M.","ok"],
+                          ["✓","En cola","09:00","sistema","ok"],
+                          ["✓","Al corte","10:22","Juan P.","ok"],
+                          ["✓","Terminado","14:15","Juan P.","ok"],
+                          ["✓","Despachado","15:30","Carlos L.","ok"],
+                        ].map(([icon,label,time,who,cls]) => (
+                          <div key={String(label)} className="kl-fm-tl-row">
+                            <span className={`kl-fm-tl-icon kl-mono kl-fm-${String(cls)}`}>{String(icon)}</span>
+                            <span className="kl-fm-tl-label">{String(label)}</span>
+                            <span className="kl-fm-tl-time kl-mono">{String(time)}</span>
+                            <span className="kl-fm-tl-who kl-mono">{String(who)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="kl-fm-field" style={{ marginTop: 12 }}>
+                        <span className="kl-fm-label kl-mono">TIEMPO TOTAL</span>
+                        <span className="kl-fm-val">7h 16m</span>
+                      </div>
+                    </>
+                  )}
+                  {flowStage === 5 && (
+                    <>
+                      <div className="kl-fm-header kl-mono">REPORTE · 7 MAYO 2026</div>
+                      <div className="kl-fm-fields">
+                        {[["PEDIDOS","18",true],["PLANCHAS TOTALES","42.5",false],["PIEZAS TOTALES","847",false],["RENDIMIENTO PROM.","87%",true]].map(([l,v,a]) => (
+                          <div key={String(l)} className="kl-fm-field">
+                            <span className="kl-fm-label kl-mono">{String(l)}</span>
+                            <span className={`kl-fm-val${a ? " kl-fm-ok" : ""}`} style={a ? { fontSize: 20, fontWeight: 700 } : {}}>{String(v)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="kl-fm-export kl-mono">⬇ EXPORTAR PDF</div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -665,6 +786,201 @@ const css = `
 .kl-progress-outer { height: 2px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
 .kl-progress-inner { height: 100%; background: var(--accent); border-radius: 99px; }
 .kl-mockup-empty { font-size: 9px; color: rgba(255,255,255,0.18); padding: 12px 0; text-align: center; }
+
+/* FLOW SECTION */
+.kl-flow-section {
+  background: var(--white);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 96px 48px;
+}
+
+/* Flow Nav — horizontal stepper */
+.kl-flow-nav {
+  display: flex; align-items: flex-start;
+  margin: 48px 0 40px; position: relative;
+}
+.kl-flow-step {
+  display: flex; flex-direction: column; align-items: center;
+  background: none; border: none; cursor: pointer;
+  position: relative; flex: 1; padding: 0;
+}
+.kl-fs-node {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  border: 1.5px solid var(--border2);
+  background: var(--white); color: var(--ink3);
+  transition: all .2s; z-index: 1; position: relative;
+}
+.kl-flow-step.kl-fs-active .kl-fs-node {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.kl-flow-step.kl-fs-done .kl-fs-node {
+  background: var(--ink); border-color: var(--ink); color: #fff;
+}
+.kl-fs-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink3);
+  margin-top: 8px; text-align: center;
+}
+.kl-flow-step.kl-fs-active .kl-fs-label { color: var(--accent); }
+.kl-flow-step.kl-fs-done .kl-fs-label { color: var(--ink); }
+.kl-fs-line {
+  position: absolute; top: 18px; left: 50%;
+  width: 100%; height: 1px;
+  background: var(--border2); z-index: 0;
+}
+.kl-flow-step.kl-fs-done .kl-fs-line { background: var(--ink); }
+
+/* Flow Panel */
+.kl-flow-panel {
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: 56px; align-items: start;
+}
+.kl-flow-left { padding-top: 8px; }
+.kl-flow-stepnum {
+  font-size: 10px; color: var(--ink3); letter-spacing: 0.06em; margin-bottom: 12px;
+}
+.kl-flow-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(22px, 2.8vw, 34px);
+  line-height: 1.1; letter-spacing: -0.01em;
+  color: var(--ink); margin-bottom: 14px;
+}
+.kl-flow-module-pill {
+  display: inline-block;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--accent);
+  background: rgba(200,71,42,0.08); border: 1px solid rgba(200,71,42,0.2);
+  border-radius: 99px; padding: 4px 12px; margin-bottom: 18px;
+}
+.kl-flow-desc {
+  font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 20px;
+}
+.kl-flow-ba {
+  background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 24px;
+}
+.kl-flow-nav-btns { display: flex; gap: 8px; }
+.kl-flow-prev, .kl-flow-next {
+  padding: 10px 20px; border-radius: 99px;
+  font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all .15s;
+}
+.kl-flow-prev {
+  border: 1px solid var(--border2); background: transparent; color: var(--ink);
+}
+.kl-flow-prev:hover { border-color: var(--ink); }
+.kl-flow-next {
+  border: 1px solid var(--ink); background: var(--ink); color: var(--bg);
+}
+.kl-flow-next:hover { background: var(--accent); border-color: var(--accent); }
+
+/* Flow Mockup */
+.kl-flow-mock {
+  background: var(--ink); border-radius: 18px;
+  overflow: hidden; box-shadow: 0 20px 60px rgba(26,23,20,0.18);
+  min-height: 360px;
+}
+.kl-flow-mock-bar {
+  background: rgba(255,255,255,0.04); padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.kl-flow-mock-url {
+  font-size: 10px; color: rgba(255,255,255,0.25); flex: 1; text-align: center;
+}
+.kl-flow-mock-body { padding: 20px; }
+
+/* Mockup shared */
+.kl-fm-header {
+  font-size: 9px; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;
+}
+.kl-fm-fields { display: flex; flex-direction: column; gap: 0; }
+.kl-fm-field {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.kl-fm-label { font-size: 9px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.06em; }
+.kl-fm-val { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; }
+.kl-fm-accent { color: #fbbf24 !important; }
+.kl-fm-ok { color: #34d399 !important; }
+.kl-fm-warn { color: #f87171 !important; }
+.kl-fm-status {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 16px; font-size: 10px; color: #34d399; letter-spacing: 0.06em;
+}
+.kl-fm-dot-green {
+  width: 6px; height: 6px; border-radius: 50%; background: #34d399;
+  display: inline-block; flex-shrink: 0;
+}
+.kl-fm-dot-gray {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); display: inline-block; flex-shrink: 0;
+}
+
+/* Stage 1 — dashboard stats */
+.kl-fm-stats4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
+.kl-fm-stat { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; }
+.kl-fm-stat-label { font-size: 7px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.kl-fm-stat-val { font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.85); }
+.kl-fm-machines { display: flex; flex-direction: column; gap: 4px; }
+.kl-fm-machine-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.04);
+}
+.kl-fm-m-name { font-size: 10px; color: rgba(255,255,255,0.5); flex-shrink: 0; width: 24px; }
+.kl-fm-m-order { font-size: 12px; color: rgba(255,255,255,0.7); flex: 1; }
+.kl-fm-m-dot { flex-shrink: 0; }
+
+/* Stage 2 — machine card */
+.kl-fm-machine-card {
+  background: rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; margin-bottom: 4px;
+}
+.kl-fm-mc-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.kl-fm-mc-name { font-size: 10px; color: rgba(255,255,255,0.5); }
+.kl-fm-mc-status {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 9px; color: #34d399; letter-spacing: 0.06em;
+}
+.kl-fm-mc-nums { display: flex; gap: 24px; margin-bottom: 14px; }
+.kl-fm-big { font-size: 28px; font-weight: 700; color: rgba(255,255,255,0.85); }
+.kl-fm-unit { font-size: 10px; color: rgba(255,255,255,0.3); }
+.kl-fm-progress {
+  height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;
+}
+.kl-fm-progress-fill {
+  height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s ease;
+}
+.kl-fm-progress-label { font-size: 9px; color: rgba(255,255,255,0.35); margin-bottom: 6px; }
+
+/* Stage 3 — rendimiento */
+.kl-fm-rend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.kl-fm-r-name { font-size: 10px; color: rgba(255,255,255,0.4); width: 24px; flex-shrink: 0; }
+.kl-fm-r-bar-wrap { flex: 1; }
+.kl-fm-r-pct { font-size: 12px; font-weight: 600; width: 36px; text-align: right; flex-shrink: 0; color: rgba(255,255,255,0.5); }
+
+/* Stage 4 — timeline */
+.kl-fm-timeline { display: flex; flex-direction: column; gap: 0; }
+.kl-fm-tl-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.kl-fm-tl-icon { font-size: 10px; flex-shrink: 0; width: 14px; }
+.kl-fm-tl-label { font-size: 12px; color: rgba(255,255,255,0.7); flex: 1; }
+.kl-fm-tl-time { font-size: 10px; color: rgba(255,255,255,0.3); }
+.kl-fm-tl-who { font-size: 10px; color: rgba(255,255,255,0.2); width: 60px; text-align: right; }
+
+/* Stage 5 — export */
+.kl-fm-export {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 16px; padding: 8px 14px; border-radius: 8px;
+  border: 1px solid rgba(200,71,42,0.4);
+  font-size: 10px; color: var(--accent); letter-spacing: 0.08em; cursor: pointer;
+}
 
 /* BENEFITS */
 .kl-benefits-section { padding: 96px 48px; background: var(--bg); }
