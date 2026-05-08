@@ -527,12 +527,20 @@ export default function Page() {
 
       {/* FOOTER */}
       <footer className="kl-footer">
-        <div className="kl-footer-logo">
-          <div className="kl-footer-mark">K</div>
-          <span className="kl-footer-name">Kuadra</span>
+        <div className="kl-footer-sep" />
+        <div className="kl-footer-apps">
+          {[
+            { name: "Domia",   url: "https://domia-ryg.vercel.app/" },
+            { name: "Gestrik", url: "https://gestrick.vercel.app/" },
+            { name: "RyGinmo", url: "https://www.ryginmo.com/" },
+            { name: "Kuadra",  url: "/" },
+          ].map((a) => (
+            <a key={a.name} href={a.url} target={a.url === "/" ? "_self" : "_blank"} rel="noopener noreferrer" className={`kl-footer-app${a.url === "/" ? " kl-footer-app-current" : ""}`}>{a.name}</a>
+          ))}
         </div>
-        <div className="kl-footer-copy kl-mono">© 2026 Kuadra · RyG SaaS</div>
-        <div className="kl-footer-ryg kl-mono">CONSTRUIDO CON OFICIO · QUITO, EC</div>
+        <div className="kl-footer-love kl-mono">
+          CONSTRUIDO CON <span className="kl-footer-heart">♥</span> POR RyG SaaS · QUITO, EC · © 2026
+        </div>
       </footer>
     </div>
   );
@@ -1291,20 +1299,28 @@ const css = `
 
 /* FOOTER */
 .kl-footer {
-  background: var(--white);
-  border-top: 1px solid var(--border);
-  padding: 24px 48px;
-  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg);
+  padding: 0 48px 40px;
+  text-align: center;
 }
-.kl-footer-logo { display: flex; align-items: center; gap: 8px; }
-.kl-footer-mark {
-  width: 26px; height: 26px; border-radius: 6px;
-  background: var(--accent);
+.kl-footer-sep {
+  height: 1px; background: var(--border); margin-bottom: 40px;
+}
+.kl-footer-apps {
   display: flex; align-items: center; justify-content: center;
-  font-family: 'JetBrains Mono', monospace; font-weight: 600;
-  color: #fff; font-size: 11px;
+  gap: 32px; margin-bottom: 20px;
 }
-.kl-footer-name { font-family: 'Instrument Serif', serif; font-size: 16px; color: var(--ink); }
-.kl-footer-copy { font-size: 11px; color: var(--ink3); }
-.kl-footer-ryg { font-size: 10px; color: var(--ink3); letter-spacing: 0.06em; }
+.kl-footer-app {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px; font-style: italic; letter-spacing: -0.01em;
+  color: var(--ink3); text-decoration: none;
+  transition: color .15s;
+}
+.kl-footer-app:hover { color: var(--ink); }
+.kl-footer-app-current { color: var(--ink); font-weight: 400; }
+.kl-footer-love {
+  font-size: 10px; color: var(--ink3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.kl-footer-heart { color: var(--accent); font-size: 12px; }
 `;
