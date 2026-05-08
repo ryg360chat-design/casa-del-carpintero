@@ -391,10 +391,18 @@ export default function Page() {
           <h2 className="kl-section-title kl-title-center">El plan que se adapta<br /><span className="kl-title-muted">a tu taller.</span></h2>
           <p className="kl-section-sub kl-sub-center">7 días de prueba gratis · Activación única $1,300</p>
           <div className="kl-billing-toggle">
-            <button className={`kl-billing-btn${billing === "mensual" ? " kl-billing-active" : ""}`} onClick={() => setBilling("mensual")}>Mensual</button>
-            <button className={`kl-billing-btn${billing === "anual" ? " kl-billing-active" : ""}`} onClick={() => setBilling("anual")}>
-              Anual <span className="kl-billing-badge">-15%</span>
-            </button>
+            <button
+              type="button"
+              className="kl-billing-btn"
+              style={billing === "mensual" ? { background: "var(--ink)", color: "var(--bg)" } : {}}
+              onClick={() => setBilling("mensual")}
+            >Mensual</button>
+            <button
+              type="button"
+              className="kl-billing-btn"
+              style={billing === "anual" ? { background: "var(--ink)", color: "var(--bg)" } : {}}
+              onClick={() => setBilling("anual")}
+            >Anual <span className="kl-billing-badge">-15%</span></button>
           </div>
           <div className="kl-pricing-grid">
 
