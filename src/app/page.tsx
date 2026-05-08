@@ -67,10 +67,10 @@ const benefits = [
 ];
 
 const ecoApps = [
-  { letter: "D", name: "Domia", desc: "Gestión de condominios y conjuntos residenciales.", color: "#dcfce7", current: false },
-  { letter: "G", name: "Gestrik", desc: "Control de proyectos de construcción e ingeniería civil.", color: "#ffe4e6", current: false },
-  { letter: "R", name: "ryginmo", desc: "Plataforma de gestión inmobiliaria y activos en renta.", color: "#dbeafe", current: false },
-  { letter: "K", name: "Kuadra", desc: "Sistema de gestión para talleres de corte y carpintería.", color: "#fef3c7", current: true },
+  { name: "Domia", desc: "Gestión de condominios y conjuntos residenciales.", color: "#dcfce7", textColor: "#166534", url: "https://domia-ryg.vercel.app/", current: false },
+  { name: "Gestrik", desc: "Control de proyectos de construcción e ingeniería civil.", color: "#ffe4e6", textColor: "#9f1239", url: "https://gestrick.vercel.app/", current: false },
+  { name: "RyGinmo", desc: "Plataforma de gestión inmobiliaria y activos en renta.", color: "#dbeafe", textColor: "#1e40af", url: "https://www.ryginmo.com/", current: false },
+  { name: "Kuadra", desc: "Sistema de gestión para talleres de corte y carpintería.", color: "#fef3c7", textColor: "#92400e", url: "", current: true },
 ];
 
 export default function Page() {
@@ -490,15 +490,19 @@ export default function Page() {
           <h2 className="kl-section-title kl-title-center">El ecosistema <em className="kl-em-accent">RyG SaaS</em></h2>
           <p className="kl-section-sub kl-sub-center">Herramientas verticales para industrias específicas. Misma calidad, mismo estándar.</p>
           <div className="kl-eco-grid">
-            {ecoApps.map((e) => (
-              <div key={e.name} className={`kl-eco-card${e.current ? " kl-eco-current" : ""}`}>
-                <div className="kl-eco-mark" style={{ background: e.color }}>{e.letter}</div>
+            {ecoApps.map((e, i) => (
+              <div key={e.name} className={`kl-eco-card${e.current ? " kl-eco-current" : ""}`} style={{ animationDelay: `${i * 0.1}s` }}>
+                <div className="kl-eco-mark" style={{ background: e.color }}>
+                  <span className="kl-eco-wordmark" style={{ color: e.textColor }}>{e.name}</span>
+                </div>
                 <div className="kl-eco-activo kl-mono">● ACTIVO</div>
                 <div className="kl-eco-name">{e.name}</div>
                 <div className="kl-eco-desc">{e.desc}</div>
-                <div className={`kl-eco-link kl-mono${e.current ? " kl-eco-link-here" : ""}`}>
-                  {e.current ? "● ESTÁS AQUÍ" : "VER PLATAFORMA →"}
-                </div>
+                {e.current ? (
+                  <div className="kl-eco-link kl-mono kl-eco-link-here kl-eco-here-badge">● ESTÁS AQUÍ</div>
+                ) : (
+                  <a href={e.url} target="_blank" rel="noopener noreferrer" className="kl-eco-link kl-mono kl-eco-cta">VER PLATAFORMA →</a>
+                )}
               </div>
             ))}
           </div>
@@ -1183,27 +1187,61 @@ const css = `
 .kl-ptrial { font-size: 11px; color: var(--ink3); margin-top: 10px; text-align: center; }
 .kl-ptrial-inv { color: rgba(255,255,255,0.3); }
 
+/* ANIMATIONS */
+@keyframes klFadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes klFadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes klHerePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(200,71,42,0); }
+  50%     { box-shadow: 0 0 0 8px rgba(200,71,42,0.12); }
+}
+.kl-hero-title    { animation: klFadeUp .7s ease both; }
+.kl-eyebrow       { animation: klFadeIn .5s ease both; }
+.kl-hero-bottom   { animation: klFadeUp .7s ease .18s both; }
+.kl-metrics-strip { animation: klFadeIn .6s ease .35s both; }
+
 /* ECOSYSTEM */
 .kl-ecosystem-section { padding: 96px 48px; background: var(--bg); }
-.kl-eco-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-top: 48px; }
+.kl-eco-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-top: 48px; }
 .kl-eco-card {
   background: var(--white); border: 1px solid var(--border);
-  border-radius: 18px; padding: 24px; transition: all .2s;
+  border-radius: 20px; padding: 24px;
+  transition: box-shadow .25s, transform .25s, border-color .25s;
+  animation: klFadeUp .55s ease both;
 }
-.kl-eco-card:hover { box-shadow: 0 4px 24px rgba(26,23,20,0.07); transform: translateY(-2px); }
-.kl-eco-current { border-color: var(--accent); border-width: 1.5px; }
+.kl-eco-card:hover {
+  box-shadow: 0 12px 40px rgba(26,23,20,0.10);
+  transform: translateY(-5px); border-color: var(--border2);
+}
+.kl-eco-current {
+  border-color: var(--accent); border-width: 1.5px;
+  animation: klHerePulse 2.8s ease infinite, klFadeUp .55s ease both;
+}
 .kl-eco-mark {
-  width: 40px; height: 40px; border-radius: 10px;
+  width: 100%; height: 52px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Instrument Serif', serif; font-size: 18px;
-  color: var(--ink); margin-bottom: 12px;
-  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  transition: transform .2s;
 }
-.kl-eco-activo { font-size: 10px; color: #16a34a; margin-bottom: 10px; display: block; }
+.kl-eco-card:hover .kl-eco-mark { transform: scale(1.03); }
+.kl-eco-wordmark {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px; font-style: italic; letter-spacing: -0.02em;
+}
+.kl-eco-activo { font-size: 10px; color: #16a34a; margin-bottom: 10px; display: block; letter-spacing: 0.04em; }
 .kl-eco-name { font-family: 'Instrument Serif', serif; font-size: 20px; color: var(--ink); margin-bottom: 6px; }
 .kl-eco-desc { font-size: 12px; color: var(--ink2); line-height: 1.55; }
-.kl-eco-link { font-size: 11px; font-weight: 500; color: var(--ink3); margin-top: 14px; display: block; letter-spacing: 0.04em; }
+.kl-eco-link { font-size: 11px; font-weight: 500; color: var(--ink3); margin-top: 16px; display: block; letter-spacing: 0.04em; }
 .kl-eco-link-here { color: var(--accent); }
+.kl-eco-here-badge { animation: klHerePulse 2.8s ease infinite; display: inline-block; }
+.kl-eco-cta {
+  text-decoration: none; transition: color .15s;
+}
+.kl-eco-cta:hover { color: var(--ink); }
 
 /* CTA */
 .kl-cta-section {
