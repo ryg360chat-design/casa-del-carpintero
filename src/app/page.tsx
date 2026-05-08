@@ -99,9 +99,9 @@ export default function Page() {
   }, []);
 
   const prices = {
-    basico: billing === "mensual" ? 299 : 254,
-    profesional: billing === "mensual" ? 499 : 424,
-    empresarial: billing === "mensual" ? 899 : 764,
+    basico: billing === "mensual" ? 300 : 255,
+    profesional: billing === "mensual" ? 500 : 425,
+    empresarial: billing === "mensual" ? 900 : 765,
   };
 
   return (
@@ -389,7 +389,7 @@ export default function Page() {
         <div className="kl-container">
           <div className="kl-eyebrow kl-eyebrow-center">◆ Inversión transparente</div>
           <h2 className="kl-section-title kl-title-center">El plan que se adapta<br /><span className="kl-title-muted">a tu taller.</span></h2>
-          <p className="kl-section-sub kl-sub-center">14 días de prueba gratuita · Sin costos de activación</p>
+          <p className="kl-section-sub kl-sub-center">7 días de prueba gratis · Activación única $1,300</p>
           <div className="kl-billing-toggle">
             <button className={`kl-billing-btn${billing === "mensual" ? " kl-billing-active" : ""}`} onClick={() => setBilling("mensual")}>Mensual</button>
             <button className={`kl-billing-btn${billing === "anual" ? " kl-billing-active" : ""}`} onClick={() => setBilling("anual")}>
@@ -397,54 +397,80 @@ export default function Page() {
             </button>
           </div>
           <div className="kl-pricing-grid">
+
+            {/* BÁSICO */}
             <div className="kl-pricing-card">
               <div className="kl-ptier kl-mono">Básico</div>
               <div className="kl-pfor">Para empezar</div>
-              <div className="kl-pprice"><sup>$</sup>{prices.basico}<span>/mes</span></div>
-              <div className="kl-psub">2 máquinas · hasta 5 usuarios</div>
-              <div className="kl-pdivider" />
-              <ul className="kl-pfeatures">
-                {["Panel de control", "Gestión de pedidos + historial", "Producción en tiempo real", "Marcar como listo directo", "Vista por día", "3 roles básicos"].map(f => (
-                  <li key={f} className="kl-pfeature"><span className="kl-pcheck">✓</span>{f}</li>
-                ))}
-                {["Rendimiento avanzado", "Reporte PDF"].map(f => (
-                  <li key={f} className="kl-pfeature kl-pfeature-off"><span className="kl-pno">—</span>{f}</li>
-                ))}
-              </ul>
+              <div className="kl-pprice">
+                <span className="kl-psign">$</span>
+                <span className="kl-pnum">{prices.basico}</span>
+                <span className="kl-pperiod">/mes</span>
+              </div>
+              <div className="kl-psub">3 máquinas · 5 usuarios · 1 GB</div>
+              <div className="kl-pact kl-mono">+ $1,300 activación única</div>
+              <div className="kl-pexpand">
+                <div className="kl-pdivider" />
+                <ul className="kl-pfeatures">
+                  {["Crear, editar y cancelar pedidos", "Vista de producción en columnas", "Avances de producción", "Vista de pedidos por día", "Historial de pedidos", "Marcado como listo directo"].map(f => (
+                    <li key={f} className="kl-pfeature"><span className="kl-pcheck">✓</span>{f}</li>
+                  ))}
+                  {["Dashboard de rendimiento", "Reporte PDF"].map(f => (
+                    <li key={f} className="kl-pfeature kl-pfeature-off"><span className="kl-pno">—</span>{f}</li>
+                  ))}
+                </ul>
+              </div>
               <Link href="/dashboard" className="kl-pbtn kl-pbtn-outline">Solicitar demo →</Link>
-              <div className="kl-ptrial kl-mono">Prueba 14 días gratis</div>
+              <div className="kl-ptrial kl-mono">7 días de prueba gratis</div>
             </div>
 
+            {/* PROFESIONAL */}
             <div className="kl-pricing-card kl-pfeatured">
               <div className="kl-ppopular kl-mono">POPULAR</div>
               <div className="kl-ptier kl-mono kl-ptier-inv">Profesional</div>
               <div className="kl-pfor kl-pfor-inv">Para crecer</div>
-              <div className="kl-pprice kl-pprice-inv"><sup>$</sup>{prices.profesional}<span>/mes</span></div>
-              <div className="kl-psub kl-psub-inv">3 máquinas · usuarios ilimitados</div>
-              <div className="kl-pdivider kl-pdivider-inv" />
-              <ul className="kl-pfeatures">
-                {["Todo lo del plan Básico", "Analítica de rendimiento", "Calendario de entregas", "Reporte diario + PDF", "Todos los roles del sistema", "Módulo Financiero"].map(f => (
-                  <li key={f} className="kl-pfeature kl-pfeature-inv"><span className="kl-pcheck-inv">✓</span>{f}</li>
-                ))}
-              </ul>
+              <div className="kl-pprice kl-pprice-inv">
+                <span className="kl-psign">$</span>
+                <span className="kl-pnum">{prices.profesional}</span>
+                <span className="kl-pperiod">/mes</span>
+              </div>
+              <div className="kl-psub kl-psub-inv">5 máquinas · 10 usuarios · 5 GB</div>
+              <div className="kl-pact kl-mono kl-pact-inv">+ $1,300 activación única</div>
+              <div className="kl-pexpand">
+                <div className="kl-pdivider kl-pdivider-inv" />
+                <ul className="kl-pfeatures">
+                  {["Todo lo del plan Básico", "Dashboard rendimiento por máquina", "Reporte diario + PDF imprimible", "Calendario de entrega", "Historial de cada pedido", "Múltiples materiales por pedido", "Módulo Financiero"].map(f => (
+                    <li key={f} className="kl-pfeature kl-pfeature-inv"><span className="kl-pcheck-inv">✓</span>{f}</li>
+                  ))}
+                </ul>
+              </div>
               <Link href="/dashboard" className="kl-pbtn kl-pbtn-inv">Solicitar demo →</Link>
-              <div className="kl-ptrial kl-mono kl-ptrial-inv">Prueba 14 días gratis</div>
+              <div className="kl-ptrial kl-mono kl-ptrial-inv">7 días de prueba gratis</div>
             </div>
 
+            {/* EMPRESARIAL */}
             <div className="kl-pricing-card">
               <div className="kl-ptier kl-mono">Empresarial</div>
               <div className="kl-pfor">Para escalar</div>
-              <div className="kl-pprice"><sup>$</sup>{prices.empresarial}<span>/mes</span></div>
-              <div className="kl-psub">Máquinas ilimitadas · todo incluido</div>
-              <div className="kl-pdivider" />
-              <ul className="kl-pfeatures">
-                {["Todo lo del plan Profesional", "CRM de Clientes", "Módulo Inventario", "Historial de reportes", "Exportar CSV / Excel", "Personalización de la herramienta"].map(f => (
-                  <li key={f} className="kl-pfeature"><span className="kl-pcheck">✓</span>{f}</li>
-                ))}
-              </ul>
+              <div className="kl-pprice">
+                <span className="kl-psign">$</span>
+                <span className="kl-pnum">{prices.empresarial}</span>
+                <span className="kl-pperiod">/mes</span>
+              </div>
+              <div className="kl-psub">8 máquinas · 20 usuarios · 20 GB</div>
+              <div className="kl-pact kl-mono">+ $1,300 activación única</div>
+              <div className="kl-pexpand">
+                <div className="kl-pdivider" />
+                <ul className="kl-pfeatures">
+                  {["Todo lo del plan Profesional", "Exportar CSV / Excel", "Roles personalizados", "Multisucursal", "CRM de clientes", "Módulo Inventario", "Personalización de la herramienta"].map(f => (
+                    <li key={f} className="kl-pfeature"><span className="kl-pcheck">✓</span>{f}</li>
+                  ))}
+                </ul>
+              </div>
               <Link href="/dashboard" className="kl-pbtn kl-pbtn-outline">Solicitar demo →</Link>
               <div className="kl-ptrial kl-mono">Demo personalizada</div>
             </div>
+
           </div>
         </div>
       </section>
@@ -1077,20 +1103,21 @@ const css = `
   display: grid; grid-template-columns: repeat(3,1fr);
   gap: 14px; max-width: 900px;
   margin-left: auto; margin-right: auto;
+  align-items: start;
 }
 .kl-pricing-card {
   background: var(--bg); border: 1px solid var(--border);
   border-radius: 18px; padding: 28px; position: relative;
-  transition: all .2s;
+  transition: box-shadow .2s, border-color .2s;
+  cursor: pointer;
 }
-.kl-pricing-card:hover { box-shadow: 0 4px 24px rgba(26,23,20,0.07); }
+.kl-pricing-card:not(.kl-pfeatured):hover { box-shadow: 0 8px 32px rgba(26,23,20,0.10); border-color: var(--border2); }
 .kl-pfeatured { background: var(--ink); border: 2px solid var(--ink); }
-.kl-ptier { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 20px; }
+
+/* Tier + for */
+.kl-ptier { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 16px; }
 .kl-ptier-inv { color: var(--accent); }
-.kl-pfor {
-  font-family: 'Instrument Serif', serif;
-  font-size: 20px; font-style: italic; color: var(--accent); margin-bottom: 10px;
-}
+.kl-pfor { font-family: 'Instrument Serif', serif; font-size: 18px; font-style: italic; color: var(--accent); margin-bottom: 8px; }
 .kl-pfor-inv { color: var(--accent); }
 .kl-ppopular {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
@@ -1098,28 +1125,46 @@ const css = `
   font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
   padding: 4px 14px; border-radius: 99px; white-space: nowrap;
 }
-.kl-pprice {
-  font-family: 'Instrument Serif', serif;
-  font-size: 52px; color: var(--ink); line-height: 1; letter-spacing: -0.02em; margin-bottom: 6px;
-}
-.kl-pprice sup { font-size: 22px; vertical-align: top; margin-top: 10px; font-family: 'Inter', sans-serif; }
-.kl-pprice span { font-size: 14px; color: var(--ink3); letter-spacing: 0; font-family: 'Inter', sans-serif; }
-.kl-pprice-inv { color: var(--accent); }
-.kl-pprice-inv span { color: rgba(255,255,255,0.4); }
-.kl-psub { font-size: 12px; color: var(--ink3); margin-bottom: 20px; }
+
+/* Price — sin superíndice problemático */
+.kl-pprice { display: flex; align-items: flex-end; gap: 2px; margin-bottom: 6px; line-height: 1; }
+.kl-psign { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500; color: var(--ink3); padding-bottom: 10px; }
+.kl-pnum { font-family: 'Instrument Serif', serif; font-size: 54px; line-height: 1; letter-spacing: -0.02em; color: var(--ink); }
+.kl-pperiod { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink3); padding-bottom: 8px; }
+.kl-pprice-inv .kl-psign { color: rgba(255,255,255,0.4); }
+.kl-pprice-inv .kl-pnum { color: var(--accent); }
+.kl-pprice-inv .kl-pperiod { color: rgba(255,255,255,0.35); }
+
+.kl-psub { font-size: 12px; color: var(--ink3); margin-bottom: 4px; }
 .kl-psub-inv { color: rgba(255,255,255,0.35); }
-.kl-pdivider { height: 1px; background: var(--border); margin-bottom: 20px; }
+.kl-pact { font-size: 10px; color: var(--ink3); letter-spacing: 0.04em; margin-bottom: 0; }
+.kl-pact-inv { color: rgba(255,255,255,0.25); }
+
+/* Expandable features wrapper */
+.kl-pexpand {
+  max-height: 0; overflow: hidden; opacity: 0; margin-bottom: 0;
+  transition: max-height .4s ease, opacity .3s ease, margin .4s ease;
+}
+.kl-pricing-card:not(.kl-pfeatured):hover .kl-pexpand {
+  max-height: 500px; opacity: 1; margin-bottom: 16px;
+}
+.kl-pfeatured .kl-pexpand {
+  max-height: 500px; opacity: 1; margin-bottom: 16px;
+}
+
+.kl-pdivider { height: 1px; background: var(--border); margin: 20px 0; }
 .kl-pdivider-inv { background: rgba(255,255,255,0.08); }
-.kl-pfeatures { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.kl-pfeatures { list-style: none; display: flex; flex-direction: column; gap: 9px; }
 .kl-pfeature { font-size: 13px; color: var(--ink); display: flex; align-items: flex-start; gap: 8px; }
 .kl-pfeature-off { color: var(--ink3); }
 .kl-pfeature-inv { color: rgba(255,255,255,0.75); }
 .kl-pcheck { color: var(--accent); font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 .kl-pcheck-inv { color: var(--accent); font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 .kl-pno { color: var(--ink3); flex-shrink: 0; font-size: 13px; }
+
 .kl-pbtn {
   width: 100%; padding: 12px; border-radius: 99px;
-  font-size: 14px; font-weight: 500;
+  font-size: 14px; font-weight: 500; margin-top: 20px;
   cursor: pointer; text-align: center; transition: all .15s;
   text-decoration: none; display: block;
 }
