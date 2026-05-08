@@ -98,6 +98,19 @@ export default function Page() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("kl-in"); io.unobserve(e.target); }
+      }),
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    document.querySelectorAll(
+      ".kl-section-title, .kl-section-sub, .kl-benefit-card, .kl-pricing-card, .kl-eco-card, .kl-flow-nav, .kl-cta-title, .kl-cta-sub"
+    ).forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   const prices = {
     basico: billing === "mensual" ? 300 : 255,
     profesional: billing === "mensual" ? 500 : 425,
@@ -200,7 +213,7 @@ export default function Page() {
 
           {/* FLOW PANEL */}
           <div className="kl-flow-panel">
-            <div className="kl-flow-left">
+            <div className="kl-flow-left" key={flowStage}>
               <div className="kl-flow-stepnum kl-mono">{flowStages[flowStage].step} / 06</div>
               <h3 className="kl-flow-title">{flowStages[flowStage].title}</h3>
               <div className="kl-flow-module-pill kl-mono">◆ {flowStages[flowStage].module}</div>
@@ -691,9 +704,9 @@ const css = `
   font-size: 15px; font-weight: 500;
   background: var(--accent); color: #fff;
   border: none; cursor: pointer; text-decoration: none;
-  transition: all .15s; display: inline-block;
+  transition: all .2s; display: inline-block;
 }
-.kl-btn-primary:hover { background: var(--ink); }
+.kl-btn-primary:hover { background: var(--ink); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,23,20,0.16); }
 .kl-btn-outline {
   padding: 13px 28px; border-radius: 99px;
   font-size: 15px; font-weight: 500;
@@ -713,6 +726,7 @@ const css = `
   animation: klMarquee 40s linear infinite;
 }
 @keyframes klMarquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.kl-marquee-wrap:hover .kl-marquee-track { animation-play-state: paused; cursor: default; }
 .kl-chip {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 22px;
@@ -884,7 +898,7 @@ const css = `
   display: grid; grid-template-columns: 1fr 1.1fr;
   gap: 56px; align-items: start;
 }
-.kl-flow-left { padding-top: 8px; }
+.kl-flow-left { padding-top: 8px; animation: klFadeUp .4s ease both; }
 .kl-flow-stepnum {
   font-size: 10px; color: var(--ink3); letter-spacing: 0.06em; margin-bottom: 12px;
 }
@@ -927,6 +941,7 @@ const css = `
   background: var(--ink); border-radius: 18px;
   overflow: hidden; box-shadow: 0 20px 60px rgba(26,23,20,0.18);
   min-height: 360px;
+  animation: klFloat 6s ease-in-out infinite;
 }
 .kl-flow-mock-bar {
   background: rgba(255,255,255,0.04); padding: 10px 16px;
@@ -1132,7 +1147,7 @@ const css = `
   cursor: pointer;
 }
 .kl-pricing-card:not(.kl-pfeatured):hover { box-shadow: 0 8px 32px rgba(26,23,20,0.10); border-color: var(--border2); }
-.kl-pfeatured { background: var(--ink); border: 2px solid var(--ink); }
+.kl-pfeatured { background: var(--ink); border: 2px solid var(--ink); box-shadow: 0 0 0 4px rgba(200,71,42,0.14), 0 24px 64px rgba(26,23,20,0.22); }
 
 /* Tier + for */
 .kl-ptier { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 16px; }
@@ -1207,10 +1222,40 @@ const css = `
   0%,100% { box-shadow: 0 0 0 0 rgba(200,71,42,0); }
   50%     { box-shadow: 0 0 0 8px rgba(200,71,42,0.12); }
 }
+@keyframes klFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
 .kl-hero-title    { animation: klFadeUp .7s ease both; }
 .kl-eyebrow       { animation: klFadeIn .5s ease both; }
 .kl-hero-bottom   { animation: klFadeUp .7s ease .18s both; }
 .kl-metrics-strip { animation: klFadeIn .6s ease .35s both; }
+
+/* SCROLL REVEAL */
+.kl-section-title, .kl-section-sub,
+.kl-benefit-card, .kl-pricing-card,
+.kl-flow-nav, .kl-cta-title, .kl-cta-sub { opacity: 0; }
+
+.kl-section-title.kl-in { animation: klFadeUp .7s ease both; }
+.kl-section-sub.kl-in   { animation: klFadeUp .65s ease .12s both; }
+.kl-flow-nav.kl-in      { animation: klFadeUp .6s ease .22s both; }
+
+.kl-benefit-card.kl-in              { animation: klFadeUp .6s ease both; }
+.kl-benefit-card:nth-child(2).kl-in { animation: klFadeUp .6s ease .08s both; }
+.kl-benefit-card:nth-child(3).kl-in { animation: klFadeUp .6s ease .16s both; }
+.kl-benefit-card:nth-child(4).kl-in { animation: klFadeUp .6s ease both; }
+.kl-benefit-card:nth-child(5).kl-in { animation: klFadeUp .6s ease .08s both; }
+.kl-benefit-card:nth-child(6).kl-in { animation: klFadeUp .6s ease .16s both; }
+
+.kl-pricing-card.kl-in              { animation: klFadeUp .6s ease both; }
+.kl-pricing-card:nth-child(2).kl-in { animation: klFadeUp .6s ease .1s both; }
+.kl-pricing-card:nth-child(3).kl-in { animation: klFadeUp .6s ease .2s both; }
+
+.kl-eco-card.kl-in    { animation: klFadeUp .55s ease both; }
+.kl-eco-current.kl-in { animation: klHerePulse 2.8s ease infinite, klFadeUp .55s ease both; }
+
+.kl-cta-title.kl-in { animation: klFadeUp .7s ease both; }
+.kl-cta-sub.kl-in   { animation: klFadeUp .65s ease .12s both; }
 
 /* ECOSYSTEM */
 .kl-ecosystem-section { padding: 96px 48px; background: var(--bg); }
@@ -1219,7 +1264,6 @@ const css = `
   background: var(--white); border: 1px solid var(--border);
   border-radius: 20px; padding: 24px;
   transition: box-shadow .25s, transform .25s, border-color .25s;
-  animation: klFadeUp .55s ease both;
 }
 .kl-eco-card:hover {
   box-shadow: 0 12px 40px rgba(26,23,20,0.10);
@@ -1227,7 +1271,7 @@ const css = `
 }
 .kl-eco-current {
   border-color: var(--accent); border-width: 1.5px;
-  animation: klHerePulse 2.8s ease infinite, klFadeUp .55s ease both;
+  animation: klHerePulse 2.8s ease infinite;
 }
 .kl-eco-mark {
   width: 100%; height: 52px; border-radius: 12px;
@@ -1285,9 +1329,9 @@ const css = `
   font-size: 15px; font-weight: 500;
   background: var(--accent); color: #fff;
   border: none; cursor: pointer; text-decoration: none;
-  transition: all .15s; display: inline-block;
+  transition: all .2s; display: inline-block;
 }
-.kl-btn-cta-primary:hover { background: var(--ink); }
+.kl-btn-cta-primary:hover { background: var(--ink); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,23,20,0.16); }
 .kl-btn-cta-outline {
   padding: 13px 28px; border-radius: 99px;
   font-size: 15px; font-weight: 500;
