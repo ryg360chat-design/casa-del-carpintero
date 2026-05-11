@@ -29,6 +29,7 @@ export async function middleware(request: NextRequest) {
 
   const isHubApi    = pathname.startsWith("/api/hub/");
   const isDevApi    = pathname.startsWith("/api/dev/");
+  const isBotApi    = pathname.startsWith("/api/bot");
   // /superadmin y sus APIs tienen su propia auth con SUPERADMIN_KEY
   const isSuperAdmin =
     pathname.startsWith("/superadmin") ||
@@ -65,7 +66,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && !isAuthPage && !isPublicPage && !isHubApi && !isDevApi) {
+  if (!user && !isAuthPage && !isPublicPage && !isHubApi && !isDevApi && !isBotApi) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
