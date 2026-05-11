@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
     { data: profiles },
     { data: recentPedidos },
     { data: pedidosMes },
+    { count: totalLeadsCount },
   ] = await Promise.all([
     admin.from("organizations").select("*").order("created_at", { ascending: false }),
     admin.from("profiles").select("id, nombre, rol, organization_id").not("organization_id", "is", null),
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
          .order("created_at", { ascending: false }).limit(50),
     admin.from("pedidos").select("organization_id")
          .gte("fecha_ingreso", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0]),
+    admin.from("leads").select("*", { count: "exact", head: true }),
   ]);
 
   const orgList = orgs ?? [];
@@ -90,7 +92,7 @@ export async function GET(req: NextRequest) {
     }));
 
   return NextResponse.json({
-    kpis: { activos, totalOrgs, mrr, arr, totalUsuarios, pedidosMes: pedidosMesTotal },
+    kpis: { activos, totalOrgs, mrr, arr, totalUsuarios, pedidosMes: pedidosMesTotal, totalLeads: totalLeadsCount ?? 0 },
     alertas,
     orgs: enrichedOrgs,
     usuarios: usuariosList,

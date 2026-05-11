@@ -88,7 +88,22 @@ export default function LoginPage() {
         </div>
 
         {/* Panel derecho — formulario */}
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex-1 flex flex-col p-8">
+
+          {/* Link volver al inicio — top right */}
+          <div className="flex justify-end mb-auto pb-6">
+            <Link href="/" className="flex items-center gap-1.5 text-[11px] font-semibold transition-colors"
+              style={{ color: "#9a9490" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "#c8472a")}
+              onMouseLeave={e => (e.currentTarget.style.color = "#9a9490")}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+              </svg>
+              Inicio
+            </Link>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center">
           <div className="w-full max-w-sm">
 
             {/* Logo mobile */}
@@ -190,6 +205,7 @@ export default function LoginPage() {
             <p className="text-center text-xs mt-6" style={{ color: "#9a9490" }}>
               ¿Necesitás acceso? Contactá al administrador del sistema.
             </p>
+          </div>
           </div>
         </div>
       </div>

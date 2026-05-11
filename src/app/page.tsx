@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import ChatBot from "@/components/ChatBot";
 
 const flowStages = [
   {
@@ -554,6 +555,8 @@ export default function Page() {
           CONSTRUIDO CON <span className="kl-footer-heart">♥</span> POR RyG SaaS · QUITO, EC · © 2026
         </div>
       </footer>
+
+      <ChatBot />
     </div>
   );
 }

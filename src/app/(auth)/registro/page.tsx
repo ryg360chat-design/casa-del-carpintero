@@ -27,7 +27,7 @@ function RegistroContent() {
             Contactanos para solicitar acceso a tu taller.
           </p>
           <a
-            href="https://wa.me/593999999999?text=Hola,%20quiero%20registrar%20mi%20taller%20en%20Kuadra"
+            href="https://wa.me/593969000486?text=Hola,%20quiero%20registrar%20mi%20taller%20en%20Kuadra"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"

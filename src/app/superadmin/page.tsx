@@ -6,7 +6,7 @@ const SA_KEY = "sa_key";
 
 type KPIs = {
   activos: number; totalOrgs: number; mrr: number; arr: number;
-  totalUsuarios: number; pedidosMes: number;
+  totalUsuarios: number; pedidosMes: number; totalLeads: number;
 };
 type Org = {
   id: string; nombre: string; slug: string; plan: string; activo: boolean;
@@ -20,6 +20,7 @@ type Usuario = {
 };
 type Activity = { orgId: string; orgNombre: string; estado: string; fecha: string };
 type Alerta = { orgId: string; nombre: string; tipo: string };
+type Lead = { id: string; nombre: string; telefono: string; motivo: string; horario: string; origen: string; created_at: string };
 
 const PLAN_LABEL: Record<string, string> = {
   trial: "Trial", basico: "Básico", profesional: "Profesional", empresarial: "Empresarial",
@@ -254,7 +255,7 @@ function Dashboard({ saKey }: { saKey: string }) {
     kpis: KPIs; orgs: Org[]; usuarios: Usuario[];
     recentActivity: Activity[]; alertas: Alerta[];
   } | null>(null);
-  const [tab, setTab] = useState<"clientes" | "usuarios" | "monitoreo">("clientes");
+  const [tab, setTab] = useState<"clientes" | "usuarios" | "monitoreo" | "leads">("clientes");
   const [monitor, setMonitor] = useState<{
     kpis: { exitosos: number; fallidos: number; bloqueados: number };
     events: { ts: string; ip: string; tipo: string; detalle: string }[];
@@ -263,6 +264,8 @@ function Dashboard({ saKey }: { saKey: string }) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [qr, setQr] = useState<{ url: string; secret: string } | null>(null);
   const [qrLoading, setQrLoading] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leadsLoading, setLeadsLoading] = useState(false);
 
   const headers = { "x-superadmin-key": saKey };
 
@@ -282,6 +285,25 @@ function Dashboard({ saKey }: { saKey: string }) {
       .then(r => r.json()).then(setMonitor);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
+
+  useEffect(() => {
+    if (tab !== "leads") return;
+    setLeadsLoading(true);
+    fetch("/api/superadmin/leads", { headers })
+      .then(r => r.json())
+      .then(d => setLeads(d.leads ?? []))
+      .finally(() => setLeadsLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
+  async function deleteLead(id: string) {
+    await fetch("/api/superadmin/leads", {
+      method: "DELETE",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    setLeads(l => l.filter(lead => lead.id !== id));
+  }
 
   async function tenantAction(id: string, payload: Record<string, unknown>) {
     setActionLoading(id);
@@ -339,8 +361,8 @@ function Dashboard({ saKey }: { saKey: string }) {
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
-        {/* KPIs — 6 cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {/* KPIs — 7 cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4">
           {[
             { label: "Clientes activos", value: kpis.activos, sub: `de ${kpis.totalOrgs} total` },
             { label: "MRR", value: `$${kpis.mrr.toLocaleString()}`, sub: "mensual recurrente", color: "text-green-400" },
@@ -348,6 +370,7 @@ function Dashboard({ saKey }: { saKey: string }) {
             { label: "Total orgs", value: kpis.totalOrgs, sub: "registradas" },
             { label: "Usuarios", value: kpis.totalUsuarios, sub: "en todas las orgs" },
             { label: "Pedidos / mes", value: kpis.pedidosMes, sub: "este mes", color: "text-blue-400" },
+            { label: "Leads bot", value: kpis.totalLeads, sub: "capturados total", color: "text-amber-400" },
           ].map(({ label, value, sub, color }) => (
             <div key={label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{label}</p>
@@ -370,6 +393,26 @@ function Dashboard({ saKey }: { saKey: string }) {
                 </p>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Preview últimos leads */}
+        {kpis.totalLeads > 0 && (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-400">
+                🎯 Últimos leads del bot ({kpis.totalLeads} total)
+              </p>
+              <button
+                onClick={() => setTab("leads")}
+                className="text-[10px] font-semibold text-amber-400/70 hover:text-amber-400 transition-colors"
+              >
+                Ver todos →
+              </button>
+            </div>
+            <p className="text-[10px] text-amber-400/50">
+              Cargá el tab &quot;Leads&quot; para ver la lista completa con botones de WhatsApp.
+            </p>
           </div>
         )}
 
@@ -434,7 +477,7 @@ function Dashboard({ saKey }: { saKey: string }) {
         {/* Tabs */}
         <div>
           <div className="flex gap-1 mb-4 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit">
-            {([["clientes", "Clientes"], ["usuarios", "Usuarios"], ["monitoreo", "Monitoreo"]] as const).map(([t, label]) => (
+            {([["clientes", "Clientes"], ["usuarios", "Usuarios"], ["monitoreo", "Monitoreo"], ["leads", "Leads"]] as const).map(([t, label]) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -572,6 +615,57 @@ function Dashboard({ saKey }: { saKey: string }) {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Tab: Leads */}
+          {tab === "leads" && (
+            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+              {leadsLoading ? (
+                <p className="px-4 py-6 text-xs text-gray-600 animate-pulse">Cargando leads…</p>
+              ) : leads.length === 0 ? (
+                <p className="px-4 py-6 text-xs text-gray-600">No hay leads capturados todavía.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-800">
+                        {["Nombre", "Teléfono", "Motivo", "Demo", "Fecha", ""].map(h => (
+                          <th key={h} className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leads.map(l => (
+                        <tr key={l.id} className="border-b border-gray-800/60 hover:bg-gray-800/50 transition-colors">
+                          <td className="px-4 py-3 font-medium text-white">{l.nombre}</td>
+                          <td className="px-4 py-3">
+                            <a
+                              href={`https://wa.me/${l.telefono.replace(/\D/g, "")}?text=Hola%20${encodeURIComponent(l.nombre)},%20te%20contacto%20desde%20Kuadra%20por%20tu%20consulta.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-green-400 hover:text-green-300 font-mono text-xs transition-colors"
+                            >
+                              {l.telefono} ↗
+                            </a>
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 text-xs max-w-[200px] truncate">{l.motivo}</td>
+                          <td className="px-4 py-3 text-gray-400 text-xs">{l.horario}</td>
+                          <td className="px-4 py-3 text-gray-600 text-xs">{fmtRelative(l.created_at)}</td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => deleteLead(l.id)}
+                              className="text-[10px] font-bold px-2 py-1 rounded-md bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
+                            >
+                              Borrar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
