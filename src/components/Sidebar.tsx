@@ -131,12 +131,6 @@ const navItems: NavItem[] = [
   },
 ];
 
-const LOCK_ICON = (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>
-);
 
 export default function Sidebar({
   userEmail,
@@ -169,8 +163,13 @@ export default function Sidebar({
   const visibleItems = navItems.filter((item) => {
     if (item.href === "/dev") return isDeveloper;
     if (item.href === "/ajustes" || item.href === "/admin/invitar" || item.href === "/admin/usuarios") return isAdmin;
-    if (item.href === "/reporte") return canViewReporte;
-    if (item.href === "/produccion" || item.href === "/produccion/rendimiento" || item.href === "/calendario") return userRole !== "viewer";
+    if (item.href === "/reporte") return canViewReporte && canUseFeature(orgPlan, "reporte_diario");
+    if (item.href === "/produccion" || item.href === "/produccion/rendimiento" || item.href === "/calendario") {
+      if (userRole === "viewer") return false;
+      if (item.feature && !canUseFeature(orgPlan, item.feature)) return false;
+      return true;
+    }
+    if (item.feature && !canUseFeature(orgPlan, item.feature)) return false;
     return true;
   });
 
@@ -241,35 +240,11 @@ export default function Sidebar({
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5 overflow-hidden">
         {visibleItems.map((item) => {
-          const locked = item.feature
-            ? !canUseFeature(orgPlan, item.feature)
-            : false;
-
           const isActive =
-            !locked &&
-            (pathname === item.href ||
-              (item.href !== "/dashboard" &&
-                item.href !== "/produccion" &&
-                pathname.startsWith(item.href)));
-
-          if (locked) {
-            return (
-              <Link
-                key={item.href}
-                href="/upgrade"
-                data-tooltip={`${item.label} — Actualizar plan`}
-                className="relative flex items-center gap-3 pl-[11px] pr-3 py-2.5 rounded-lg transition-all duration-150 overflow-hidden text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
-              >
-                <span className="shrink-0 opacity-40">{item.icon}</span>
-                <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-50 flex-1">
-                  {item.label}
-                </span>
-                <span className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 text-zinc-600">
-                  {LOCK_ICON}
-                </span>
-              </Link>
-            );
-          }
+            pathname === item.href ||
+            (item.href !== "/dashboard" &&
+              item.href !== "/produccion" &&
+              pathname.startsWith(item.href));
 
           return (
             <Link
