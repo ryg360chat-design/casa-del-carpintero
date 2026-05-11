@@ -149,6 +149,8 @@ function Dashboard({ saKey }: { saKey: string }) {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [qr, setQr] = useState<{ url: string; secret: string } | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
 
   const headers = { "x-superadmin-key": saKey };
 
@@ -178,6 +180,17 @@ function Dashboard({ saKey }: { saKey: string }) {
     });
     await load();
     setActionLoading(null);
+  }
+
+  async function loadQr() {
+    if (qr) { setQr(null); return; } // toggle off
+    setQrLoading(true);
+    const res = await fetch("/api/superadmin/setup", { headers });
+    if (res.ok) {
+      const d = await res.json();
+      setQr({ url: d.qr, secret: d.secret });
+    }
+    setQrLoading(false);
   }
 
   function handleLogout() {
@@ -250,7 +263,7 @@ function Dashboard({ saKey }: { saKey: string }) {
 
         {/* Layout 2/3 + 1/3 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Izquierda — Acciones rápidas */}
+          {/* Izquierda — Acciones rápidas + QR TOTP */}
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
               <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Panel operativo</p>
@@ -261,14 +274,40 @@ function Dashboard({ saKey }: { saKey: string }) {
                 >
                   ↻ Actualizar datos
                 </button>
-                <a
-                  href="/api/superadmin/setup"
-                  target="_blank"
-                  className="text-sm px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors font-medium"
+                <button
+                  onClick={loadQr}
+                  disabled={qrLoading}
+                  className="text-sm px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors font-medium disabled:opacity-50"
                 >
-                  🔑 Ver QR TOTP
-                </a>
+                  {qrLoading ? "Generando…" : qr ? "Ocultar QR TOTP" : "📱 Configurar TOTP"}
+                </button>
               </div>
+
+              {/* QR para escanear con iPhone */}
+              {qr && (
+                <div className="mt-5 flex gap-6 items-start flex-wrap">
+                  <div className="bg-white p-3 rounded-xl shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qr.url} alt="QR TOTP" width={180} height={180} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white mb-2">Escanea con la cámara del iPhone</p>
+                    <ol className="text-xs text-gray-400 space-y-1.5 list-decimal list-inside">
+                      <li>Abre la cámara del iPhone y apunta al QR</li>
+                      <li>Toca la notificación que aparece</li>
+                      <li>Apple Passwords te pedirá guardar el código TOTP</li>
+                      <li>Acepta — ya está configurado</li>
+                    </ol>
+                    <div className="mt-3 bg-gray-800 rounded-lg px-3 py-2">
+                      <p className="text-[10px] text-gray-500 mb-0.5">Clave manual (alternativa):</p>
+                      <p className="text-xs font-mono text-gray-300 tracking-widest break-all">{qr.secret}</p>
+                    </div>
+                    <p className="text-[10px] text-gray-600 mt-2">
+                      También funciona con Google Authenticator, Authy, o cualquier app TOTP.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
