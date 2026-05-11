@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+const REGISTRATION_SECRET = process.env.REGISTRATION_SECRET;
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
 
-  const { org_nombre, nombre, email, password } = body;
+  const { org_nombre, nombre, email, password, token } = body;
+
+  // Validar token de invitación
+  if (!REGISTRATION_SECRET || !token || token !== REGISTRATION_SECRET) {
+    return NextResponse.json({ error: "Token de invitación inválido o expirado." }, { status: 403 });
+  }
 
   if (!org_nombre?.trim() || !nombre?.trim() || !email?.trim() || !password) {
     return NextResponse.json({ error: "Todos los campos son requeridos" }, { status: 400 });

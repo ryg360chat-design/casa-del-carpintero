@@ -43,12 +43,12 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/registro");
   const isPublicPage =
     request.nextUrl.pathname === "/" ||
-    request.nextUrl.pathname.startsWith("/seguimiento");
+    request.nextUrl.pathname.startsWith("/seguimiento") ||
+    request.nextUrl.pathname.startsWith("/dev");   // páginas de herramientas dev
   const isHubApi = request.nextUrl.pathname.startsWith("/api/hub/");
   const isSuperAdmin = request.nextUrl.pathname.startsWith("/super-admin");
-  const isStripeWebhook = request.nextUrl.pathname === "/api/stripe/webhook";
 
-  if (!user && !isAuthPage && !isPublicPage && !isHubApi && !isStripeWebhook) {
+  if (!user && !isAuthPage && !isPublicPage && !isHubApi) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
