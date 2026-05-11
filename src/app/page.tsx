@@ -1417,6 +1417,8 @@ const css = `
   .kl-flow-panel { grid-template-columns: 1fr; gap: 20px; }
   .kl-flow-right { display: none; }
   .kl-flow-title { font-size: clamp(20px, 6vw, 28px); }
+  .kl-flow-ba .kl-benefit-row { max-height: 60px; opacity: 1; margin-bottom: 8px; }
+  .kl-flow-ba { padding: 14px; }
 
   /* BENEFITS */
   .kl-benefits-section { padding: 56px 20px; }

@@ -22,7 +22,15 @@ export default function ChatBot() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 520);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -106,10 +114,15 @@ export default function ChatBot() {
       {/* Panel de chat */}
       {open && (
         <div style={{
-          position: "fixed", bottom: 24, right: 24, zIndex: 9999,
-          width: 380, height: 500,
+          position: "fixed",
+          bottom: isMobile ? 0 : 24,
+          right: isMobile ? 0 : 24,
+          left: isMobile ? 0 : "auto",
+          zIndex: 9999,
+          width: isMobile ? "100%" : 380,
+          height: isMobile ? "85dvh" : 500,
           display: "flex", flexDirection: "column",
-          borderRadius: 20,
+          borderRadius: isMobile ? "20px 20px 0 0" : 20,
           boxShadow: "0 8px 48px rgba(0,0,0,0.3)",
           overflow: "hidden",
           fontFamily: "Inter, sans-serif",
