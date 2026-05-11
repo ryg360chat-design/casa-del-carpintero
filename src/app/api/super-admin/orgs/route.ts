@@ -31,9 +31,20 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body?.id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
-  const { id, plan, activo, max_maquinas, max_usuarios } = body;
+  const { id, plan, activo, max_maquinas, max_usuarios, extend_trial_days } = body;
 
+  const admin = createAdminClient();
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+
+  if (extend_trial_days !== undefined) {
+    const { data: org } = await admin.from("organizations").select("trial_ends_at").eq("id", id).single();
+    const base = org?.trial_ends_at && new Date(org.trial_ends_at) > new Date()
+      ? new Date(org.trial_ends_at)
+      : new Date();
+    base.setDate(base.getDate() + Number(extend_trial_days));
+    update.trial_ends_at = base.toISOString();
+  }
+
   if (plan !== undefined) {
     const LIMITS: Record<string, { max_maquinas: number; max_usuarios: number }> = {
       trial:       { max_maquinas: 2,  max_usuarios: 3  },
@@ -55,7 +66,6 @@ export async function PATCH(req: NextRequest) {
   if (max_maquinas !== undefined) update.max_maquinas = max_maquinas;
   if (max_usuarios !== undefined) update.max_usuarios = max_usuarios;
 
-  const admin = createAdminClient();
   const { error } = await admin.from("organizations").update(update).eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

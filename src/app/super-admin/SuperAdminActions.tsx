@@ -9,10 +9,12 @@ type Org = {
   nombre: string;
   plan: OrgPlan;
   activo: boolean;
+  trial_ends_at: string | null;
 };
 
-export default function SuperAdminActions({ org }: { org: Org }) {
+export default function SuperAdminActions({ org, inviteUrl }: { org: Org; inviteUrl: string }) {
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function updatePlan(plan: OrgPlan) {
     setLoading(true);
@@ -34,10 +36,49 @@ export default function SuperAdminActions({ org }: { org: Org }) {
     window.location.reload();
   }
 
+  async function extenderTrial() {
+    setLoading(true);
+    await fetch("/api/super-admin/orgs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: org.id, extend_trial_days: 7 }),
+    });
+    window.location.reload();
+  }
+
+  function copyInviteLink() {
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   const plans: OrgPlan[] = ["trial", "basico", "profesional", "empresarial"];
 
   return (
-    <div className="flex items-center gap-2 justify-end">
+    <div className="flex items-center gap-2 justify-end flex-wrap">
+      {/* Copiar enlace de invitación */}
+      <button
+        onClick={copyInviteLink}
+        title="Copiar enlace de registro"
+        className="text-xs px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors"
+      >
+        {copied ? "✓ Copiado" : "🔗 Enlace"}
+      </button>
+
+      {/* Extender trial — solo visible si está en trial */}
+      {org.plan === "trial" && (
+        <button
+          disabled={loading}
+          onClick={extenderTrial}
+          title="Extender trial 7 días"
+          className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 transition-colors disabled:opacity-50"
+        >
+          +7d
+        </button>
+      )}
+
+      {/* Cambiar plan */}
       <select
         disabled={loading}
         value={org.plan}
@@ -49,6 +90,7 @@ export default function SuperAdminActions({ org }: { org: Org }) {
         ))}
       </select>
 
+      {/* Suspender / Activar */}
       <button
         disabled={loading}
         onClick={toggleActivo}
