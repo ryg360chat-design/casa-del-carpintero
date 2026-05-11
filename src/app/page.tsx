@@ -124,7 +124,6 @@ export default function Page() {
       {/* NAV */}
       <nav className="kl-nav">
         <Link href="/" className="kl-logo">
-          <div className="kl-logo-mark">K</div>
           <span className="kl-logo-name">Kuadra</span>
           <span className="kl-logo-badge">RYG · V2.4</span>
         </Link>
