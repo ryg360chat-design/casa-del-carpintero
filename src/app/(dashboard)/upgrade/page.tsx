@@ -17,7 +17,7 @@ export default async function UpgradePage() {
     { plan: "empresarial" },
   ];
 
-  const WHATSAPP = "593999999999"; // TODO: reemplazar con número real
+  const WHATSAPP = "593969000486";
 
   return (
     <div className="min-h-screen bg-[#f8f9fb] px-6 py-10">
