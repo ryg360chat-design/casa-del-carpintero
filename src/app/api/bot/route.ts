@@ -58,7 +58,7 @@ IMPORTANTE: El sistema detecta y elimina ese tag automáticamente antes de mostr
 - Pedir los datos del lead de uno en uno, nunca todos juntos`;
 
 export async function POST(req: NextRequest) {
-  const rl = await checkRateLimit(`bot:${getClientIp(req)}`);
+  const rl = await checkRateLimit(`bot:${getClientIp(req)}`, 40);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Demasiados mensajes. Intentá en unos minutos." }, { status: 429 });
   }

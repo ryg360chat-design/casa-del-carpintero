@@ -23,23 +23,23 @@ export interface RateLimitResult {
   retryAfterSecs: number;
 }
 
-export async function checkRateLimit(key: string): Promise<RateLimitResult> {
+export async function checkRateLimit(key: string, maxRequests = MAX_FAILS): Promise<RateLimitResult> {
   cleanup();
   const now = Date.now();
   const entry = store.get(key);
 
   if (!entry || now - entry.windowStart > WINDOW_MS) {
     store.set(key, { count: 1, windowStart: now });
-    return { allowed: true, remaining: MAX_FAILS - 1, retryAfterSecs: 0 };
+    return { allowed: true, remaining: maxRequests - 1, retryAfterSecs: 0 };
   }
 
   entry.count++;
-  const remaining = Math.max(0, MAX_FAILS - entry.count);
+  const remaining = Math.max(0, maxRequests - entry.count);
   const retryAfterSecs = remaining === 0
     ? Math.ceil((WINDOW_MS - (now - entry.windowStart)) / 1000)
     : 0;
 
-  return { allowed: entry.count <= MAX_FAILS, remaining, retryAfterSecs };
+  return { allowed: entry.count <= maxRequests, remaining, retryAfterSecs };
 }
 
 export function getClientIp(req: NextRequest): string {
