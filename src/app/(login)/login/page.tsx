@@ -54,10 +54,10 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="flex items-center gap-3 mb-auto">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shrink-0" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
+              <span className="text-white font-black text-[13px] tracking-tight">KD</span>
             </div>
             <div>
-              <p className="text-white font-bold text-base leading-tight tracking-tight">Casa del Carpintero</p>
+              <p className="text-white font-bold text-base leading-tight tracking-tight">Kuadra</p>
               <p className="text-[11px] font-medium" style={{ color: "rgba(38,122,140,0.9)" }}>Sistema de Gestión</p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function LoginPage() {
 
           {/* Footer */}
           <div className="flex items-center justify-between text-[11px] text-zinc-600 mt-auto pt-6 border-t border-zinc-800">
-            <span>© 2026 Casa del Carpintero</span>
+            <span>© 2026 Kuadra</span>
             <div className="flex gap-4">
               <span className="cursor-pointer hover:text-zinc-400 transition-colors">Términos</span>
               <span className="cursor-pointer hover:text-zinc-400 transition-colors">Privacidad</span>
@@ -112,9 +112,9 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
+              <span className="text-white font-black text-[13px] tracking-tight">KD</span>
             </div>
-            <span className="font-bold text-zinc-900 text-sm">Casa del Carpintero</span>
+            <span className="font-bold text-zinc-900 text-sm">Kuadra</span>
           </div>
 
           <h2 className="text-[26px] font-extrabold text-zinc-900 mb-1.5 tracking-tight">Bienvenido de nuevo</h2>

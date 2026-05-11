@@ -55,6 +55,7 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
   const [setupMode, setSetupMode] = useState(false);
   const [qrData, setQrData] = useState<{ qr: string; secret: string } | null>(null);
   const [qrLoading, setQrLoading] = useState(false);
+  // setupMode/qrData solo accesible desde dashboard, no desde login externo
 
   useEffect(() => {
     fetch("/api/superadmin/status")
@@ -96,25 +97,39 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
 
   return (
     <div className="min-h-screen flex">
-      {/* Panel izquierdo — identidad Kuadra */}
-      <div className="hidden lg:flex w-[420px] shrink-0 flex-col justify-between p-10"
-        style={{ background: "linear-gradient(160deg, #0f1c3a 0%, #0a1628 60%, #050d1a 100%)" }}>
-        <div>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-8"
-            style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
-            <span className="text-white font-black text-sm tracking-tight">KD</span>
+      {/* Panel izquierdo — mismo estilo que login de la herramienta */}
+      <div
+        className="hidden lg:flex flex-col w-[420px] shrink-0 relative overflow-hidden"
+        style={{ background: "linear-gradient(145deg, #18181b 0%, #09090b 100%)" }}
+      >
+        <div className="absolute top-[-80px] right-[-80px] w-[340px] h-[340px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(25,87,166,0.22) 0%, transparent 70%)" }} />
+        <div className="absolute bottom-[-60px] left-[-60px] w-[260px] h-[260px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(38,122,140,0.15) 0%, transparent 70%)" }} />
+        <div className="relative flex flex-col h-full p-10">
+          <div className="flex items-center gap-3 mb-auto">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shrink-0"
+              style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
+              <span className="text-white font-black text-[13px] tracking-tight">KD</span>
+            </div>
+            <div>
+              <p className="text-white font-bold text-base leading-tight tracking-tight">Kuadra</p>
+              <p className="text-[11px] font-medium" style={{ color: "rgba(38,122,140,0.9)" }}>Panel interno</p>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-white leading-snug mb-3">
-            Panel de<br />control interno
-          </h2>
-          <p className="text-[#4a6fa5] text-sm leading-relaxed">
-            Acceso exclusivo para administración de la plataforma Kuadra.
-            Todas las sesiones quedan registradas.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-widest text-red-500/70">Zona restringida</span>
+          <div className="my-auto">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-widest text-red-400/80">Zona restringida</span>
+            </div>
+            <h1 className="text-3xl font-bold text-white leading-snug mb-4">
+              Acceso<br /><span style={{ color: "#267A8C" }}>autorizado</span> únicamente
+            </h1>
+            <p className="text-zinc-400 text-sm leading-relaxed">
+              Todas las sesiones quedan registradas.<br />Uso exclusivo del equipo de Kuadra.
+            </p>
+          </div>
+          <div className="text-[11px] text-zinc-700 mt-auto pt-6 border-t border-zinc-800">© 2026 Kuadra</div>
         </div>
       </div>
 
@@ -167,18 +182,6 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
                     />
                     <p className="text-[10px] text-zinc-600 mt-1.5">Código rotativo de 6 dígitos desde tu app de contraseñas</p>
                   </div>
-                )}
-
-                {totpEnabled && (
-                  <button
-                    type="button"
-                    onClick={handleShowQr}
-                    disabled={qrLoading}
-                    className="w-full border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white rounded-lg py-3 text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <span>📱</span>
-                    {qrLoading ? "Generando QR…" : "Ver QR para configurar verificación"}
-                  </button>
                 )}
 
                 {error && (
