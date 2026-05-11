@@ -52,6 +52,9 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
   const [totpEnabled, setTotpEnabled] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [setupMode, setSetupMode] = useState(false);
+  const [qrData, setQrData] = useState<{ qr: string; secret: string } | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/superadmin/status")
@@ -73,6 +76,22 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
     if (!res.ok) { setError(data.error ?? "Error desconocido"); return; }
     sessionStorage.setItem(SA_KEY, key);
     onLogin(key);
+  }
+
+  async function handleShowQr() {
+    if (!key) { setError("Ingresa la clave maestra primero"); return; }
+    setError("");
+    setQrLoading(true);
+    const res = await fetch("/api/superadmin/setup-qr", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+    setQrLoading(false);
+    if (!res.ok) { setError(data.error ?? "Clave incorrecta"); return; }
+    setQrData(data);
+    setSetupMode(true);
   }
 
   return (
@@ -111,58 +130,118 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
             <span className="text-white font-bold text-sm">Kuadra</span>
           </div>
 
-          <h1 className="text-xl font-bold text-white mb-1">Identificación</h1>
-          <p className="text-zinc-500 text-sm mb-7">Ingresa tus credenciales de administrador</p>
+          {!setupMode ? (
+            <>
+              <h1 className="text-xl font-bold text-white mb-1">Identificación</h1>
+              <p className="text-zinc-500 text-sm mb-7">Ingresa tus credenciales de administrador</p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div>
-              <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
-                Clave maestra
-              </label>
-              <input
-                type="password"
-                value={key}
-                onChange={e => setKey(e.target.value)}
-                placeholder="••••••••••••••••••••"
-                required
-                autoFocus
-                className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
-              />
-            </div>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
+                    Clave maestra
+                  </label>
+                  <input
+                    type="password"
+                    value={key}
+                    onChange={e => setKey(e.target.value)}
+                    placeholder="••••••••••••••••••••"
+                    required
+                    autoFocus
+                    className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
+                  />
+                </div>
 
-            {totpEnabled && (
-              <div>
-                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
-                  Código de verificación
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={totp}
-                  onChange={e => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="000 000"
-                  maxLength={6}
-                  className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm font-mono text-center tracking-[0.5em] focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
-                />
-                <p className="text-[10px] text-zinc-600 mt-1.5">Código rotativo de 6 dígitos desde tu app de contraseñas</p>
-              </div>
-            )}
+                {totpEnabled && (
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
+                      Código de verificación
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={totp}
+                      onChange={e => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="000 000"
+                      maxLength={6}
+                      className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm font-mono text-center tracking-[0.5em] focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
+                    />
+                    <p className="text-[10px] text-zinc-600 mt-1.5">Código rotativo de 6 dígitos desde tu app de contraseñas</p>
+                  </div>
+                )}
 
-            {error && (
-              <div className="bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-3 text-sm text-red-400">
-                {error}
-              </div>
-            )}
+                {error && (
+                  <div className="bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-3 text-sm text-red-400">
+                    {error}
+                  </div>
+                )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 text-sm mt-1"
-              style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
-            >
-              {loading ? "Verificando…" : "Acceder →"}
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 text-sm mt-1"
+                  style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
+                >
+                  {loading ? "Verificando…" : "Acceder →"}
+                </button>
+              </form>
+
+              {totpEnabled && (
+                <button
+                  onClick={handleShowQr}
+                  disabled={qrLoading}
+                  className="mt-4 w-full text-xs text-zinc-600 hover:text-zinc-400 transition-colors py-2 disabled:opacity-50"
+                >
+                  {qrLoading ? "Generando QR…" : "¿Primera vez? Configurar código de verificación →"}
+                </button>
+              )}
+            </>
+          ) : (
+            /* ── Pantalla de setup QR ── */
+            <>
+              <button
+                onClick={() => { setSetupMode(false); setQrData(null); setError(""); }}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-6 flex items-center gap-1"
+              >
+                ← Volver al login
+              </button>
+              <h1 className="text-xl font-bold text-white mb-1">Configurar verificación</h1>
+              <p className="text-zinc-500 text-sm mb-6">
+                Escanea el QR con la cámara de tu iPhone
+              </p>
+
+              {qrData && (
+                <div className="flex flex-col items-center gap-5">
+                  <div className="bg-white p-3 rounded-2xl shadow-xl">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qrData.qr} alt="QR TOTP" width={200} height={200} />
+                  </div>
+
+                  <div className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">O ingresa la clave manualmente</p>
+                    <p className="text-sm font-mono text-zinc-300 tracking-[0.25em] break-all select-all">{qrData.secret}</p>
+                  </div>
+
+                  <div className="w-full bg-[#0f1c3a]/60 border border-[#1957A6]/20 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-[#4a8fd4] mb-2">Pasos:</p>
+                    <ol className="text-xs text-zinc-400 space-y-1.5 list-decimal list-inside">
+                      <li>Abre la <strong className="text-white">cámara del iPhone</strong> y apunta al QR</li>
+                      <li>Toca la notificación que aparece</li>
+                      <li>Apple Passwords guarda el código automáticamente</li>
+                      <li>Vuelve al login y usa el código de 6 dígitos</li>
+                    </ol>
+                  </div>
+
+                  <button
+                    onClick={() => { setSetupMode(false); setQrData(null); }}
+                    className="w-full text-white font-semibold py-3 rounded-lg text-sm transition-all"
+                    style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
+                  >
+                    Ya escaneé el QR → Ir al login
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
