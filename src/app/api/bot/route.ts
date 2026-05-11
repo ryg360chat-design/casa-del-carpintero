@@ -101,10 +101,13 @@ export async function POST(req: NextRequest) {
       else leadSaved = true;
     } catch (e) { console.error("[bot] Supabase exception:", e); }
 
+    const fromEmail = getFromEmail();
+    const toEmail = resolveToEmail("rygingenieria1@gmail.com");
+    console.log(`[bot] Resend sending from=${fromEmail} to=${toEmail} lead=${nombre}`);
     try {
-      await getResend().emails.send({
-        from: getFromEmail(),
-        to: resolveToEmail("rygingenieria1@gmail.com"),
+      const resendResult = await getResend().emails.send({
+        from: fromEmail,
+        to: toEmail,
         subject: `Nuevo lead Kuadra — ${nombre}`,
         html: `
           <h2>Nuevo lead capturado por el bot de Kuadra</h2>
@@ -124,6 +127,7 @@ export async function POST(req: NextRequest) {
           </p>
         `,
       });
+      console.log(`[bot] Resend result:`, JSON.stringify(resendResult));
     } catch (e) { console.error("[bot] Resend exception:", e); }
   }
 
