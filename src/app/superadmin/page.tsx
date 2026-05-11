@@ -169,6 +169,18 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
                   </div>
                 )}
 
+                {totpEnabled && (
+                  <button
+                    type="button"
+                    onClick={handleShowQr}
+                    disabled={qrLoading}
+                    className="w-full border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white rounded-lg py-3 text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <span>📱</span>
+                    {qrLoading ? "Generando QR…" : "Ver QR para configurar verificación"}
+                  </button>
+                )}
+
                 {error && (
                   <div className="bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-3 text-sm text-red-400">
                     {error}
@@ -178,22 +190,12 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 text-sm mt-1"
+                  className="w-full text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 text-sm"
                   style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
                 >
                   {loading ? "Verificando…" : "Acceder →"}
                 </button>
               </form>
-
-              {totpEnabled && (
-                <button
-                  onClick={handleShowQr}
-                  disabled={qrLoading}
-                  className="mt-4 w-full text-xs text-zinc-600 hover:text-zinc-400 transition-colors py-2 disabled:opacity-50"
-                >
-                  {qrLoading ? "Generando QR…" : "¿Primera vez? Configurar código de verificación →"}
-                </button>
-              )}
             </>
           ) : (
             /* ── Pantalla de setup QR ── */
