@@ -211,24 +211,23 @@ export default async function DashboardPage() {
   const endOfToday   = limaEndOfToday();
 
   const ACTIVOS = ["En cola", "En corte", "En tapacantos"];
+
+  // Primero fetch maquinas (RLS filtra por org automáticamente)
+  const { data: maquinas } = await supabase.from("maquinas").select("id, nombre, activa").order("nombre");
+
+  // Luego fetch stats + todos los pedidos activos en paralelo
   const [
     { count: pedidosHoy },
     { count: enCola },
     { count: enCorte },
     { count: completados },
-    { data: pedidosM1, count: countM1 },
-    { data: pedidosM2, count: countM2 },
-    { data: pedidosM3, count: countM3 },
-    { data: maquinas },
+    { data: todosActivos },
   ] = await Promise.all([
     supabase.from("pedidos").select("*", { count: "exact", head: true }).gte("created_at", startOfToday).lte("created_at", endOfToday),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En cola"),
     supabase.from("pedidos").select("*", { count: "exact", head: true }).eq("estado", "En corte"),
     supabase.from("pedido_historial").select("*", { count: "exact", head: true }).eq("estado_nuevo", "Listo").gte("created_at", startOfToday).lte("created_at", endOfToday),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
-    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
-    supabase.from("maquinas").select("*").order("id").limit(10),
+    supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(200),
   ]);
 
   const maquinaMap = Object.fromEntries(
@@ -262,11 +261,14 @@ export default async function DashboardPage() {
     },
   ];
 
-  const maquinasData = [
-    { id: "M1", label: "Máquina 1", pedidos: pedidosM1 ?? [], count: countM1 ?? 0 },
-    { id: "M2", label: "Máquina 2", pedidos: pedidosM2 ?? [], count: countM2 ?? 0 },
-    { id: "M3", label: "Máquina 3", pedidos: pedidosM3 ?? [], count: countM3 ?? 0 },
-  ];
+  type Maquina = { id: string; nombre: string; activa: boolean };
+  // Agrupar pedidos por máquina dinámicamente (funciona para cualquier org)
+  const maquinasData = (maquinas ?? []).map((m: Maquina) => ({
+    id: m.id,
+    label: m.nombre,
+    pedidos: (todosActivos ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === m.id),
+    count: (todosActivos ?? []).filter((p: Record<string, unknown>) => p.maquina_asignada === m.id).length,
+  }));
 
   return (
     <div className="p-4 sm:p-6 animate-fade-in min-h-full" style={{ background: "linear-gradient(160deg, rgba(219,234,254,0.45) 0%, rgba(244,244,245,0) 35%)" }}>
@@ -281,7 +283,7 @@ export default async function DashboardPage() {
 
       {/* Machines */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {maquinasData.map(({ id, label, pedidos, count }, colIdx) => {
+        {maquinasData.map(({ id, label, pedidos, count }: { id: string; label: string; pedidos: Record<string, unknown>[]; count: number }, colIdx: number) => {
           const activa = maquinaMap[id] !== false;
           return (
             <div key={id} className="animate-fade-in-up" style={{ animationDelay: `${200 + colIdx * 80}ms` }}>

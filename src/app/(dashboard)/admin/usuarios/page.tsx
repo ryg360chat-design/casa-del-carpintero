@@ -49,17 +49,22 @@ export default async function UsuariosPage() {
 
   const admin = createAdminClient();
 
-  // Obtener usuarios de Auth + profiles en paralelo
-  const [{ data: authData }, { data: profiles }] = await Promise.all([
-    admin.auth.admin.listUsers({ perPage: 200 }),
-    admin.from("profiles").select("id, nombre, rol"),
-  ]);
+  // Profiles filtrados por org via RLS (user client)
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, nombre, rol");
+
+  const orgUserIds = new Set((profiles ?? []).map((p: { id: string }) => p.id));
 
   const profileMap = Object.fromEntries(
     (profiles ?? []).map((p: { id: string; nombre: string | null; rol: string }) => [p.id, p])
   );
 
+  // Auth data solo para email/timestamps — filtramos a los de esta org
+  const { data: authData } = await admin.auth.admin.listUsers({ perPage: 1000 });
+
   const usuarios = (authData?.users ?? []).filter(u => {
+    if (!orgUserIds.has(u.id)) return false; // solo usuarios de esta org
     const perfil = profileMap[u.id];
     return perfil?.rol !== "developer"; // developer es invisible para el panel de admin
   }).map(u => ({
