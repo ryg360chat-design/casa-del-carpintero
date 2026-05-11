@@ -28,9 +28,17 @@ export default function ChatBot() {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
+  const [rateLimited, setRateLimited] = useState(false);
+
+  function resetConversation() {
+    setMessages([{ role: "assistant", content: WELCOME }]);
+    setRateLimited(false);
+    setInput("");
+  }
+
   async function send() {
     const text = input.trim();
-    if (!text || loading) return;
+    if (!text || loading || rateLimited) return;
     const updated: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(updated);
     setInput("");
@@ -41,16 +49,23 @@ export default function ChatBot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: updated }),
       });
+      if (res.status === 429) {
+        setRateLimited(true);
+        setMessages((m) => [...m, {
+          role: "assistant",
+          content: "Alcanzaste el límite de mensajes por ahora. Podés iniciar una nueva conversación o contactarnos directo por WhatsApp.",
+        }]);
+        setLoading(false);
+        return;
+      }
       const data = await res.json();
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: data.reply ?? "Hubo un error. Intentá de nuevo." },
-      ]);
+      if (data.error) {
+        setMessages((m) => [...m, { role: "assistant", content: "Hubo un problema técnico. Intentá de nuevo en un momento." }]);
+      } else {
+        setMessages((m) => [...m, { role: "assistant", content: data.reply ?? "Hubo un error. Intentá de nuevo." }]);
+      }
     } catch {
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: "Error de conexión. Intentá de nuevo." },
-      ]);
+      setMessages((m) => [...m, { role: "assistant", content: "Sin conexión. Revisá tu internet e intentá de nuevo." }]);
     }
     setLoading(false);
   }
@@ -164,11 +179,24 @@ export default function ChatBot() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Link escape WhatsApp */}
+          {/* Footer: escape WA + nueva conversación si rate limited */}
           <div style={{
             padding: "6px 12px", textAlign: "center",
             background: "#0f0f0f", borderTop: "1px solid #1e1e1e",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
           }}>
+            {rateLimited && (
+              <button
+                onClick={resetConversation}
+                style={{
+                  background: "#c8472a", color: "#fff", border: "none",
+                  borderRadius: 8, padding: "4px 10px", fontSize: 10,
+                  fontWeight: 700, cursor: "pointer",
+                }}
+              >
+                ↺ Nueva conversación
+              </button>
+            )}
             <a
               href="https://wa.me/593969000486?text=Hola,%20quiero%20saber%20más%20sobre%20Kuadra"
               target="_blank"
@@ -189,24 +217,24 @@ export default function ChatBot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-              placeholder="Escribe tu pregunta…"
-              disabled={loading}
+              placeholder={rateLimited ? "Iniciá nueva conversación ↑" : "Escribe tu pregunta…"}
+              disabled={loading || rateLimited}
               style={{
                 flex: 1, padding: "8px 12px", borderRadius: 12,
                 background: "#1e1e1e", border: "1px solid #2a2a2a",
-                color: "#e0e0e0", fontSize: 13, outline: "none",
+                color: rateLimited ? "#6b6b6b" : "#e0e0e0", fontSize: 13, outline: "none",
                 fontFamily: "Inter, sans-serif",
               }}
             />
             <button
               onClick={send}
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || rateLimited}
               style={{
                 padding: "8px 14px", borderRadius: 12,
                 background: "#c8472a", color: "#fff",
                 border: "none", cursor: "pointer",
                 fontSize: 16, fontWeight: 700,
-                opacity: loading || !input.trim() ? 0.4 : 1,
+                opacity: loading || !input.trim() || rateLimited ? 0.4 : 1,
                 transition: "opacity 0.15s",
               }}
             >

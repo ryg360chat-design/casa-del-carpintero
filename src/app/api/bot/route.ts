@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getResend, getFromEmail, resolveToEmail } from "@/lib/resend";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limiter";
 
@@ -95,13 +95,11 @@ export async function POST(req: NextRequest) {
     const [, nombre, telefono, motivo, horario] = leadMatch;
 
     try {
-      const sb = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      await sb.from("leads").insert({ nombre, telefono, motivo, horario, origen: "bot_kuadra" });
-      leadSaved = true;
-    } catch { /* non-critical */ }
+      const sb = createAdminClient();
+      const { error: sbError } = await sb.from("leads").insert({ nombre, telefono, motivo, horario, origen: "bot_kuadra" });
+      if (sbError) console.error("[bot] Supabase insert error:", sbError.message);
+      else leadSaved = true;
+    } catch (e) { console.error("[bot] Supabase exception:", e); }
 
     try {
       await getResend().emails.send({
@@ -126,7 +124,7 @@ export async function POST(req: NextRequest) {
           </p>
         `,
       });
-    } catch { /* non-critical */ }
+    } catch (e) { console.error("[bot] Resend exception:", e); }
   }
 
   return NextResponse.json({ reply, leadSaved });
