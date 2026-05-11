@@ -46,9 +46,10 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/seguimiento") ||
     request.nextUrl.pathname.startsWith("/dev");   // páginas de herramientas dev
   const isHubApi = request.nextUrl.pathname.startsWith("/api/hub/");
+  const isDevApi = request.nextUrl.pathname.startsWith("/api/dev/");
   const isSuperAdmin = request.nextUrl.pathname.startsWith("/super-admin");
 
-  if (!user && !isAuthPage && !isPublicPage && !isHubApi) {
+  if (!user && !isAuthPage && !isPublicPage && !isHubApi && !isDevApi) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
