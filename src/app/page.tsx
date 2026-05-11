@@ -138,7 +138,7 @@ export default function Page() {
         </div>
         <div className="kl-nav-actions">
           <Link href="/dashboard" className="kl-nav-portal">Portal</Link>
-          <Link href="/dashboard" className="kl-nav-cta">Solicitar demo →</Link>
+          <a href="https://wa.me/593969000486?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer" className="kl-nav-cta">Solicitar demo →</a>
         </div>
       </nav>
 
@@ -154,7 +154,7 @@ export default function Page() {
               Mientras otros talleres siguen con cuadernos, WhatsApp y suposiciones, los tuyos saben <strong>en segundos</strong> qué está en cola, qué máquina está libre y qué pedido lleva retraso.
             </p>
             <div className="kl-hero-ctas">
-              <Link href="/dashboard" className="kl-btn-primary">Solicitar demo →</Link>
+              <a href="https://wa.me/593969000486?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer" className="kl-btn-primary">Solicitar demo →</a>
               <a href="#modulos" className="kl-btn-outline">Ver módulos ↓</a>
             </div>
           </div>
@@ -442,7 +442,7 @@ export default function Page() {
                   ))}
                 </ul>
               </div>
-              <Link href="/dashboard" className="kl-pbtn kl-pbtn-outline">Solicitar demo →</Link>
+              <a href="https://wa.me/593969000486?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer" className="kl-pbtn kl-pbtn-outline">Solicitar demo →</a>
               <div className="kl-ptrial kl-mono">7 días de prueba gratis</div>
             </div>
 
@@ -466,7 +466,7 @@ export default function Page() {
                   ))}
                 </ul>
               </div>
-              <Link href="/dashboard" className="kl-pbtn kl-pbtn-inv">Solicitar demo →</Link>
+              <a href="https://wa.me/593969000486?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer" className="kl-pbtn kl-pbtn-inv">Solicitar demo →</a>
               <div className="kl-ptrial kl-mono kl-ptrial-inv">7 días de prueba gratis</div>
             </div>
 
@@ -489,7 +489,7 @@ export default function Page() {
                   ))}
                 </ul>
               </div>
-              <Link href="/dashboard" className="kl-pbtn kl-pbtn-outline">Solicitar demo →</Link>
+              <a href="https://wa.me/593969000486?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer" className="kl-pbtn kl-pbtn-outline">Solicitar demo →</a>
               <div className="kl-ptrial kl-mono">Demo personalizada</div>
             </div>
 
@@ -533,7 +533,7 @@ export default function Page() {
           </h2>
           <p className="kl-cta-sub">Centraliza tus pedidos, controla tus máquinas y toma decisiones con datos reales desde el primer día.</p>
           <div className="kl-cta-btns">
-            <Link href="/dashboard" className="kl-btn-cta-primary">Solicitar demo gratuita →</Link>
+            <a href="https://wa.me/593969000486?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer" className="kl-btn-cta-primary">Solicitar demo gratuita →</a>
             <a href="#modulos" className="kl-btn-cta-outline">Ver módulos</a>
           </div>
         </div>
