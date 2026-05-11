@@ -334,8 +334,8 @@ function Dashboard({ saKey }: { saKey: string }) {
 
   if (loading || !data) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-gray-500 text-sm animate-pulse">Cargando…</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#f3eee7" }}>
+        <div className="text-sm animate-pulse" style={{ color: "#9a9490" }}>Cargando…</div>
       </div>
     );
   }
@@ -343,18 +343,40 @@ function Dashboard({ saKey }: { saKey: string }) {
   const { kpis, orgs, usuarios, recentActivity, alertas } = data;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="sa-dash min-h-screen" style={{ background: "#f3eee7", color: "#1a1714", fontFamily: "Inter, sans-serif" }}>
+      <style>{`
+        .sa-dash .text-white { color: #1a1714 !important; }
+        .sa-dash .text-gray-300 { color: #1a1714 !important; }
+        .sa-dash .text-gray-400 { color: #5a5450 !important; }
+        .sa-dash .text-gray-500 { color: #9a9490 !important; }
+        .sa-dash .text-gray-600 { color: #9a9490 !important; }
+        .sa-dash .text-gray-700 { color: #9a9490 !important; }
+        .sa-dash .border-gray-800 { border-color: rgba(26,23,20,0.10) !important; }
+        .sa-dash .border-gray-800\\/60 { border-color: rgba(26,23,20,0.08) !important; }
+        .sa-dash .border-gray-800\\/40 { border-color: rgba(26,23,20,0.06) !important; }
+        .sa-dash .hover\\:bg-gray-800\\/50:hover { background: rgba(26,23,20,0.04) !important; }
+        .sa-dash .hover\\:bg-gray-800\\/30:hover { background: rgba(26,23,20,0.03) !important; }
+        .sa-dash .hover\\:text-white:hover { color: #1a1714 !important; }
+        .sa-dash .bg-gray-800 { background: #f3eee7 !important; }
+        .sa-dash .bg-gray-800\\/50 { background: rgba(26,23,20,0.04) !important; }
+        .sa-dash .bg-gray-700 { background: rgba(26,23,20,0.08) !important; }
+        .sa-dash select.bg-transparent option { background: #fff; color: #1a1714; }
+        .sa-dash table thead tr { background: #f9f7f4; }
+        .sa-dash .font-mono { font-family: 'JetBrains Mono', monospace; }
+      `}</style>
       {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      <header className="px-6 py-4 flex items-center justify-between" style={{ background: "#fff", borderBottom: "1px solid rgba(26,23,20,0.10)" }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest text-red-400">Super Admin</span>
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#c8472a" }}>Super Admin</span>
           </div>
-          <span className="text-gray-700">·</span>
-          <span className="text-sm text-gray-400">Kuadra · Panel interno</span>
+          <span style={{ color: "rgba(26,23,20,0.20)" }}>·</span>
+          <span className="text-sm" style={{ color: "#9a9490" }}>Kuadra · Panel interno</span>
         </div>
-        <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-white transition-colors">
+        <button onClick={handleLogout} className="text-xs transition-colors" style={{ color: "#9a9490" }}
+          onMouseEnter={e => (e.currentTarget.style.color = "#c8472a")}
+          onMouseLeave={e => (e.currentTarget.style.color = "#9a9490")}>
           Cerrar sesión →
         </button>
       </header>
@@ -372,7 +394,7 @@ function Dashboard({ saKey }: { saKey: string }) {
             { label: "Pedidos / mes", value: kpis.pedidosMes, sub: "este mes", color: "text-blue-400" },
             { label: "Leads bot", value: kpis.totalLeads, sub: "capturados total", color: "text-amber-400" },
           ].map(({ label, value, sub, color }) => (
-            <div key={label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div key={label} className="bg-white rounded-xl p-4" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{label}</p>
               <p className={`text-2xl font-bold ${color ?? "text-white"}`}>{value}</p>
               <p className="text-[10px] text-gray-600 mt-0.5">{sub}</p>
@@ -419,19 +441,19 @@ function Dashboard({ saKey }: { saKey: string }) {
         {/* Acciones + Actividad — misma fila compacta */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Acciones rápidas */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div className="bg-white rounded-xl p-5" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Acciones rápidas</p>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => load()}
-                className="text-sm px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors font-medium"
+                className="text-sm px-4 py-2 rounded-lg font-medium transition-colors" style={{ background: "rgba(200,71,42,0.08)", color: "#c8472a" }}
               >
                 ↻ Actualizar datos
               </button>
               <button
                 onClick={loadQr}
                 disabled={qrLoading}
-                className="text-sm px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors font-medium disabled:opacity-50"
+                className="text-sm px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50" style={{ background: "rgba(26,23,20,0.06)", color: "#5a5450" }}
               >
                 {qrLoading ? "Generando…" : qr ? "Ocultar QR TOTP" : "📱 Configurar TOTP"}
               </button>
@@ -455,7 +477,7 @@ function Dashboard({ saKey }: { saKey: string }) {
           </div>
 
           {/* Actividad reciente */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div className="bg-white rounded-xl p-5" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Actividad reciente</p>
             <div className="space-y-3">
               {recentActivity.length === 0 && (
@@ -476,14 +498,15 @@ function Dashboard({ saKey }: { saKey: string }) {
 
         {/* Tabs */}
         <div>
-          <div className="flex gap-1 mb-4 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit">
+          <div className="flex gap-1 mb-4 rounded-xl p-1 w-fit" style={{ background: "#fff", border: "1px solid rgba(26,23,20,0.10)" }}>
             {([["clientes", "Clientes"], ["usuarios", "Usuarios"], ["monitoreo", "Monitoreo"], ["leads", "Leads"]] as const).map(([t, label]) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`text-xs font-semibold px-4 py-2 rounded-lg transition-colors ${
-                  tab === t ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
+                  tab === t ? "text-white" : "hover:text-white"
                 }`}
+                style={tab === t ? { background: "#c8472a", color: "#fff" } : { color: "#9a9490" }}
               >
                 {label}
               </button>
@@ -492,7 +515,7 @@ function Dashboard({ saKey }: { saKey: string }) {
 
           {/* Tab: Clientes */}
           {tab === "clientes" && (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -596,7 +619,7 @@ function Dashboard({ saKey }: { saKey: string }) {
 
           {/* Tab: Usuarios */}
           {tab === "usuarios" && (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800">
@@ -620,7 +643,7 @@ function Dashboard({ saKey }: { saKey: string }) {
 
           {/* Tab: Leads */}
           {tab === "leads" && (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
               {leadsLoading ? (
                 <p className="px-4 py-6 text-xs text-gray-600 animate-pulse">Cargando leads…</p>
               ) : leads.length === 0 ? (
@@ -678,13 +701,13 @@ function Dashboard({ saKey }: { saKey: string }) {
                   { label: "Fallidos 24h",  value: monitor.kpis.fallidos,  color: "text-red-400" },
                   { label: "Bloqueados 24h", value: monitor.kpis.bloqueados, color: "text-amber-400" },
                 ].map(({ label, value, color }) => (
-                  <div key={label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                  <div key={label} className="bg-white rounded-xl p-4" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{label}</p>
                     <p className={`text-3xl font-bold ${color}`}>{value}</p>
                   </div>
                 ))}
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+              <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
                 <div className="px-4 py-3 border-b border-gray-800">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Eventos recientes</p>
                 </div>
@@ -726,7 +749,7 @@ function Dashboard({ saKey }: { saKey: string }) {
             const count = orgs.filter(o => o.plan === plan).length;
             const ingresos = orgs.filter(o => o.plan === plan && o.activo).length * (PLAN_PRICE[plan] ?? 0);
             return (
-              <div key={plan} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+              <div key={plan} className="bg-white rounded-xl p-4" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{label}</p>
                 <p className="text-2xl font-bold">{count}</p>
                 {ingresos > 0 && <p className="text-[10px] text-green-500 mt-0.5">${ingresos}/mes</p>}
