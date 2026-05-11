@@ -375,57 +375,45 @@ function Dashboard({ saKey }: { saKey: string }) {
           </div>
         )}
 
-        {/* Layout 2/3 + 1/3 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Izquierda — Acciones rápidas + QR TOTP */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Panel operativo</p>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => load()}
-                  className="text-sm px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors font-medium"
-                >
-                  ↻ Actualizar datos
-                </button>
-                <button
-                  onClick={loadQr}
-                  disabled={qrLoading}
-                  className="text-sm px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors font-medium disabled:opacity-50"
-                >
-                  {qrLoading ? "Generando…" : qr ? "Ocultar QR TOTP" : "📱 Configurar TOTP"}
-                </button>
-              </div>
+        {/* Acciones + Actividad — misma fila compacta */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Acciones rápidas */}
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Acciones rápidas</p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => load()}
+                className="text-sm px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors font-medium"
+              >
+                ↻ Actualizar datos
+              </button>
+              <button
+                onClick={loadQr}
+                disabled={qrLoading}
+                className="text-sm px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors font-medium disabled:opacity-50"
+              >
+                {qrLoading ? "Generando…" : qr ? "Ocultar QR TOTP" : "📱 Configurar TOTP"}
+              </button>
+            </div>
 
-              {/* QR para escanear con iPhone */}
-              {qr && (
-                <div className="mt-5 flex gap-6 items-start flex-wrap">
-                  <div className="bg-white p-3 rounded-xl shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qr.url} alt="QR TOTP" width={180} height={180} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white mb-2">Escanea con la cámara del iPhone</p>
-                    <ol className="text-xs text-gray-400 space-y-1.5 list-decimal list-inside">
-                      <li>Abre la cámara del iPhone y apunta al QR</li>
-                      <li>Toca la notificación que aparece</li>
-                      <li>Apple Passwords te pedirá guardar el código TOTP</li>
-                      <li>Acepta — ya está configurado</li>
-                    </ol>
-                    <div className="mt-3 bg-gray-800 rounded-lg px-3 py-2">
-                      <p className="text-[10px] text-gray-500 mb-0.5">Clave manual (alternativa):</p>
-                      <p className="text-xs font-mono text-gray-300 tracking-widest break-all">{qr.secret}</p>
-                    </div>
-                    <p className="text-[10px] text-gray-600 mt-2">
-                      También funciona con Google Authenticator, Authy, o cualquier app TOTP.
-                    </p>
+            {qr && (
+              <div className="mt-5 flex gap-5 items-start flex-wrap">
+                <div className="bg-white p-2.5 rounded-xl shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={qr.url} alt="QR TOTP" width={160} height={160} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-white mb-2">Escanea con la cámara del iPhone</p>
+                  <div className="bg-gray-800 rounded-lg px-3 py-2 mt-2">
+                    <p className="text-[10px] text-gray-500 mb-0.5">Clave manual:</p>
+                    <p className="text-xs font-mono text-gray-300 break-all">{qr.secret}</p>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Derecha — Actividad reciente */}
+          {/* Actividad reciente */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
             <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Actividad reciente</p>
             <div className="space-y-3">
