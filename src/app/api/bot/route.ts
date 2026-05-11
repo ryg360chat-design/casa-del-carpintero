@@ -101,31 +101,66 @@ export async function POST(req: NextRequest) {
       else leadSaved = true;
     } catch (e) { console.error("[bot] Supabase exception:", e); }
 
-    const fromEmail = getFromEmail();
+    const rawFrom = getFromEmail();
+    const fromEmail = rawFrom.includes("<") ? rawFrom : `Kuadra Bot <${rawFrom}>`;
     const toEmail = resolveToEmail("rygingenieria1@gmail.com");
     console.log(`[bot] Resend sending from=${fromEmail} to=${toEmail} lead=${nombre}`);
     try {
       const resendResult = await getResend().emails.send({
         from: fromEmail,
         to: toEmail,
-        subject: `Nuevo lead Kuadra — ${nombre}`,
+        subject: `🎯 Nuevo lead Kuadra — ${nombre}`,
         html: `
-          <h2>Nuevo lead capturado por el bot de Kuadra</h2>
-          <table style="border-collapse:collapse;width:100%;max-width:500px">
-            <tr><td style="padding:8px;font-weight:bold;border:1px solid #eee">Nombre</td><td style="padding:8px;border:1px solid #eee">${nombre}</td></tr>
-            <tr><td style="padding:8px;font-weight:bold;border:1px solid #eee">Teléfono</td><td style="padding:8px;border:1px solid #eee">${telefono}</td></tr>
-            <tr><td style="padding:8px;font-weight:bold;border:1px solid #eee">Motivo</td><td style="padding:8px;border:1px solid #eee">${motivo}</td></tr>
-            <tr><td style="padding:8px;font-weight:bold;border:1px solid #eee">Demo</td><td style="padding:8px;border:1px solid #eee">${horario}</td></tr>
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f3eee7;font-family:Inter,Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3eee7;padding:32px 16px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px">
+
+        <!-- Header -->
+        <tr><td style="background:#c8472a;border-radius:16px 16px 0 0;padding:24px 28px">
+          <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6)">KUADRA · NUEVO LEAD</p>
+          <p style="margin:8px 0 0;font-size:22px;font-weight:700;color:#fff">${nombre}</p>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="background:#fff;padding:24px 28px">
+
+          <!-- WA Button -->
+          <a href="https://wa.me/${telefono.replace(/\D/g, "")}?text=Hola%20${encodeURIComponent(nombre)},%20te%20contacto%20desde%20Kuadra%20por%20tu%20consulta."
+            style="display:inline-flex;align-items:center;gap:8px;background:#25d366;color:#fff;padding:11px 20px;border-radius:99px;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:24px">
+            📱 Abrir WhatsApp · ${telefono}
+          </a>
+
+          <!-- Data rows -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
+            <tr style="border-bottom:1px solid #f0ece6">
+              <td style="padding:10px 0;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9a9490;width:90px">Motivo</td>
+              <td style="padding:10px 0;font-size:14px;color:#1a1714">${motivo}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f0ece6">
+              <td style="padding:10px 0;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9a9490">Demo</td>
+              <td style="padding:10px 0;font-size:14px;color:#1a1714;font-weight:600">${horario}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 0;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9a9490">Teléfono</td>
+              <td style="padding:10px 0;font-size:14px;color:#1a1714;font-family:monospace">${telefono}</td>
+            </tr>
           </table>
-          <p style="margin-top:16px">
-            <a href="https://wa.me/${telefono.replace(/\D/g, "")}" style="background:#25d366;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">
-              Abrir WhatsApp →
-            </a>
-          </p>
-          <p style="color:#999;font-size:12px;margin-top:24px">
-            Ver todos los leads en <a href="https://kuadra-ryg.vercel.app/superadmin">kuadra-ryg.vercel.app/superadmin</a>
-          </p>
-        `,
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#f9f7f4;border-radius:0 0 16px 16px;padding:16px 28px;border-top:1px solid #ede8e0">
+          <a href="https://kuadra-ryg.vercel.app/superadmin" style="font-size:11px;color:#9a9490;text-decoration:none">
+            Ver todos los leads en el superadmin →
+          </a>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
       });
       console.log(`[bot] Resend result:`, JSON.stringify(resendResult));
     } catch (e) { console.error("[bot] Resend exception:", e); }

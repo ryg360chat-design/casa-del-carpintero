@@ -1371,4 +1371,87 @@ const css = `
   letter-spacing: 0.1em; text-transform: uppercase;
 }
 .kl-footer-heart { color: var(--accent); font-size: 12px; }
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* NAV */
+  .kl-nav { padding: 0 20px; height: 52px; }
+  .kl-nav-links { display: none; }
+  .kl-logo-badge { display: none; }
+  .kl-nav-portal { display: none; }
+  .kl-nav-cta { padding: 7px 14px; font-size: 13px; }
+
+  /* HERO */
+  .kl-hero-content { padding: 36px 20px 28px; }
+  .kl-hero-title { font-size: clamp(40px, 12vw, 64px); margin-bottom: 20px; }
+  .kl-hero-bottom { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .kl-hero-sub { max-width: 100%; font-size: 15px; }
+  .kl-hero-ctas { flex-wrap: wrap; gap: 10px; }
+  .kl-btn-primary, .kl-btn-outline { padding: 11px 22px; font-size: 14px; }
+
+  /* METRICS STRIP */
+  .kl-metrics-strip { display: grid; grid-template-columns: 1fr 1fr; }
+  .kl-metric { padding: 14px 20px 18px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .kl-metric:nth-child(2) { border-right: none; }
+  .kl-metric:nth-child(3) { border-bottom: none; }
+  .kl-metric:nth-child(4) { border-right: none; border-bottom: none; }
+
+  /* SHARED */
+  .kl-container { padding: 0; }
+  .kl-section-title { font-size: clamp(30px, 8vw, 48px); }
+
+  /* FLOW */
+  .kl-flow-section { padding: 56px 20px; }
+  .kl-flow-nav {
+    overflow-x: auto; padding-bottom: 10px;
+    margin: 28px 0 24px; gap: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .kl-flow-nav::-webkit-scrollbar { display: none; }
+  .kl-flow-step { min-width: 58px; }
+  .kl-fs-node { width: 30px; height: 30px; font-size: 10px; }
+  .kl-fs-label { font-size: 7px; margin-top: 5px; }
+  .kl-fs-line { top: 15px; }
+  .kl-flow-panel { grid-template-columns: 1fr; gap: 20px; }
+  .kl-flow-right { display: none; }
+  .kl-flow-title { font-size: clamp(20px, 6vw, 28px); }
+
+  /* BENEFITS */
+  .kl-benefits-section { padding: 56px 20px; }
+  .kl-benefits-grid { grid-template-columns: 1fr; gap: 10px; }
+  .kl-benefit-card .kl-benefit-desc { max-height: 200px; opacity: 1; margin-top: 10px; }
+  .kl-benefit-card .kl-benefit-sep { height: 1px; max-height: 1px; opacity: 1; margin: 14px 0 12px; }
+  .kl-benefit-card .kl-benefit-row { max-height: 40px; opacity: 1; margin-bottom: 6px; }
+  .kl-benefit-title::after { display: none; }
+
+  /* PRICING */
+  .kl-pricing-section { padding: 56px 20px; }
+  .kl-pricing-grid { grid-template-columns: 1fr; max-width: 100%; gap: 16px; }
+  .kl-pricing-card .kl-pexpand { max-height: 600px; opacity: 1; margin-bottom: 16px; }
+  .kl-pfeatured .kl-pexpand { max-height: 600px; opacity: 1; margin-bottom: 16px; }
+  .kl-pnum { font-size: 44px; }
+
+  /* ECOSYSTEM */
+  .kl-ecosystem-section { padding: 56px 20px; }
+  .kl-eco-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kl-eco-card { padding: 18px; }
+  .kl-eco-name { font-size: 17px; }
+
+  /* CTA */
+  .kl-cta-section { padding: 64px 20px 56px; }
+  .kl-cta-btns { flex-direction: column; align-items: stretch; gap: 10px; }
+  .kl-btn-cta-primary, .kl-btn-cta-outline { text-align: center; padding: 13px 20px; }
+
+  /* FOOTER */
+  .kl-footer { padding: 0 20px 32px; }
+  .kl-footer-apps { flex-wrap: wrap; gap: 16px; }
+  .kl-footer-app { font-size: 16px; }
+}
+
+@media (max-width: 420px) {
+  .kl-eco-grid { grid-template-columns: 1fr; }
+  .kl-metrics-strip { grid-template-columns: 1fr 1fr; }
+}
 `;

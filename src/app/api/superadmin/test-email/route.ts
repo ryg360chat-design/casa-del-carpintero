@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
   const authError = requireSuperAdmin(req);
   if (authError) return authError;
 
-  const fromEmail = getFromEmail();
+  const rawFrom = getFromEmail();
+  const fromEmail = rawFrom.includes("<") ? rawFrom : `Kuadra Bot <${rawFrom}>`;
   const toEmail = resolveToEmail("rygingenieria1@gmail.com");
 
   console.log(`[test-email] from=${fromEmail} to=${toEmail}`);
