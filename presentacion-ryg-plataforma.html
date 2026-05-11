@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RyG Inmobiliaria · La plataforma del futuro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #D99026; --gold-dark: #b87520; --gold-light: #f0b050;
+      --bg: #0C1013; --surface: #141a1f; --surface2: #1a2228;
+      --border: rgba(255,255,255,0.07); --text: #f5f0e8;
+      --muted: #7a8490; --muted2: #3a4048;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
+    ::selection { background: var(--gold); color: #fff; }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+    /* ── CINEMATIC HERO ── */
+    .cinematic-wrapper { position: relative; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .film-grain { position: absolute; inset: 0; pointer-events: none; z-index: 50; opacity: 0.04; mix-blend-mode: overlay; background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>'); }
+    .bg-grid {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35;
+      background-size: 60px 60px;
+      background-image: linear-gradient(to right, rgba(217,144,38,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(217,144,38,0.07) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+    }
+    .hero-text-wrapper { position: absolute; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 0 24px; }
+    .text-track { visibility: hidden; font-family: 'Playfair Display', serif; font-size: clamp(38px,6.5vw,82px); font-weight: 900; letter-spacing: -.03em; line-height: 1; color: #f5f0e8; text-shadow: 0 10px 30px rgba(255,255,255,0.1); }
+    .text-silver { visibility: hidden; font-family: 'Playfair Display', serif; font-size: clamp(38px,6.5vw,82px); font-weight: 900; letter-spacing: -.04em; line-height: 1; background: linear-gradient(180deg, #f5f0e8 0%, #7a8490 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 12px 24px rgba(0,0,0,0.6)); clip-path: inset(0 100% 0 0); }
+
+    /* CTA layer */
+    .cta-wrapper { position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 24px; visibility: hidden; }
+    .cta-wrapper h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px,4.5vw,58px); font-weight: 900; letter-spacing: -.03em; margin-bottom: 16px; background: linear-gradient(180deg, #f5f0e8 0%, #7a8490 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .cta-wrapper p { font-size: 15px; color: var(--muted); margin-bottom: 36px; max-width: 520px; }
+    .cta-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn-cta-primary { background: linear-gradient(135deg,#D99026,#b87520); color: #fff; font-size: 14px; font-weight: 700; padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer; text-decoration: none; box-shadow: 0 0 30px rgba(217,144,38,.4); transition: transform .3s, box-shadow .3s; }
+    .btn-cta-primary:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(217,144,38,.55); }
+    .btn-cta-secondary { background: rgba(255,255,255,0.06); color: #fff; font-size: 14px; font-weight: 700; padding: 14px 32px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); cursor: pointer; text-decoration: none; transition: transform .3s, background .3s; }
+    .btn-cta-secondary:hover { transform: translateY(-3px); background: rgba(255,255,255,.1); }
+
+    /* Main card */
+    .main-card {
+      position: absolute; inset: 0; margin: auto; z-index: 20; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(145deg, #0e1a12 0%, #080d0a 100%);
+      box-shadow: 0 40px 100px -20px rgba(0,0,0,.9), 0 20px 40px -20px rgba(0,0,0,.8), inset 0 1px 2px rgba(217,144,38,.08), inset 0 -2px 4px rgba(0,0,0,.8);
+      border: 1px solid rgba(217,144,38,0.08);
+      width: 90vw; height: 88vh; border-radius: 36px;
+      overflow: hidden;
+    }
+    .card-sheen { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 50; background: radial-gradient(700px circle at var(--mouse-x,50%) var(--mouse-y,50%), rgba(217,144,38,0.04) 0%, transparent 40%); mix-blend-mode: screen; }
+
+    /* Card content grid */
+    .card-inner { position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: 0.6fr 2fr 0.6fr; align-items: center; padding: 40px 48px; gap: 24px; z-index: 10; }
+    @media(max-width:900px) { .card-inner { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; padding: 24px 20px; } }
+
+    /* Brand name */
+    .card-brand { display: flex; justify-content: flex-end; align-items: center; }
+    .card-brand-text { font-family: 'Playfair Display', serif; font-size: clamp(48px,7vw,100px); font-weight: 900; letter-spacing: -.04em; text-transform: uppercase; background: linear-gradient(180deg,#D99026 0%,#6b4a0e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 16px 32px rgba(0,0,0,.9)) drop-shadow(0 4px 8px rgba(0,0,0,.6)); line-height: .9; visibility: hidden; }
+
+    /* Laptop mockup */
+    .mockup-wrapper { position: relative; display: flex; align-items: center; justify-content: center; perspective: 1200px; visibility: hidden; }
+    .laptop { position: relative; width: 480px; transform-style: preserve-3d; }
+    .laptop-screen-outer { background: #121c14; border-radius: 12px 12px 0 0; border: 5px solid #1e2e20; border-bottom: none; padding: 8px 8px 0; box-shadow: 0 0 0 1px #000, inset 0 2px 4px rgba(217,144,38,.04); position: relative; }
+    .laptop-screen-outer::before { content:""; position:absolute; top:5px; left:50%; transform:translateX(-50%); width:8px; height:8px; border-radius:50%; background:#121c14; border:1.5px solid #2a3a2a; }
+    .laptop-screen { background: #0C1013; border-radius: 4px; overflow: hidden; aspect-ratio: 16/10; position: relative; }
+    .laptop-base { background: linear-gradient(180deg,#1e2a20 0%,#141c16 100%); border-radius: 0 0 6px 6px; height: 16px; border: 5px solid #141c16; border-top: none; }
+    .laptop-base::after { content:""; display:block; height:5px; background:linear-gradient(180deg,#0a0e0b 0%,#1a2018 100%); border-radius:0 0 3px 3px; margin:0 30%; }
+    .screen-bar { background: #0C1013; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-bottom: 1px solid rgba(217,144,38,.08); }
+    .screen-dots span { width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:3px; }
+    .screen-dots span:nth-child(1){background:#ef4444;} .screen-dots span:nth-child(2){background:#f59e0b;} .screen-dots span:nth-child(3){background:#22c55e;}
+    .screen-url { flex:1; background:rgba(255,255,255,.04); border-radius:4px; padding:2px 8px; font-size:8px; color:#3a4048; }
+    .screen-body { display: grid; grid-template-columns: 40px 1fr; height: calc(100% - 22px); }
+    .screen-sidebar { background:#080c0a; border-right:1px solid rgba(217,144,38,.08); display:flex; flex-direction:column; align-items:center; padding:10px 0; gap:6px; }
+    .screen-sidebar .s-logo { width:22px;height:22px;border-radius:5px;background:linear-gradient(135deg,#D99026,#b87520);display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:900;color:#fff;margin-bottom:4px; }
+    .screen-sidebar .s-icon { width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center; }
+    .screen-sidebar .s-icon.active { background:rgba(217,144,38,.15); }
+    .screen-sidebar .s-icon svg { width:11px;height:11px; }
+    .screen-main { padding: 10px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+    .screen-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .stat-box { background:#111a14;border:1px solid rgba(217,144,38,.1);border-radius:6px;padding:7px; }
+    .stat-box .s-lbl { font-size:6px;color:#3a4048;text-transform:uppercase;letter-spacing:.08em; }
+    .stat-box .s-val { font-size:16px;font-weight:900;line-height:1.1; }
+    .stat-box .s-val.gold{color:#D99026;} .stat-box .s-val.green{color:#22c55e;}
+    .screen-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .order-card { background:#111a14;border:1px solid rgba(217,144,38,.08);border-radius:6px;padding:7px; }
+    .order-card .o-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:4px; }
+    .order-card .o-num { font-size:7px;font-weight:800;color:#c8bea8; }
+    .order-card .o-badge { font-size:6px;font-weight:700;padding:1px 5px;border-radius:999px; }
+    .badge-gold{background:rgba(217,144,38,.15);color:#D99026;} .badge-green{background:rgba(34,197,94,.15);color:#22c55e;} .badge-gray{background:rgba(113,113,122,.2);color:#71717a;}
+    .order-card .o-mat { font-size:6px;color:#3a4048;margin-bottom:5px; }
+    .order-bar { height:2px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden; }
+    .order-bar div { height:100%;border-radius:999px;background:linear-gradient(90deg,#D99026,#f0b050); }
+    .order-bar .bar-green { background:linear-gradient(90deg,#22c55e,#16a34a); }
+
+    /* Floating badges */
+    .float-badge { position:absolute; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.01)); border:1px solid rgba(217,144,38,.15); border-radius:14px; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 20px 40px -8px rgba(0,0,0,.8),inset 0 1px 1px rgba(217,144,38,.1); visibility:hidden; z-index:40; white-space:nowrap; }
+    .float-badge .fb-icon { width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0; }
+    .float-badge .fb-title { font-size:12px;font-weight:700;color:#f5f0e8;line-height:1.2; }
+    .float-badge .fb-sub { font-size:10px;color:rgba(245,240,232,.4); }
+    .badge-tl { left:8px; top:32px; }
+    .badge-tr { right:8px; top:32px; }
+    .badge-bl { left:8px; bottom:32px; }
+    .badge-br { right:8px; bottom:32px; }
+
+    /* Card desc */
+    .card-desc { display:flex;flex-direction:column;gap:12px; }
+    .card-desc h3 { font-family: 'Playfair Display', serif; font-size:clamp(20px,2.5vw,32px);font-weight:900;color:#f5f0e8;line-height:1.15;visibility:hidden; }
+    .card-desc p { font-size:12px;color:rgba(245,240,232,.4);line-height:1.8;visibility:hidden; }
+    .card-desc .cd-tag { display:inline-flex;align-items:center;gap:6px;background:rgba(217,144,38,.1);border:1px solid rgba(217,144,38,.25);color:#D99026;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:8px;visibility:hidden; }
+
+    /* ─── REST OF SECTIONS ─── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .tag { display:inline-flex;align-items:center;gap:6px;background:rgba(217,144,38,.1);border:1px solid rgba(217,144,38,.25);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:999px; }
+    .tag .dot { width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite; }
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    .reveal-delay-1{transition-delay:.1s;} .reveal-delay-2{transition-delay:.2s;} .reveal-delay-3{transition-delay:.3s;} .reveal-delay-4{transition-delay:.4s;}
+
+    /* NAV */
+    nav { position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(12,16,19,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between; }
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-logo .logo-box{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#D99026,#b87520);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#fff;letter-spacing:-.3px;font-family:'Playfair Display',serif;}
+    .nav-logo span{font-weight:800;font-size:14px;letter-spacing:-.3px;font-family:'Playfair Display',serif;}
+    .nav-logo span em{color:var(--gold);font-style:normal;}
+    .nav-cta{background:linear-gradient(135deg,#D99026,#b87520);color:#fff;font-size:12px;font-weight:700;padding:8px 20px;border-radius:8px;border:none;cursor:pointer;letter-spacing:.02em;text-decoration:none;transition:opacity .2s;}
+    .nav-cta:hover{opacity:.85;}
+
+    /* SECTIONS */
+    section{padding:100px 0;}
+    .section-header{text-align:center;margin-bottom:64px;}
+    .section-header h2{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-.02em;margin-top:12px;}
+    .section-header p{color:var(--muted);font-size:16px;margin-top:12px;max-width:520px;margin-left:auto;margin-right:auto;}
+
+    /* PROBLEMA */
+    .problema-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+    .problema-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;gap:16px;align-items:flex-start;}
+    .problema-card .icon-wrap{width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+    .problema-card h3{font-size:14px;font-weight:700;margin-bottom:4px;}
+    .problema-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+    /* FEATURES */
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;transition:border-color .3s,transform .3s;position:relative;overflow:hidden;}
+    .feature-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,144,38,.5),transparent);opacity:0;transition:opacity .3s;}
+    .feature-card:hover{border-color:rgba(217,144,38,.25);transform:translateY(-4px);}
+    .feature-card:hover::before{opacity:1;}
+    .feature-icon{width:48px;height:48px;border-radius:12px;background:rgba(217,144,38,.1);border:1px solid rgba(217,144,38,.2);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;}
+    .feature-card h3{font-size:16px;font-weight:800;margin-bottom:8px;}
+    .feature-card p{font-size:13px;color:var(--muted);line-height:1.7;}
+    .feature-card .fc-tag{display:inline-block;margin-top:12px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(217,144,38,.1);color:var(--gold);}
+
+    /* PROCESO */
+    .proceso-steps{display:flex;flex-direction:column;gap:0;max-width:700px;margin:0 auto;position:relative;}
+    .proceso-steps::before{content:"";position:absolute;left:23px;top:40px;bottom:40px;width:2px;background:linear-gradient(to bottom,#D99026,transparent);}
+    .paso{display:flex;gap:24px;align-items:flex-start;padding:24px 0;}
+    .paso-num{width:48px;height:48px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#D99026,#b87520);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;z-index:1;box-shadow:0 0 20px rgba(217,144,38,.4);}
+    .paso-body h3{font-size:17px;font-weight:800;margin-bottom:6px;}
+    .paso-body p{font-size:14px;color:var(--muted);line-height:1.7;}
+
+    /* VS TRADICIONAL */
+    .custom-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+    @media(max-width:768px){.custom-wrapper{grid-template-columns:1fr;}}
+    .custom-list{display:flex;flex-direction:column;gap:16px;}
+    .custom-item{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+    .custom-item .ci-icon{width:36px;height:36px;border-radius:9px;flex-shrink:0;background:rgba(217,144,38,.1);border:1px solid rgba(217,144,38,.2);display:flex;align-items:center;justify-content:center;font-size:16px;}
+    .custom-item h4{font-size:14px;font-weight:700;margin-bottom:3px;}
+    .custom-item p{font-size:12px;color:var(--muted);line-height:1.6;}
+    .custom-vs{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+    .vs-header{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+    .vs-header div{padding:14px 20px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.05em;text-transform:uppercase;}
+    .vs-header div:first-child{background:rgba(217,144,38,.08);color:var(--gold);border-right:1px solid var(--border);}
+    .vs-header div:last-child{color:var(--muted);}
+    .vs-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+    .vs-row:last-child{border-bottom:none;}
+    .vs-row div{padding:12px 20px;font-size:13px;display:flex;align-items:center;gap:8px;}
+    .vs-row div:first-child{border-right:1px solid var(--border);}
+    .vs-row .check{color:#22c55e;font-size:15px;} .vs-row .cross{color:#ef4444;font-size:15px;}
+
+    /* FRANQUICIA / RED */
+    .red-wrapper{position:relative;}
+    .red-hero{background:var(--surface);border:1px solid rgba(217,144,38,.15);border-radius:24px;padding:48px;text-align:center;margin-bottom:32px;position:relative;overflow:hidden;}
+    .red-hero::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(217,144,38,.08),transparent 70%);pointer-events:none;}
+    .red-hero h3{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:900;margin-bottom:12px;}
+    .red-hero p{font-size:15px;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.8;}
+    .red-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+    .red-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;transition:border-color .3s,transform .3s;}
+    .red-card:hover{border-color:rgba(217,144,38,.25);transform:translateY(-4px);}
+    .red-card .rc-icon{font-size:28px;margin-bottom:12px;}
+    .red-card h4{font-size:15px;font-weight:800;margin-bottom:6px;}
+    .red-card p{font-size:12px;color:var(--muted);line-height:1.6;}
+
+    /* PRECIOS */
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+    .pricing-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:32px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s;}
+    .pricing-card:hover{transform:translateY(-6px);}
+    .pricing-card.featured{border-color:rgba(217,144,38,.35);background:linear-gradient(145deg,#1a2010,#121a10);}
+    .pricing-card.featured::after{content:"MÁS POPULAR";position:absolute;top:16px;right:16px;font-size:9px;font-weight:800;letter-spacing:.1em;padding:4px 10px;border-radius:999px;background:rgba(217,144,38,.2);color:var(--gold);border:1px solid rgba(217,144,38,.3);}
+    .pricing-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(217,144,38,.4),transparent);opacity:0;transition:opacity .3s;}
+    .pricing-card.featured::before{opacity:1;}
+    .pricing-card:hover::before{opacity:1;}
+    .pricing-name{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+    .pricing-price{font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,52px);font-weight:900;color:#f5f0e8;line-height:1;}
+    .pricing-price sup{font-size:18px;vertical-align:top;margin-top:8px;margin-right:2px;}
+    .pricing-price span{font-size:14px;color:var(--muted);font-weight:400;font-family:'Manrope',sans-serif;}
+    .pricing-desc{font-size:13px;color:var(--muted);margin:12px 0 24px;line-height:1.7;}
+    .pricing-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+    .pricing-list li{font-size:13px;display:flex;gap:10px;align-items:flex-start;}
+    .pricing-list li::before{content:"✓";color:var(--gold);font-weight:800;flex-shrink:0;margin-top:1px;}
+    .pricing-list li.muted-item::before{content:"○";color:var(--muted2);}
+    .pricing-list li.muted-item{color:var(--muted);}
+    .btn-pricing{display:block;text-align:center;padding:13px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;transition:opacity .2s,transform .2s;cursor:pointer;border:none;}
+    .btn-pricing:hover{transform:translateY(-2px);opacity:.9;}
+    .btn-pricing.primary{background:linear-gradient(135deg,#D99026,#b87520);color:#fff;box-shadow:0 0 24px rgba(217,144,38,.35);}
+    .btn-pricing.secondary{background:rgba(255,255,255,.06);color:#f5f0e8;border:1px solid rgba(255,255,255,.1);}
+
+    /* CTA FINAL */
+    .cta-final{padding:120px 24px;text-align:center;position:relative;overflow:hidden;}
+    .cta-final::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(217,144,38,.12),transparent 70%);}
+    .cta-final h2{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,52px);font-weight:900;letter-spacing:-.02em;margin-bottom:16px;position:relative;}
+    .cta-final p{font-size:16px;color:var(--muted);margin-bottom:40px;position:relative;}
+    .cta-badge-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;}
+    .cta-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 24px;font-size:13px;color:var(--muted);}
+    .cta-badge strong{color:var(--text);}
+    .btn-primary{background:linear-gradient(135deg,#D99026,#b87520);color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 0 30px rgba(217,144,38,.4);transition:transform .2s,box-shadow .2s;display:inline-block;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(217,144,38,.55);}
+    .btn-outline{background:transparent;color:var(--text);font-size:14px;font-weight:600;padding:14px 32px;border-radius:12px;border:1px solid var(--border);cursor:pointer;text-decoration:none;transition:border-color .2s,background .2s;display:inline-block;}
+    .btn-outline:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--border);padding:32px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    footer .f-logo{display:flex;align-items:center;gap:8px;}
+    footer .f-logo .logo-box{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#D99026,#b87520);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;color:#fff;font-family:'Playfair Display',serif;}
+    footer span{font-size:12px;color:var(--muted);}
+    footer .f-right{font-size:12px;color:var(--muted2);}
+
+    /* STATS ROW */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--border);border-radius:20px;overflow:hidden;border:1px solid var(--border);}
+    .stat-item{background:var(--surface);padding:28px;text-align:center;}
+    .stat-item .s-num{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,40px);font-weight:900;color:#D99026;line-height:1;}
+    .stat-item .s-label{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4;}
+
+    @media(max-width:640px){
+      .card-inner{padding:16px 14px;}
+      .laptop{width:100%;max-width:340px;}
+      .float-badge{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-box">RyG</div>
+    <span>RyG <em>Inmobiliaria</em></span>
+  </div>
+  <a href="#contacto" class="nav-cta">Hablar con el equipo</a>
+</nav>
+
+<!-- ════════════════════════════
+     HERO CINEMATIC
+════════════════════════════ -->
+<div class="cinematic-wrapper" id="hero">
+  <div class="film-grain"></div>
+  <div class="bg-grid"></div>
+
+  <!-- INTRO TEXT (se va) -->
+  <div class="hero-text-wrapper" id="heroTextA">
+    <div class="text-track" id="tt1">El sector inmobiliario</div>
+    <div class="text-silver" id="ts1">sigue viviendo en 2005.</div>
+  </div>
+
+  <!-- TEXTO 2 (aparece) -->
+  <div class="hero-text-wrapper" id="heroTextB" style="visibility:hidden">
+    <div class="text-track" id="tt2">Nosotros lo trajimos</div>
+    <div class="text-silver" id="ts2">al futuro.</div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="main-card" id="mainCard">
+    <div class="card-sheen" id="cardSheen"></div>
+
+    <!-- Badge TL -->
+    <div class="float-badge badge-tl" id="badgeTL">
+      <div class="fb-icon" style="background:rgba(217,144,38,.15);font-size:16px;">🔥</div>
+      <div>
+        <div class="fb-title">Nuevo lead HOT</div>
+        <div class="fb-sub">Carlos M. · $180.000 · Cumbayá</div>
+      </div>
+    </div>
+
+    <!-- Badge TR -->
+    <div class="float-badge badge-tr" id="badgeTR">
+      <div class="fb-icon" style="background:rgba(34,197,94,.12);font-size:16px;">✅</div>
+      <div>
+        <div class="fb-title">Contrato generado</div>
+        <div class="fb-sub">Depto. Los Pinos · firmado</div>
+      </div>
+    </div>
+
+    <!-- Badge BL -->
+    <div class="float-badge badge-bl" id="badgeBL">
+      <div class="fb-icon" style="background:rgba(99,102,241,.12);font-size:16px;">🤖</div>
+      <div>
+        <div class="fb-title">AIRA está activa</div>
+        <div class="fb-sub">23 conversaciones hoy</div>
+      </div>
+    </div>
+
+    <!-- Badge BR -->
+    <div class="float-badge badge-br" id="badgeBR">
+      <div class="fb-icon" style="background:rgba(217,144,38,.12);font-size:16px;">📊</div>
+      <div>
+        <div class="fb-title">CRM actualizado</div>
+        <div class="fb-sub">47 leads activos</div>
+      </div>
+    </div>
+
+    <div class="card-inner">
+      <!-- LEFT -->
+      <div class="card-desc">
+        <div class="cd-tag" id="cdTag">● Plataforma inmobiliaria</div>
+        <h3 id="cdH3">Tu agencia,<br>en un solo lugar.</h3>
+        <p id="cdP">Leads, propiedades, IA, contratos y portal web — todo integrado, todo en tiempo real.</p>
+      </div>
+
+      <!-- CENTER: laptop mockup -->
+      <div class="mockup-wrapper" id="laptopWrapper">
+        <div class="laptop" id="laptop">
+          <div class="laptop-screen-outer">
+            <div class="laptop-screen">
+              <div class="screen-bar">
+                <div class="screen-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="screen-url">ryginmo.com/admin</div>
+              </div>
+              <div class="screen-body">
+                <div class="screen-sidebar">
+                  <div class="s-logo">RyG</div>
+                  <div class="s-icon active">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                  </div>
+                  <div class="s-icon">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                  </div>
+                  <div class="s-icon">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                  </div>
+                  <div class="s-icon">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  </div>
+                </div>
+                <div class="screen-main">
+                  <div class="screen-stats">
+                    <div class="stat-box">
+                      <div class="s-lbl">Leads activos</div>
+                      <div class="s-val gold">47</div>
+                    </div>
+                    <div class="stat-box">
+                      <div class="s-lbl">HOT esta semana</div>
+                      <div class="s-val gold">12</div>
+                    </div>
+                    <div class="stat-box">
+                      <div class="s-lbl">Cierres mes</div>
+                      <div class="s-val green">3</div>
+                    </div>
+                  </div>
+                  <div class="screen-cards">
+                    <div class="order-card">
+                      <div class="o-top">
+                        <div class="o-num">Carlos Mejía</div>
+                        <div class="o-badge badge-gold">HOT 🔥</div>
+                      </div>
+                      <div class="o-mat">$180.000 · 3hab · Cumbayá</div>
+                      <div class="order-bar"><div style="width:88%"></div></div>
+                    </div>
+                    <div class="order-card">
+                      <div class="o-top">
+                        <div class="o-num">Ana Torres</div>
+                        <div class="o-badge badge-green">Visita ✅</div>
+                      </div>
+                      <div class="o-mat">$650/mes · Renta · Norte</div>
+                      <div class="order-bar"><div class="bar-green" style="width:65%"></div></div>
+                    </div>
+                    <div class="order-card">
+                      <div class="o-top">
+                        <div class="o-num">Luis Vargas</div>
+                        <div class="o-badge badge-gold">WARM ⚠️</div>
+                      </div>
+                      <div class="o-mat">$95.000 · 2hab · Quito</div>
+                      <div class="order-bar"><div style="width:45%"></div></div>
+                    </div>
+                    <div class="order-card">
+                      <div class="o-top">
+                        <div class="o-num">María Paz</div>
+                        <div class="o-badge badge-green">Cierre 🏆</div>
+                      </div>
+                      <div class="o-mat">$210.000 · Venta · Tumbaco</div>
+                      <div class="order-bar"><div class="bar-green" style="width:100%"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="laptop-base"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: brand -->
+      <div class="card-brand">
+        <div class="card-brand-text" id="brandText">RyG</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL CTA LAYER -->
+  <div class="cta-wrapper" id="ctaLayer">
+    <h2>La plataforma que tu<br>agencia necesita.</h2>
+    <p>Desde el primer contacto hasta el contrato firmado — todo en un solo sistema.</p>
+    <div class="cta-btns">
+      <a href="#plataforma" class="btn-cta-primary">Ver la plataforma</a>
+      <a href="#precios" class="btn-cta-secondary">Ver planes</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     STATS ROW
+════════════════════════════ -->
+<section style="padding:60px 0;">
+  <div class="container">
+    <div class="stats-row reveal">
+      <div class="stat-item">
+        <div class="s-num">+300%</div>
+        <div class="s-label">Más leads gestionados<br>por mes</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-num">24/7</div>
+        <div class="s-label">AIRA atiende clientes<br>sin parar</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-num">0</div>
+        <div class="s-label">Leads perdidos<br>por falta de seguimiento</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-num">&lt;3 min</div>
+        <div class="s-label">Para generar un<br>contrato completo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     EL PROBLEMA
+════════════════════════════ -->
+<section id="problema">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag"><span class="dot"></span>El problema</div>
+      <h2>Así trabaja el 95% de las agencias hoy.</h2>
+      <p>Y así pierden clientes, tiempo y dinero todos los días.</p>
+    </div>
+    <div class="problema-grid">
+      <div class="problema-card reveal reveal-delay-1">
+        <div class="icon-wrap">📋</div>
+        <div>
+          <h3>Excel como CRM</h3>
+          <p>Leads en hojas de cálculo desactualizadas. Sin historial, sin alertas, sin prioridades. Si se va un asesor, se pierden los datos.</p>
+        </div>
+      </div>
+      <div class="problema-card reveal reveal-delay-2">
+        <div class="icon-wrap">📱</div>
+        <div>
+          <h3>WhatsApp como portal</h3>
+          <p>Fotos de propiedades enviadas una por una. El cliente no puede filtrar, comparar ni volver a verlas sin preguntar.</p>
+        </div>
+      </div>
+      <div class="problema-card reveal reveal-delay-3">
+        <div class="icon-wrap">⏰</div>
+        <div>
+          <h3>Horas respondiendo preguntas repetitivas</h3>
+          <p>"¿Cuántos cuartos tiene?" "¿Tiene parqueo?" El asesor pierde el día contestando lo que una IA podría hacer en segundos.</p>
+        </div>
+      </div>
+      <div class="problema-card reveal reveal-delay-4">
+        <div class="icon-wrap">🗂️</div>
+        <div>
+          <h3>Sin portal propio</h3>
+          <p>Dependencia total de Plusvalía, OLX o portales genéricos. Sin identidad de marca, sin control del cliente, sin datos propios.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     LA PLATAFORMA
+════════════════════════════ -->
+<section id="plataforma">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag"><span class="dot"></span>La solución</div>
+      <h2>Todo lo que tu agencia necesita,<br>en un solo lugar.</h2>
+      <p>Diseñada desde cero para el mercado inmobiliario latinoamericano.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🤖</div>
+        <h3>AIRA — Asistente IA</h3>
+        <p>Tu asesora virtual que atiende clientes 24/7, captura leads automáticamente, entiende qué busca cada cliente y los dirige a las propiedades correctas.</p>
+        <span class="fc-tag">IA conversacional</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">🏠</div>
+        <h3>Portal Inmobiliario Propio</h3>
+        <p>Tu marca, tu dominio, tus propiedades. Portal con filtros avanzados, galería de fotos, tours 360°, y diseño premium que genera confianza.</p>
+        <span class="fc-tag">Portal público</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">👆</div>
+        <h3>Matchmaker estilo Tinder</h3>
+        <p>El cliente ve propiedades y desliza izquierda/derecha. El sistema aprende sus gustos y te avisa qué propiedades generan más interés.</p>
+        <span class="fc-tag">Experiencia de usuario</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">📊</div>
+        <h3>CRM Inteligente</h3>
+        <p>Pipeline visual por etapas: Nuevo → Contactado → Visita → Cierre. Historial completo, score automático HOT/WARM/COLD, y seguimiento por WhatsApp.</p>
+        <span class="fc-tag">CRM + Pipeline</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">🤖</div>
+        <h3>Bot Telegram para el Equipo</h3>
+        <p>Consulta el CRM en lenguaje natural desde Telegram: "¿Cuáles son los leads HOT esta semana?" "¿Qué propiedades le van a Carlos?" Responde al instante.</p>
+        <span class="fc-tag">Bot 24/7 en Telegram</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">📄</div>
+        <h3>Generación de Contratos</h3>
+        <p>Rellena un formulario y el sistema genera el contrato completo en Google Docs listo para firmar. En menos de 3 minutos, sin errores.</p>
+        <span class="fc-tag">Contratos automáticos</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     CÓMO FUNCIONA
+════════════════════════════ -->
+<section id="como">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag"><span class="dot"></span>Flujo completo</div>
+      <h2>Del primer clic al contrato firmado.</h2>
+      <p>Un proceso que antes tomaba semanas, ahora toma días.</p>
+    </div>
+    <div class="proceso-steps">
+      <div class="paso reveal">
+        <div class="paso-num">1</div>
+        <div class="paso-body">
+          <h3>El cliente llega</h3>
+          <p>Por el portal, WhatsApp o redes sociales. AIRA lo recibe al instante, entiende qué busca, califica automáticamente el lead (HOT/WARM/COLD) y lo registra en el CRM sin que el asesor mueva un dedo.</p>
+        </div>
+      </div>
+      <div class="paso reveal">
+        <div class="paso-num">2</div>
+        <div class="paso-body">
+          <h3>El sistema trabaja solo</h3>
+          <p>El matchmaker muestra propiedades personalizadas. El bot Telegram alerta al equipo de los leads más urgentes. El CRM prioriza la agenda automáticamente según el score.</p>
+        </div>
+      </div>
+      <div class="paso reveal">
+        <div class="paso-num">3</div>
+        <div class="paso-body">
+          <h3>El asesor se enfoca en cerrar</h3>
+          <p>Con toda la información centralizada, el asesor dedica su tiempo a lo que importa: visitas, negociaciones y cierres. Sin buscar datos, sin perder leads, sin Excel.</p>
+        </div>
+      </div>
+      <div class="paso reveal">
+        <div class="paso-num">4</div>
+        <div class="paso-body">
+          <h3>Contrato listo en minutos</h3>
+          <p>El sistema genera el contrato con los datos del lead y la propiedad. Se envía para firma digital. El historial queda guardado para siempre.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     VS TRADICIONAL
+════════════════════════════ -->
+<section id="comparacion">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag"><span class="dot"></span>Comparación</div>
+      <h2>Por qué la tecnología gana siempre.</h2>
+    </div>
+    <div class="custom-wrapper">
+      <div class="custom-list reveal">
+        <div class="custom-item">
+          <div class="ci-icon">⚡</div>
+          <div>
+            <h4>Velocidad de respuesta: 0 segundos</h4>
+            <p>AIRA responde al cliente al instante, a las 2am del domingo si hace falta. Sin esperar que el asesor lea el WhatsApp.</p>
+          </div>
+        </div>
+        <div class="custom-item">
+          <div class="ci-icon">📍</div>
+          <div>
+            <h4>Datos propios, siempre</h4>
+            <p>Cada lead es tuyo. Cada interacción queda registrada. Nunca más perder un contacto porque el asesor cambió de número.</p>
+          </div>
+        </div>
+        <div class="custom-item">
+          <div class="ci-icon">🔄</div>
+          <div>
+            <h4>Escalable sin contratar más personal</h4>
+            <p>La plataforma atiende 10 clientes o 1.000 con el mismo esfuerzo. Crecer no significa contratar más asesores.</p>
+          </div>
+        </div>
+      </div>
+      <div class="custom-vs reveal">
+        <div class="vs-header">
+          <div>Con RyG Plataforma</div>
+          <div>Método tradicional</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> Portal propio con tu marca</div>
+          <div><span class="cross">✗</span> Portales genéricos</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> IA atiende 24/7</div>
+          <div><span class="cross">✗</span> Solo en horario laboral</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> CRM con pipeline visual</div>
+          <div><span class="cross">✗</span> Excel desactualizado</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> Leads calificados automáticamente</div>
+          <div><span class="cross">✗</span> Calificación manual (o no se hace)</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> Contratos en 3 minutos</div>
+          <div><span class="cross">✗</span> Contratos en días (errores incluidos)</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> Tours 360° integrados</div>
+          <div><span class="cross">✗</span> Fotos por WhatsApp</div>
+        </div>
+        <div class="vs-row">
+          <div><span class="check">✓</span> Bot de consulta para el equipo</div>
+          <div><span class="cross">✗</span> Buscar en grupos de WhatsApp</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     MODELO RED / FRANQUICIA
+════════════════════════════ -->
+<section id="red">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag"><span class="dot"></span>Modelo de expansión</div>
+      <h2>Una red de agencias,<br>una sola plataforma.</h2>
+      <p>El modelo que permite llevar esta tecnología a cada ciudad de Latinoamérica.</p>
+    </div>
+    <div class="red-wrapper">
+      <div class="red-hero reveal">
+        <h3>🌎 De Quito al continente</h3>
+        <p>Cada agencia aliada recibe su propia instancia de la plataforma — su portal, su CRM, su AIRA — bajo su marca local, con el respaldo tecnológico de RyG. Sin desarrollar nada desde cero. Sin contratar desarrolladores. Listo en días.</p>
+      </div>
+      <div class="red-grid">
+        <div class="red-card reveal reveal-delay-1">
+          <div class="rc-icon">🏢</div>
+          <h4>Presencia Local</h4>
+          <p>Cada aliado conoce su mercado. La tecnología es nuestra, el conocimiento local es suyo.</p>
+        </div>
+        <div class="red-card reveal reveal-delay-2">
+          <div class="rc-icon">⚙️</div>
+          <h4>Setup en días</h4>
+          <p>Portal configurado, CRM activo, AIRA entrenada. Una nueva agencia lista en menos de una semana.</p>
+        </div>
+        <div class="red-card reveal reveal-delay-3">
+          <div class="rc-icon">📊</div>
+          <h4>Datos centralizados</h4>
+          <p>Métricas de toda la red en un panel. Qué zonas venden más, qué tipo de propiedades lideran, qué asesores convierten mejor.</p>
+        </div>
+        <div class="red-card reveal reveal-delay-4">
+          <div class="rc-icon">🤝</div>
+          <h4>Soporte continuo</h4>
+          <p>El equipo de RyG mejora la plataforma continuamente. Cada actualización llega a todas las agencias de la red al mismo tiempo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     PRECIOS
+════════════════════════════ -->
+<section id="precios">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag"><span class="dot"></span>Planes</div>
+      <h2>Comienza gratis. Crece sin límites.</h2>
+      <p>Sin contratos anuales. Sin sorpresas. Cancela cuando quieras.</p>
+    </div>
+    <div class="pricing-grid">
+
+      <!-- Plan Prueba -->
+      <div class="pricing-card reveal reveal-delay-1">
+        <div class="pricing-name">Prueba</div>
+        <div class="pricing-price"><sup>$</sup>0 <span>/ mes</span></div>
+        <div class="pricing-desc">Para probar la plataforma y ver el impacto en tu agencia antes de comprometerte.</div>
+        <ul class="pricing-list">
+          <li>Portal inmobiliario básico</li>
+          <li>Hasta 10 propiedades activas</li>
+          <li>AIRA (20 conversaciones/mes)</li>
+          <li>CRM básico (hasta 30 leads)</li>
+          <li class="muted-item">Matchmaker Tinder</li>
+          <li class="muted-item">Bot Telegram</li>
+          <li class="muted-item">Contratos automáticos</li>
+          <li class="muted-item">Soporte prioritario</li>
+        </ul>
+        <a href="#contacto" class="btn-pricing secondary">Empezar gratis</a>
+      </div>
+
+      <!-- Plan Agencia -->
+      <div class="pricing-card featured reveal reveal-delay-2">
+        <div class="pricing-name">Agencia</div>
+        <div class="pricing-price"><sup>$</sup>80 <span>/ mes</span></div>
+        <div class="pricing-desc">Todo lo que una agencia activa necesita para operar profesionalmente.</div>
+        <ul class="pricing-list">
+          <li>Portal completo con tu marca</li>
+          <li>Propiedades ilimitadas</li>
+          <li>AIRA sin límites</li>
+          <li>CRM completo + pipeline kanban</li>
+          <li>Matchmaker Tinder + Tours 360°</li>
+          <li>Bot Telegram para el equipo</li>
+          <li>Contratos automáticos</li>
+          <li>Soporte WhatsApp prioritario</li>
+        </ul>
+        <a href="#contacto" class="btn-pricing primary">Quiero este plan</a>
+      </div>
+
+      <!-- Plan Red -->
+      <div class="pricing-card reveal reveal-delay-3">
+        <div class="pricing-name">Red Aliada</div>
+        <div class="pricing-price"><sup>$</sup>150 <span>/ mes</span></div>
+        <div class="pricing-desc">Para agencias que quieren ser parte de la red RyG y escalar en su ciudad.</div>
+        <ul class="pricing-list">
+          <li>Todo del plan Agencia</li>
+          <li>Marca co-branded "Powered by RyG"</li>
+          <li>Panel de métricas multi-agencia</li>
+          <li>Soporte de onboarding dedicado</li>
+          <li>Acceso anticipado a nuevas funciones</li>
+          <li>Capacitación del equipo incluida</li>
+          <li>Posibilidad de expansión regional</li>
+          <li>Visibilidad en la red RyG nacional</li>
+        </ul>
+        <a href="#contacto" class="btn-pricing secondary">Conversar sobre la red</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     CTA FINAL
+════════════════════════════ -->
+<section id="contacto" class="cta-final">
+  <h2>Listo para modernizar<br>tu agencia.</h2>
+  <p>Escríbenos y configuramos tu plataforma esta semana.</p>
+  <div class="cta-badge-row reveal">
+    <div class="cta-badge"><strong>Setup</strong> en menos de 7 días</div>
+    <div class="cta-badge"><strong>Sin</strong> contratos anuales</div>
+    <div class="cta-badge"><strong>Soporte</strong> por WhatsApp</div>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;" class="reveal">
+    <a href="https://wa.me/593998676863?text=Hola%2C%20quiero%20saber%20más%20sobre%20la%20plataforma%20RyG" class="btn-primary" target="_blank">💬 Escribir por WhatsApp</a>
+    <a href="mailto:nw@unionhermano.com" class="btn-outline">✉️ Enviar correo</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">
+    <div class="logo-box">RyG</div>
+    <span>RyG Inmobiliaria · Quito, Ecuador</span>
+  </div>
+  <div class="f-right">ryginmo.com · 2025</div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── Sheen on mousemove ── */
+const card = document.getElementById('mainCard');
+const sheen = document.getElementById('cardSheen');
+card.addEventListener('mousemove', e => {
+  const r = card.getBoundingClientRect();
+  const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+  const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+  sheen.style.setProperty('--mouse-x', x + '%');
+  sheen.style.setProperty('--mouse-y', y + '%');
+});
+
+/* ── CINEMATIC INTRO ── */
+const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+// Fase 1: texto intro aparece
+tl.set('#tt1', { visibility: 'visible' })
+  .from('#tt1', { y: 40, opacity: 0, duration: 1 })
+  .set('#ts1', { visibility: 'visible' })
+  .to('#ts1', { clipPath: 'inset(0 0% 0 0)', duration: 1.2, ease: 'power2.inOut' }, '-=0.2')
+
+  // Pausa
+  .to({}, { duration: 1.2 })
+
+  // Fade out texto intro
+  .to(['#tt1','#ts1'], { opacity: 0, y: -30, duration: 0.6, stagger: 0.1 })
+
+  // Fase 2: texto 2 aparece
+  .set('#heroTextB', { visibility: 'visible' })
+  .set('#tt2', { visibility: 'visible' })
+  .from('#tt2', { y: 40, opacity: 0, duration: 0.9 })
+  .set('#ts2', { visibility: 'visible' })
+  .to('#ts2', { clipPath: 'inset(0 0% 0 0)', duration: 1, ease: 'power2.inOut' }, '-=0.2')
+
+  .to({}, { duration: 1 })
+  .to(['#tt2','#ts2'], { opacity: 0, y: -30, duration: 0.6 })
+  .set('#heroTextB', { visibility: 'hidden' })
+
+  // Fase 3: la card aparece
+  .to('#mainCard', { scale: 1, duration: 1.2, ease: 'expo.out' }, '<')
+
+  .set('#laptopWrapper', { visibility: 'visible' })
+  .from('#laptopWrapper', { scale: 0.85, opacity: 0, rotationY: -15, duration: 1.2, ease: 'expo.out' })
+
+  .set('#brandText', { visibility: 'visible' })
+  .from('#brandText', { x: 40, opacity: 0, duration: 1, ease: 'expo.out' }, '-=0.9')
+
+  .set('#cdTag', { visibility: 'visible' })
+  .from('#cdTag', { y: 20, opacity: 0, duration: 0.7, ease: 'expo.out' }, '-=0.8')
+
+  .set('#cdH3', { visibility: 'visible' })
+  .from('#cdH3', { y: 20, opacity: 0, duration: 0.7, ease: 'expo.out' }, '-=0.6')
+
+  .set('#cdP', { visibility: 'visible' })
+  .from('#cdP', { y: 15, opacity: 0, duration: 0.6, ease: 'expo.out' }, '-=0.5')
+
+  // Badges
+  .set('#badgeTL', { visibility: 'visible' })
+  .from('#badgeTL', { x: -30, opacity: 0, duration: 0.7, ease: 'back.out(1.5)' }, '-=0.3')
+
+  .set('#badgeTR', { visibility: 'visible' })
+  .from('#badgeTR', { x: 30, opacity: 0, duration: 0.7, ease: 'back.out(1.5)' }, '-=0.6')
+
+  .set('#badgeBL', { visibility: 'visible' })
+  .from('#badgeBL', { x: -30, opacity: 0, duration: 0.7, ease: 'back.out(1.5)' }, '-=0.5')
+
+  .set('#badgeBR', { visibility: 'visible' })
+  .from('#badgeBR', { x: 30, opacity: 0, duration: 0.7, ease: 'back.out(1.5)' }, '-=0.6')
+
+  // Laptop float
+  .to('#laptop', { y: -8, repeat: -1, yoyo: true, duration: 2.5, ease: 'sine.inOut' })
+
+  // Pausa larga mostrando la card
+  .to({}, { duration: 2.5 }, '<')
+
+  // Fade out card, mostrar CTA final
+  .to('#mainCard', { opacity: 0, scale: 0.95, duration: 0.8 }, '+=0')
+  .set('#ctaLayer', { visibility: 'visible' })
+  .from('#ctaLayer', { opacity: 0, y: 30, duration: 1, ease: 'expo.out' }, '-=0.2');
+
+/* ── Scroll reveals ── */
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => observer.observe(el));
+
+/* ── Badge float animations ── */
+gsap.to('#badgeTL', { y: -6, repeat: -1, yoyo: true, duration: 3, ease: 'sine.inOut', delay: 0.5 });
+gsap.to('#badgeTR', { y: 6, repeat: -1, yoyo: true, duration: 3.5, ease: 'sine.inOut', delay: 1 });
+gsap.to('#badgeBL', { y: 5, repeat: -1, yoyo: true, duration: 2.8, ease: 'sine.inOut', delay: 0.8 });
+gsap.to('#badgeBR', { y: -7, repeat: -1, yoyo: true, duration: 3.2, ease: 'sine.inOut', delay: 1.3 });
+</script>
+</body>
+</html>

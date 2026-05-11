@@ -37,14 +37,24 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login") || request.nextUrl.pathname.startsWith("/auth/");
+  const isAuthPage =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/auth/") ||
+    request.nextUrl.pathname.startsWith("/registro");
   const isPublicPage =
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/seguimiento");
   const isHubApi = request.nextUrl.pathname.startsWith("/api/hub/");
+  const isSuperAdmin = request.nextUrl.pathname.startsWith("/super-admin");
+  const isStripeWebhook = request.nextUrl.pathname === "/api/stripe/webhook";
 
-  if (!user && !isAuthPage && !isPublicPage && !isHubApi) {
+  if (!user && !isAuthPage && !isPublicPage && !isHubApi && !isStripeWebhook) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // super-admin solo para developer — el check de rol está en la página
+  if (user && isSuperAdmin) {
+    return supabaseResponse;
   }
 
   if (user && isAuthPage) {

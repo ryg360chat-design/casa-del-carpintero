@@ -3,9 +3,18 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { canUseFeature } from "@/lib/plans";
+import type { OrgPlan } from "@/lib/org";
 import clsx from "clsx";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  href: string;
+  feature?: Parameters<typeof canUseFeature>[1];
+  icon: React.ReactNode;
+};
+
+const navItems: NavItem[] = [
   {
     label: "Dashboard",
     href: "/dashboard",
@@ -41,6 +50,7 @@ const navItems = [
   {
     label: "Rendimiento",
     href: "/produccion/rendimiento",
+    feature: "rendimiento",
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
@@ -53,6 +63,7 @@ const navItems = [
   {
     label: "Calendario",
     href: "/calendario",
+    feature: "calendario",
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
@@ -65,6 +76,7 @@ const navItems = [
   {
     label: "Reporte",
     href: "/reporte",
+    feature: "reporte_diario",
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="6 9 6 2 18 2 18 9"/>
@@ -119,16 +131,27 @@ const navItems = [
   },
 ];
 
+const LOCK_ICON = (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+);
+
 export default function Sidebar({
   userEmail,
   userRole = "viewer",
   isAdmin = false,
   isDeveloper = false,
+  orgNombre = "Kuadra",
+  orgPlan = "trial",
 }: {
   userEmail: string;
   userRole?: string;
   isAdmin?: boolean;
   isDeveloper?: boolean;
+  orgNombre?: string;
+  orgPlan?: OrgPlan;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -141,47 +164,65 @@ export default function Sidebar({
   }
 
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
-
   const canViewReporte = ["developer","admin","gerencia","administracion","produccion"].includes(userRole);
 
   const visibleItems = navItems.filter((item) => {
     if (item.href === "/dev") return isDeveloper;
     if (item.href === "/ajustes" || item.href === "/admin/invitar" || item.href === "/admin/usuarios") return isAdmin;
     if (item.href === "/reporte") return canViewReporte;
-    // Producción, Rendimiento y Calendario: ocultar solo a viewer puro
     if (item.href === "/produccion" || item.href === "/produccion/rendimiento" || item.href === "/calendario") return userRole !== "viewer";
     return true;
   });
 
   const ROLE_LABEL: Record<string, string> = {
-    developer:       "Desarrollador",
-    admin:           "Administrador",
-    gerencia:        "Gerencia",
-    administracion:  "Administración",
-    ventas:          "Ventas",
-    logistica:       "Logística",
-    produccion:      "Producción",
-    almacen_tableros:"Almacén Tableros",
-    almacen_cantos:  "Almacén Cantos",
-    almacenes:       "Almacenes",
-    corte_especial:  "Corte Especial",
-    viewer:          "Visualizador",
+    developer:        "Desarrollador",
+    admin:            "Administrador",
+    gerencia:         "Gerencia",
+    administracion:   "Administración",
+    ventas:           "Ventas",
+    logistica:        "Logística",
+    produccion:       "Producción",
+    almacen_tableros: "Almacén Tableros",
+    almacen_cantos:   "Almacén Cantos",
+    almacenes:        "Almacenes",
+    corte_especial:   "Corte Especial",
+    viewer:           "Visualizador",
   };
+
+  const PLAN_BADGE: Record<OrgPlan, { label: string; color: string }> = {
+    trial:        { label: "Trial",        color: "#6b7280" },
+    basico:       { label: "Básico",       color: "#1957A6" },
+    profesional:  { label: "Profesional",  color: "#7c3aed" },
+    empresarial:  { label: "Empresarial",  color: "#CC5238" },
+  };
+
+  const planBadge = PLAN_BADGE[orgPlan] ?? PLAN_BADGE.trial;
 
   return (
     <aside className="group/nav relative w-[60px] hover:w-[220px] transition-[width] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] bg-zinc-900 hidden md:flex flex-col h-full shrink-0 overflow-hidden z-30 select-none">
 
       {/* Logo */}
       <div className="h-[57px] flex items-center px-[14px] border-b border-zinc-800/80 overflow-hidden gap-3">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
-          <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-content-center items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
+          <span className="text-white font-black text-[11px] tracking-tight">
+            {orgNombre.slice(0, 2).toUpperCase()}
+          </span>
         </div>
-        <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75">
-          <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap">CASA DEL CARPINTERO</p>
+        <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75 min-w-0">
+          <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap truncate max-w-[140px]">
+            {orgNombre.toUpperCase()}
+          </p>
           <div className="flex items-center gap-1 mt-0.5">
-            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap" style={{ color: "#CC5238" }}>COMERCIAL SAC</span>
+            <span
+              className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap"
+              style={{ color: planBadge.color }}
+            >
+              {planBadge.label}
+            </span>
             <span className="text-zinc-600 text-[8px]">·</span>
-            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap text-zinc-500">PRODUCTION OS</span>
+            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap text-zinc-500">
+              KUADRA
+            </span>
           </div>
         </div>
       </div>
@@ -200,11 +241,36 @@ export default function Sidebar({
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5 overflow-hidden">
         {visibleItems.map((item) => {
+          const locked = item.feature
+            ? !canUseFeature(orgPlan, item.feature)
+            : false;
+
           const isActive =
-            pathname === item.href ||
-            (item.href !== "/dashboard" &&
-              item.href !== "/produccion" &&
-              pathname.startsWith(item.href));
+            !locked &&
+            (pathname === item.href ||
+              (item.href !== "/dashboard" &&
+                item.href !== "/produccion" &&
+                pathname.startsWith(item.href)));
+
+          if (locked) {
+            return (
+              <Link
+                key={item.href}
+                href="/upgrade"
+                data-tooltip={`${item.label} — Actualizar plan`}
+                className="relative flex items-center gap-3 pl-[11px] pr-3 py-2.5 rounded-lg transition-all duration-150 overflow-hidden text-zinc-600 hover:text-zinc-400 hover:bg-white/5"
+              >
+                <span className="shrink-0 opacity-40">{item.icon}</span>
+                <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-50 flex-1">
+                  {item.label}
+                </span>
+                <span className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 text-zinc-600">
+                  {LOCK_ICON}
+                </span>
+              </Link>
+            );
+          }
+
           return (
             <Link
               key={item.href}
@@ -220,15 +286,31 @@ export default function Sidebar({
               {isActive && (
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full" style={{ background: "#1957A6", boxShadow: "0 0 8px rgba(25,87,166,0.6)" }} />
               )}
-              <span className="shrink-0 transition-all duration-150">
-                {item.icon}
-              </span>
+              <span className="shrink-0 transition-all duration-150">{item.icon}</span>
               <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-50">
                 {item.label}
               </span>
             </Link>
           );
         })}
+
+        {/* Upgrade CTA — solo si no es empresarial */}
+        {orgPlan !== "empresarial" && (
+          <Link
+            href="/upgrade"
+            className="mt-2 flex items-center gap-3 pl-[11px] pr-3 py-2.5 rounded-lg transition-all duration-150 overflow-hidden text-amber-400 hover:bg-amber-400/10"
+          >
+            <span className="shrink-0">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m5 12 7-7 7 7"/>
+                <path d="M12 19V5"/>
+              </svg>
+            </span>
+            <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-50">
+              Actualizar plan
+            </span>
+          </Link>
+        )}
       </nav>
 
       {/* Divider */}

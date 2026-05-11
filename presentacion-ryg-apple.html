@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RyG Inmobiliaria · La plataforma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --gold:#D4A843;
+      --gold2:#f0c060;
+      --bg:#000;
+      --text:#f5f5f7;
+      --muted:#6e6e73;
+      --muted2:#3a3a3c;
+      --surface:#1c1c1e;
+      --surface2:#2c2c2e;
+    }
+    html{scroll-behavior:smooth;background:#000;}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:var(--text);overflow-x:hidden;line-height:1.5;}
+    ::selection{background:var(--gold);color:#000;}
+    ::-webkit-scrollbar{width:0;}
+
+    /* ─── NAV ─── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:999;
+      height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+      background:rgba(0,0,0,0.72);backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    .nav-brand{display:flex;align-items:center;gap:10px;}
+    .nav-brand .nb-icon{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--gold),#a07020);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:9px;color:#000;letter-spacing:-.3px;}
+    .nav-brand span{font-size:13px;font-weight:600;letter-spacing:-.3px;color:var(--text);}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    .nav-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{background:linear-gradient(135deg,var(--gold),#a07020);color:#000;font-size:12px;font-weight:700;padding:7px 18px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;transition:opacity .2s;}
+    .nav-cta:hover{opacity:.85;}
+    @media(max-width:640px){.nav-links{display:none;}}
+
+    /* ─── BUTTONS ─── */
+    .btn-apple{display:inline-block;padding:14px 30px;border-radius:980px;font-size:15px;font-weight:600;text-decoration:none;transition:transform .2s,opacity .2s;cursor:pointer;border:none;}
+    .btn-apple:hover{transform:scale(1.03);}
+    .btn-apple.primary{background:var(--gold);color:#000;}
+    .btn-apple.secondary{background:var(--surface2);color:var(--text);}
+
+    /* ─── CINEMATIC HERO ─── */
+    .gsap-reveal{visibility:hidden;}
+    .film-grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:50;opacity:0.04;mix-blend-mode:overlay;background:url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');}
+    .bg-grid-theme{background-size:60px 60px;background-image:linear-gradient(to right,rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.04) 1px,transparent 1px);mask-image:radial-gradient(ellipse at center,black 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,black 0%,transparent 70%);}
+
+    #cinematic-hero{position:relative;width:100vw;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+    .hero-text-wrapper{position:absolute;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;padding:0 24px;will-change:transform;}
+    .text-track{font-size:clamp(48px,8vw,110px);font-weight:800;letter-spacing:-.05em;line-height:.95;color:var(--text);text-shadow:0 10px 30px rgba(255,255,255,.08);}
+    .text-days{font-size:clamp(48px,8vw,110px);font-weight:900;letter-spacing:-.05em;line-height:.95;background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.35) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0px 10px 20px rgba(255,255,255,.1));}
+
+    .cta-wrapper{position:absolute;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;padding:0 24px;pointer-events:none;}
+    .cta-wrapper.active{pointer-events:auto;}
+    .cta-heading{font-size:clamp(36px,6vw,80px);font-weight:800;letter-spacing:-.04em;margin-bottom:16px;background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.4) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .cta-desc{color:var(--muted);font-size:clamp(16px,2vw,20px);max-width:520px;margin:0 auto 40px;line-height:1.7;}
+    .cta-buttons{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+
+    /* Deep Card */
+    .main-card{background:linear-gradient(145deg,#1a1200,#0C1013);box-shadow:0 40px 100px -20px rgba(0,0,0,.9),0 20px 40px -20px rgba(0,0,0,.8),inset 0 1px 2px rgba(212,168,67,.15),inset 0 -2px 4px rgba(0,0,0,.8);border:1px solid rgba(212,168,67,.08);position:relative;overflow:hidden;}
+    .card-sheen{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:50;background:radial-gradient(800px circle at var(--mouse-x,50%) var(--mouse-y,50%),rgba(212,168,67,.06) 0%,transparent 40%);mix-blend-mode:screen;}
+
+    /* Laptop Mockup */
+    .laptop-mockup{position:relative;width:min(820px,72vw);}
+    .laptop-screen{background:#0d0f12;border-radius:10px 10px 0 0;border:3px solid #333;border-bottom:none;overflow:hidden;aspect-ratio:16/10;box-shadow:inset 0 0 20px rgba(0,0,0,.6);position:relative;}
+    .laptop-base{height:16px;background:linear-gradient(180deg,#2a2a2a,#1a1a1a);border-radius:0 0 10px 10px;margin:0 -16px;box-shadow:0 4px 12px rgba(0,0,0,.6);position:relative;}
+    .laptop-base::before{content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%);width:60px;height:4px;background:#222;border-radius:0 0 4px 4px;}
+    .screen-glare{position:absolute;inset:0;background:linear-gradient(110deg,rgba(255,255,255,.03) 0%,transparent 40%);pointer-events:none;z-index:5;}
+
+    /* CRM Mockup Inside Laptop */
+    .crm-mock{display:flex;width:100%;height:100%;font-family:'Inter',sans-serif;font-size:9px;color:#ccc;}
+    .crm-sb{width:48px;background:#0a0c10;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:14px;flex-shrink:0;}
+    .crm-sb-logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--gold),#8a5a10);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:#000;}
+    .crm-sb-item{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:.4;cursor:pointer;transition:opacity .2s;}
+    .crm-sb-item.active{opacity:1;background:rgba(212,168,67,.15);}
+    .crm-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .crm-topbar{padding:8px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06);}
+    .crm-topbar-title{font-size:12px;font-weight:700;color:#fff;}
+    .crm-topbar-alert{font-size:7px;background:rgba(239,68,68,.15);color:#ef4444;padding:2px 6px;border-radius:999px;font-weight:600;}
+    .crm-stats-row{display:flex;gap:6px;padding:8px 12px;}
+    .crm-stat{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:6px 8px;text-align:center;}
+    .crm-stat-val{font-size:14px;font-weight:800;color:#fff;}
+    .crm-stat-val.hot{color:#ef4444;}
+    .crm-stat-label{font-size:7px;color:#666;margin-top:2px;}
+    .crm-kanban{flex:1;display:flex;gap:4px;padding:6px 12px 12px;overflow:hidden;}
+    .crm-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
+    .crm-col-head{font-size:8px;font-weight:700;padding:4px 6px;border-radius:6px;display:flex;align-items:center;gap:4px;margin-bottom:2px;}
+    .crm-col-head .col-dot{width:6px;height:6px;border-radius:50%;}
+    .crm-col-head span{color:#666;font-weight:400;margin-left:auto;}
+    .crm-lead{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:6px;padding:5px 6px;display:flex;flex-direction:column;gap:3px;}
+    .crm-lead-top{display:flex;align-items:center;gap:4px;}
+    .crm-lead-av{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#000;flex-shrink:0;}
+    .crm-lead-name{font-size:8px;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .crm-lead-badge{font-size:6px;font-weight:700;padding:1px 4px;border-radius:999px;margin-left:auto;white-space:nowrap;}
+    .crm-lead-price{font-size:10px;font-weight:800;color:var(--gold);}
+    .crm-lead-tags{display:flex;gap:2px;}
+    .crm-lead-tag{font-size:6px;padding:1px 4px;border-radius:999px;background:rgba(255,255,255,.06);color:#888;}
+
+    /* Floating Badges - positioned around the laptop */
+    .floating-badge{position:absolute;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.01) 100%);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 0 0 1px rgba(255,255,255,.1),0 25px 50px -12px rgba(0,0,0,.8),inset 0 1px 1px rgba(255,255,255,.15);z-index:30;white-space:nowrap;}
+    .badge-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .badge-text p:first-child{font-size:13px;font-weight:700;color:#fff;}
+    .badge-text p:last-child{font-size:11px;color:rgba(212,168,67,.7);margin-top:2px;}
+    .badge-1{top:-20px;left:-40px;}
+    .badge-2{top:-20px;right:-40px;}
+    .badge-3{bottom:30px;left:-60px;}
+    .badge-4{bottom:30px;right:-60px;}
+
+    /* Card inner layout */
+    .card-inner{position:relative;width:100%;height:100%;max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:center;padding:24px;z-index:10;}
+    .card-left{position:absolute;left:40px;top:50%;transform:translateY(-50%);z-index:20;}
+    .card-left h2{font-size:clamp(52px,7vw,110px);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;background:linear-gradient(180deg,#fff 0%,#a1a1aa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0px 12px 24px rgba(0,0,0,.8));}
+    .card-right{position:absolute;right:40px;top:50%;transform:translateY(-50%);max-width:320px;z-index:20;text-align:right;}
+    .card-right h3{font-size:clamp(22px,3vw,36px);font-weight:700;color:#fff;margin-bottom:8px;line-height:1.1;}
+    .card-right p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.6;}
+
+    @media(max-width:768px){
+      .floating-badge{padding:10px 12px;border-radius:12px;}
+      .badge-icon{width:28px;height:28px;font-size:14px;}
+      .badge-text p:first-child{font-size:11px;}
+      .badge-text p:last-child{font-size:9px;}
+      .laptop-base{height:12px;margin:0 -10px;}
+      .laptop-mockup{width:min(820px,90vw);}
+      .badge-1{top:-10px;left:-10px;}
+      .badge-2{top:-10px;right:-10px;}
+      .badge-3{bottom:20px;left:-10px;}
+      .badge-4{bottom:20px;right:-10px;}
+      .card-left{left:16px;}
+      .card-left h2{font-size:42px;}
+      .card-right{right:16px;max-width:180px;}
+      .card-right h3{font-size:16px;}
+      .card-right p{display:none;}
+    }
+
+    /* CRM inner animation */
+    .crm-anim{opacity:0;transform:translateY(8px);}
+
+    /* ─── STATEMENT SECTION ─── */
+    .statement{
+      padding:120px 24px;text-align:center;position:relative;overflow:hidden;
+    }
+    .st-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;}
+    .st-title{font-size:clamp(36px,6vw,80px);font-weight:700;letter-spacing:-.04em;line-height:1.05;max-width:900px;margin:0 auto 24px;}
+    .st-body{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:640px;margin:0 auto;line-height:1.7;}
+
+    /* ─── FEATURE FULLSCREEN ─── */
+    .feature-block{
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:100px 24px;text-align:center;position:relative;overflow:hidden;
+    }
+    .feature-block .fb-sup{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+    .feature-block .fb-title{font-size:clamp(42px,7vw,96px);font-weight:800;letter-spacing:-.05em;line-height:.95;margin-bottom:20px;}
+    .feature-block .fb-sub{font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:560px;margin:0 auto 48px;line-height:1.7;}
+    .feature-block .fb-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.25);color:var(--gold);font-size:12px;font-weight:600;padding:6px 16px;border-radius:999px;letter-spacing:.04em;}
+
+    /* Feature visual: phone mockup */
+    .phone-mockup{
+      width:260px;height:520px;border-radius:42px;background:linear-gradient(145deg,#1c1c1e,#111);
+      border:8px solid #2c2c2e;box-shadow:0 60px 120px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06),inset 0 1px 1px rgba(255,255,255,.08);
+      overflow:hidden;position:relative;flex-shrink:0;
+    }
+    .phone-notch{width:90px;height:26px;background:#000;border-radius:0 0 18px 18px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10;}
+    .phone-screen{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+
+    /* Phone screens content */
+    .ps-portal .ps-header{background:#0a0a0a;padding:36px 14px 14px;border-bottom:1px solid rgba(212,168,67,.1);}
+    .ps-portal .ps-header .ph-logo{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:-.2px;}
+    .ps-portal .ps-header .ph-sub{font-size:9px;color:#555;margin-top:2px;}
+    .ps-portal .ps-cards{padding:12px;display:flex;flex-direction:column;gap:8px;overflow:hidden;}
+    .ps-card{background:#1a1a1c;border-radius:12px;overflow:hidden;}
+    .ps-card-img{height:70px;background:linear-gradient(135deg,#2a1f0a,#1a1408);display:flex;align-items:center;justify-content:center;font-size:22px;}
+    .ps-card-body{padding:8px 10px;}
+    .ps-card-body .pc-price{font-size:11px;font-weight:800;color:var(--gold);}
+    .ps-card-body .pc-name{font-size:9px;color:#888;margin-top:1px;}
+    .ps-card-body .pc-tags{display:flex;gap:4px;margin-top:5px;}
+    .ps-card-body .pc-tag{font-size:7px;padding:2px 6px;border-radius:999px;background:rgba(212,168,67,.1);color:var(--gold);}
+
+    .ps-tinder .pt-header{background:#0a0a0a;padding:36px 14px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(212,168,67,.1);}
+    .ps-tinder .pt-header span{font-size:10px;font-weight:700;color:var(--gold);}
+    .pt-card{margin:14px;border-radius:18px;overflow:hidden;background:linear-gradient(145deg,#1e2a10,#141a0c);flex:1;}
+    .pt-card-img{height:160px;background:linear-gradient(145deg,#1e2a10,#2a3a18);display:flex;align-items:center;justify-content:center;font-size:36px;}
+    .pt-card-info{padding:12px;}
+    .pt-card-info .pci-price{font-size:14px;font-weight:800;color:var(--gold);}
+    .pt-card-info .pci-name{font-size:10px;color:#888;margin-top:2px;}
+    .pt-actions{display:flex;justify-content:center;gap:20px;padding:12px 20px;}
+    .pt-btn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid;}
+    .pt-btn.nope{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08);}
+    .pt-btn.like{border-color:rgba(212,168,67,.4);background:rgba(212,168,67,.08);}
+
+    .ps-crm .crm-header{background:#0a0a0a;padding:36px 14px 12px;border-bottom:1px solid rgba(212,168,67,.1);}
+    .ps-crm .crm-header span{font-size:10px;font-weight:700;color:var(--gold);}
+    .crm-list{padding:10px;display:flex;flex-direction:column;gap:6px;}
+    .crm-item{background:#1a1a1c;border-radius:10px;padding:9px 10px;display:flex;align-items:center;gap:9px;}
+    .crm-item .ci-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#a07020);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;flex-shrink:0;}
+    .crm-item .ci-info .ci-name{font-size:9px;font-weight:700;color:#e0e0e0;}
+    .crm-item .ci-info .ci-detail{font-size:8px;color:#555;margin-top:1px;}
+    .crm-item .ci-badge{margin-left:auto;font-size:7px;font-weight:700;padding:2px 6px;border-radius:999px;}
+    .hot-b{background:rgba(239,68,68,.15);color:#ef4444;}
+    .warm-b{background:rgba(245,158,11,.15);color:#f59e0b;}
+    .cold-b{background:rgba(99,102,241,.15);color:#818cf8;}
+
+    .ps-aira .aira-header{background:#0a0a0a;padding:36px 14px 12px;border-bottom:1px solid rgba(212,168,67,.1);display:flex;align-items:center;gap:8px;}
+    .aira-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#a07020);display:flex;align-items:center;justify-content:center;font-size:12px;}
+    .ps-aira .aira-header div .ah-name{font-size:10px;font-weight:700;color:var(--gold);}
+    .ps-aira .aira-header div .ah-status{font-size:8px;color:#3a3;margin-top:1px;}
+    .aira-msgs{padding:12px;display:flex;flex-direction:column;gap:8px;overflow:hidden;}
+    .aira-msg{max-width:80%;padding:8px 10px;border-radius:12px;font-size:8px;line-height:1.5;}
+    .aira-msg.bot{background:#1a1a1c;color:#ccc;border-radius:12px 12px 12px 3px;align-self:flex-start;}
+    .aira-msg.user{background:linear-gradient(135deg,var(--gold),#a07020);color:#000;border-radius:12px 12px 3px 12px;align-self:flex-end;font-weight:600;}
+
+    /* ─── MOCKUP ROW ─── */
+    .phones-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:24px;}
+    .phone-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+    .phone-label{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;}
+
+    /* ─── PROBLEM GRID ─── */
+    .problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--muted2);border-radius:24px;overflow:hidden;border:1px solid var(--muted2);max-width:900px;margin:48px auto 0;}
+    .pg-item{background:#111;padding:32px;display:flex;flex-direction:column;gap:12px;}
+    .pg-icon{font-size:28px;}
+    .pg-title{font-size:15px;font-weight:700;color:var(--text);}
+    .pg-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+
+    /* ─── NUMBERS ─── */
+    .numbers-row{display:flex;justify-content:center;gap:0;flex-wrap:wrap;max-width:1000px;margin:60px auto 0;}
+    .num-item{flex:1;min-width:160px;padding:40px 24px;text-align:center;border-right:1px solid var(--muted2);}
+    .num-item:last-child{border-right:none;}
+    .num-val{font-size:clamp(40px,6vw,72px);font-weight:800;letter-spacing:-.04em;line-height:1;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .num-label{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5;}
+
+    /* ─── COMPARISON ─── */
+    .compare-table{max-width:800px;margin:48px auto 0;border:1px solid var(--muted2);border-radius:24px;overflow:hidden;}
+    .ct-head{display:grid;grid-template-columns:2fr 1fr 1fr;background:var(--surface);}
+    .ct-head div{padding:16px 20px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+    .ct-head div:nth-child(2){color:var(--gold);text-align:center;}
+    .ct-head div:nth-child(3){text-align:center;}
+    .ct-row{display:grid;grid-template-columns:2fr 1fr 1fr;border-top:1px solid var(--muted2);}
+    .ct-row:hover{background:rgba(255,255,255,.02);}
+    .ct-row div{padding:14px 20px;font-size:13px;color:var(--muted);display:flex;align-items:center;}
+    .ct-row div:nth-child(1){color:var(--text);font-weight:500;}
+    .ct-row div:nth-child(2),.ct-row div:nth-child(3){justify-content:center;}
+    .check-g{color:#34c759;font-size:18px;font-weight:800;}
+    .cross-r{color:#ff3b30;font-size:18px;}
+
+    /* ─── PRICING ─── */
+    .pricing-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;max-width:1000px;margin:60px auto 0;}
+    .pc{
+      flex:1;min-width:260px;max-width:320px;
+      background:#111;border:1px solid var(--muted2);border-radius:28px;padding:36px;
+      display:flex;flex-direction:column;gap:0;
+      transition:transform .3s,border-color .3s;position:relative;overflow:hidden;
+    }
+    .pc:hover{transform:translateY(-6px);}
+    .pc.best{border-color:rgba(212,168,67,.4);background:linear-gradient(145deg,#1a1500,#0d0d00);}
+    .pc.best::before{content:"MÁS POPULAR";position:absolute;top:18px;right:18px;font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:999px;background:rgba(212,168,67,.15);color:var(--gold);border:1px solid rgba(212,168,67,.3);}
+    .pc-tier{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+    .pc-price{font-size:52px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--text);margin-bottom:6px;}
+    .pc-price sup{font-size:22px;vertical-align:top;margin-top:8px;}
+    .pc-price span{font-size:14px;color:var(--muted);font-weight:400;}
+    .pc-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+    .pc-divider{height:1px;background:var(--muted2);margin-bottom:20px;}
+    .pc-list{list-style:none;display:flex;flex-direction:column;gap:11px;flex:1;margin-bottom:28px;}
+    .pc-list li{font-size:13px;color:#ccc;display:flex;gap:10px;align-items:flex-start;line-height:1.4;}
+    .pc-list li::before{content:"✓";color:var(--gold);font-weight:800;flex-shrink:0;}
+    .pc-list li.off{color:var(--muted);}
+    .pc-list li.off::before{content:"–";color:var(--muted2);}
+    .pc-btn{display:block;padding:14px;border-radius:14px;text-align:center;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:opacity .2s,transform .2s;}
+    .pc-btn:hover{transform:translateY(-2px);opacity:.9;}
+    .pc-btn.g{background:var(--gold);color:#000;}
+    .pc-btn.w{background:var(--surface2);color:var(--text);}
+
+    /* ─── FRANCHISE ─── */
+    .franchise-block{
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:100px 24px;text-align:center;position:relative;overflow:hidden;
+      background:radial-gradient(ellipse at 50% 0%,rgba(212,168,67,.08) 0%,transparent 60%);
+    }
+    .franchise-countries{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:40px;}
+    .fc-badge{display:flex;align-items:center;gap:8px;background:#111;border:1px solid var(--muted2);padding:12px 20px;border-radius:14px;font-size:14px;font-weight:600;transition:border-color .3s,transform .3s;}
+    .fc-badge:hover{border-color:rgba(212,168,67,.3);transform:translateY(-4px);}
+    .fc-flag{font-size:20px;}
+
+    /* ─── STEP FLOW ─── */
+    .steps-flow{max-width:700px;margin:60px auto 0;display:flex;flex-direction:column;gap:0;position:relative;}
+    .steps-flow::before{content:"";position:absolute;left:27px;top:54px;bottom:54px;width:2px;background:linear-gradient(to bottom,var(--gold),transparent);}
+    .sf-step{display:flex;gap:24px;padding:20px 0;}
+    .sf-num{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--gold),#8a5a10);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#000;flex-shrink:0;z-index:1;box-shadow:0 0 24px rgba(212,168,67,.3);}
+    .sf-body h3{font-size:18px;font-weight:700;margin-bottom:6px;line-height:1.2;}
+    .sf-body p{font-size:14px;color:var(--muted);line-height:1.7;}
+
+    /* ─── CTA FINAL ─── */
+    #cta{
+      min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:100px 24px;text-align:center;position:relative;overflow:hidden;
+    }
+    #cta::before{
+      content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:700px;height:500px;border-radius:50%;
+      background:radial-gradient(ellipse,rgba(212,168,67,.14) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .cta-title{font-size:clamp(40px,7vw,90px);font-weight:800;letter-spacing:-.05em;line-height:.95;margin-bottom:20px;}
+    .cta-sub{font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:520px;margin:0 auto 48px;line-height:1.7;}
+    .cta-badges{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;}
+    .cta-b{background:#111;border:1px solid var(--muted2);border-radius:12px;padding:10px 20px;font-size:12px;color:var(--muted);}
+    .cta-b strong{color:var(--text);}
+
+    /* ─── FOOTER ─── */
+    footer{border-top:1px solid var(--muted2);padding:32px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+    footer .fl{display:flex;align-items:center;gap:8px;}
+    footer .fl .fi{width:22px;height:22px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#8a5a10);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#000;}
+    footer span{font-size:12px;color:var(--muted);}
+
+    /* ─── SEPARATOR ─── */
+    .sep{height:1px;background:linear-gradient(to right,transparent,var(--muted2),transparent);margin:0 40px;}
+
+    /* ─── ANIM HELPERS ─── */
+    .will-reveal{opacity:0;transform:translateY(40px);}
+
+    @media(max-width:640px){
+      .numbers-row{flex-direction:column;gap:0;}
+      .num-item{border-right:none;border-bottom:1px solid var(--muted2);}
+      .num-item:last-child{border-bottom:none;}
+      .ct-head,.ct-row{grid-template-columns:1.5fr 1fr 1fr;}
+      .phone-mockup{width:220px;height:440px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nb-icon">RyG</div>
+    <span>RyG Inmobiliaria</span>
+  </div>
+  <div class="nav-links">
+    <a href="#plataforma">Plataforma</a>
+    <a href="#comparacion">Matchmaker</a>
+    <a href="#red">Red</a>
+    <a href="#precios">Precios</a>
+  </div>
+  <a href="#cta" class="nav-cta">Hablar con el equipo</a>
+</nav>
+
+<!-- ══════════════════════════════
+     CINEMATIC HERO
+══════════════════════════════ -->
+<section id="cinematic-hero" style="perspective:1500px;">
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="bg-grid-theme" style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;" aria-hidden="true"></div>
+
+  <!-- Hero Text (background) -->
+  <div class="hero-text-wrapper">
+    <h1 class="text-track gsap-reveal">Mientras lees esto,</h1>
+    <h1 class="text-days gsap-reveal">AIRA ya está vendiendo.</h1>
+  </div>
+
+  <!-- CTA (appears after card pulls back) -->
+  <div class="cta-wrapper gsap-reveal">
+    <h2 class="cta-heading">Tu agencia. Automatizada.</h2>
+    <p class="cta-desc">Escríbenos hoy y configuramos tu plataforma esta semana. Sin contratos anuales. Sin sorpresas.</p>
+    <div class="cta-buttons">
+      <a href="https://wa.me/593998676863?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20la%20plataforma%20RyG" class="btn-apple primary" target="_blank" style="font-size:16px;padding:16px 36px;">💬 Escribir por WhatsApp</a>
+      <a href="#plataforma" class="btn-apple secondary" style="font-size:16px;padding:16px 36px;">Ver la plataforma ↓</a>
+    </div>
+  </div>
+
+  <!-- The Deep Card -->
+  <div style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;pointer-events:none;" aria-hidden="false">
+    <div class="main-card gsap-reveal" id="mainCard" style="width:92vw;height:88vh;border-radius:32px;display:flex;align-items:center;justify-content:center;position:relative;pointer-events:auto;">
+      <div class="card-sheen" aria-hidden="true"></div>
+
+      <!-- Left Brand -->
+      <div class="card-left gsap-reveal" id="cardLeft">
+        <h2>RyG</h2>
+      </div>
+
+      <!-- Right Text -->
+      <div class="card-right gsap-reveal" id="cardRight">
+        <h3>Todo tu negocio.<br>Una sola plataforma.</h3>
+        <p>Portal, CRM, IA, matchmaker y bot — diseñado para agencias inmobiliarias de Latinoamérica.</p>
+      </div>
+
+      <!-- Laptop Mockup with CRM Dashboard + Floating Badges -->
+      <div class="mockup-scroll-wrapper" id="mockupWrapper" style="z-index:10;position:relative;">
+        <div class="laptop-mockup" id="laptopMockup">
+          <div class="laptop-screen">
+            <div class="screen-glare"></div>
+            <div class="crm-mock">
+              <div class="crm-sb">
+                <div class="crm-sb-logo">R</div>
+                <div class="crm-sb-item" style="opacity:.6;">🏠</div>
+                <div class="crm-sb-item" style="opacity:.6;">📊</div>
+                <div class="crm-sb-item active">👥</div>
+                <div class="crm-sb-item" style="opacity:.4;">📅</div>
+                <div class="crm-sb-item" style="opacity:.4;">📋</div>
+                <div class="crm-sb-item" style="opacity:.4;">🏢</div>
+                <div class="crm-sb-item" style="opacity:.4;">📱</div>
+                <div class="crm-sb-item" style="opacity:.4;">🔀</div>
+              </div>
+              <div class="crm-main">
+                <div class="crm-topbar crm-anim">
+                  <div class="crm-topbar-title">CRM</div>
+                  <div class="crm-topbar-alert">6 sin atender</div>
+                </div>
+                <div class="crm-stats-row crm-anim">
+                  <div class="crm-stat"><div class="crm-stat-val">118</div><div class="crm-stat-label">Total</div></div>
+                  <div class="crm-stat"><div class="crm-stat-val hot">6</div><div class="crm-stat-label">HOT</div></div>
+                  <div class="crm-stat"><div class="crm-stat-val" style="color:var(--gold);">19</div><div class="crm-stat-label">Seguimiento</div></div>
+                  <div class="crm-stat"><div class="crm-stat-val" style="color:#34c759;">5</div><div class="crm-stat-label">Visita</div></div>
+                </div>
+                <div class="crm-kanban">
+                  <div class="crm-col">
+                    <div class="crm-col-head crm-anim"><div class="col-dot" style="background:var(--gold);"></div>Pendiente <span>58</span></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">V</div><div class="crm-lead-name">Victoria</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$600</div><div class="crm-lead-tags"><span class="crm-lead-tag">Renta</span></div></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#ec4899,#be185d);">PM</div><div class="crm-lead-name">Paola M</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$450</div><div class="crm-lead-tags"><span class="crm-lead-tag">Renta</span></div></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,var(--gold),#8a5a10);">MA</div><div class="crm-lead-name">Marco Alaja</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$400</div></div>
+                  </div>
+                  <div class="crm-col">
+                    <div class="crm-col-head crm-anim"><div class="col-dot" style="background:#3b82f6;"></div>Contactado <span>43</span></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">AF</div><div class="crm-lead-name">Andres Felipe</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$500</div><div class="crm-lead-tags"><span class="crm-lead-tag">Renta</span></div></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#f97316,#c2410c);">MB</div><div class="crm-lead-name">Melissa Badillo</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$90k</div></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#10b981,#047857);">CS</div><div class="crm-lead-name">Camilo Sebastián</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$500</div></div>
+                  </div>
+                  <div class="crm-col">
+                    <div class="crm-col-head crm-anim"><div class="col-dot" style="background:#8b5cf6;"></div>Visita <span>5</span></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#ef4444,#b91c1c);">GE</div><div class="crm-lead-name">Georgina Edith</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$600</div></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#f97316,#c2410c);">R</div><div class="crm-lead-name">Reyna</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$450</div></div>
+                  </div>
+                  <div class="crm-col">
+                    <div class="crm-col-head crm-anim"><div class="col-dot" style="background:#f59e0b;"></div>Seguimiento <span>19</span></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#6366f1,#4338ca);">RE</div><div class="crm-lead-name">Runa Estudio</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$450</div></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#ec4899,#be185d);">JC</div><div class="crm-lead-name">Juan Carlos</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$550</div></div>
+                  </div>
+                  <div class="crm-col">
+                    <div class="crm-col-head crm-anim"><div class="col-dot" style="background:#34c759;"></div>Cierre <span>1</span></div>
+                    <div class="crm-lead crm-anim"><div class="crm-lead-top"><div class="crm-lead-av" style="background:linear-gradient(135deg,#ec4899,#be185d);">PR</div><div class="crm-lead-name">Patricio Rendón</div><div class="crm-lead-badge" style="background:rgba(245,158,11,.15);color:#f59e0b;">WARM</div></div><div class="crm-lead-price">$600</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="laptop-base"></div>
+        </div>
+
+        <!-- Floating Badges around the laptop -->
+        <div class="floating-badge badge-1 gsap-reveal" id="fb1">
+          <div class="badge-icon" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);">🔥</div>
+          <div class="badge-text"><p>Lead calificado HOT</p><p>En Excel → se pierde</p></div>
+        </div>
+        <div class="floating-badge badge-2 gsap-reveal" id="fb2">
+          <div class="badge-icon" style="background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.3);">⚡</div>
+          <div class="badge-text"><p>AIRA respondió en 0.3s</p><p>WhatsApp → 3 horas</p></div>
+        </div>
+        <div class="floating-badge badge-3 gsap-reveal" id="fb3">
+          <div class="badge-icon" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);">🤖</div>
+          <div class="badge-text"><p>Bot Telegram 24/7</p><p>Consulta leads al instante</p></div>
+        </div>
+        <div class="floating-badge badge-4 gsap-reveal" id="fb4">
+          <div class="badge-icon" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);">🎯</div>
+          <div class="badge-text"><p>0 leads perdidos</p><p>Excel → 40% se pierden</p></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ══════════════════════════════
+     NÚMEROS
+══════════════════════════════ -->
+<section style="padding:80px 24px 100px;">
+  <div class="numbers-row will-reveal" id="nums">
+    <div class="num-item">
+      <div class="num-val">24/7</div>
+      <div class="num-label">Portal y matchmaker<br>siempre disponibles</div>
+    </div>
+    <div class="num-item">
+      <div class="num-val">0.3s</div>
+      <div class="num-label">Respuesta de AIRA<br>a cada cliente</div>
+    </div>
+    <div class="num-item">
+      <div class="num-val">360°</div>
+      <div class="num-label">Tours virtuales<br>desde cualquier lugar</div>
+    </div>
+    <div class="num-item">
+      <div class="num-val">$0</div>
+      <div class="num-label">Para empezar<br>hoy mismo</div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ══════════════════════════════
+     PRESENTAMOS LA PLATAFORMA
+══════════════════════════════ -->
+<section class="feature-block" id="plataforma" style="background:radial-gradient(ellipse at 50% 20%,rgba(212,168,67,.07) 0%,transparent 60%);">
+  <p class="fb-sup will-reveal">Presentamos</p>
+  <h2 class="fb-title will-reveal">RyG Plataforma.</h2>
+  <p class="fb-sub will-reveal">Nueve herramientas. Una sola interfaz. Diseñada para el mercado inmobiliario latinoamericano.</p>
+  <p class="fb-sub will-reveal" style="margin-top:8px;font-size:14px;color:var(--muted);">CRM · Portal 360° · Matchmaker · Agenda · Contactos · Contratos · Roles · Contabilidad · IA</p>
+
+  <style>
+    .fc-container {
+      width: 100%; max-width: 1200px; margin: 60px auto 0;
+      border-radius: 2.5rem; border: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; overflow: hidden;
+      min-height: 600px; background: rgba(255,255,255,0.02);
+      box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+    }
+    @media(min-width: 1024px) {
+      .fc-container { flex-direction: row; border-radius: 4rem; height: 600px; }
+    }
+
+    .fc-left {
+      width: 100%; min-height: 350px; height: 350px; position: relative; z-index: 30;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #111, #080808); padding: 2rem;
+    }
+    @media(min-width: 1024px) {
+      .fc-left { width: 40%; height: 100%; align-items: flex-start; padding-left: 4rem; }
+    }
+    .fc-fade-top, .fc-fade-bot {
+      position: absolute; left: 0; right: 0; height: 80px; z-index: 40; pointer-events: none;
+    }
+    .fc-fade-top { top: 0; background: linear-gradient(to bottom, #111 20%, transparent); }
+    .fc-fade-bot { bottom: 0; background: linear-gradient(to top, #080808 20%, transparent); }
+
+    .fc-chips-wrapper { position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; }
+    @media(min-width: 1024px) { .fc-chips-wrapper { justify-content: flex-start; } }
+
+    .fc-chip-ctn { position: absolute; height: 65px; display: flex; align-items: center; transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    
+    .fc-chip {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 24px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.5s ease;
+      white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; font-weight: 600;
+    }
+    .fc-chip:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+    .fc-chip.active { background: var(--gold); color: #000; border-color: var(--gold); }
+    .fc-chip-icon { font-size: 18px; display: flex; align-items: center; justify-content: center; transition: color 0.5s; }
+    .fc-chip.active .fc-chip-icon { color: #000; }
+
+    .fc-right {
+      flex: 1; min-height: 500px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: #000; border-top: 1px solid rgba(255,255,255,0.08); padding: 2rem;
+    }
+    @media(min-width: 1024px) {
+      .fc-right { border-top: none; border-left: 1px solid rgba(255,255,255,0.08); }
+    }
+
+    .fc-card-stack { position: relative; width: 100%; max-width: 380px; aspect-ratio: 4/5; display: flex; align-items: center; justify-content: center; }
+    
+    .fc-card {
+      position: absolute; inset: 0; border-radius: 2rem; overflow: hidden;
+      border: 6px solid #111; background: #111; transform-origin: center;
+      transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform: translateX(0) scale(0.7) rotate(0);
+      opacity: 0; z-index: 0; pointer-events: none;
+    }
+    @media(min-width: 768px) { .fc-card { border-radius: 2.5rem; border-width: 8px; } }
+
+    .fc-card.is-active { transform: translateX(0) scale(1) rotate(0); opacity: 1; z-index: 20; pointer-events: auto; }
+    .fc-card.is-prev { transform: translateX(-100px) scale(0.85) rotate(-3deg); opacity: 0.4; z-index: 10; }
+    .fc-card.is-next { transform: translateX(100px) scale(0.85) rotate(3deg); opacity: 0.4; z-index: 10; }
+    
+    @media(max-width: 768px) {
+      .fc-card.is-prev { transform: translateX(-60px) scale(0.85) rotate(-3deg); }
+      .fc-card.is-next { transform: translateX(60px) scale(0.85) rotate(3deg); }
+    }
+
+    .fc-card-html { position: absolute; inset: 0; z-index: 1; transition: all 0.8s ease; background: #111; border-radius: inherit; }
+    .fc-card.is-active .fc-card-html { filter: grayscale(0) blur(0); opacity: 1; }
+    .fc-card:not(.is-active) .fc-card-html { filter: grayscale(1) blur(2px) brightness(0.7); opacity: 0.8; }
+
+    .fc-card-overlay {
+      position: absolute; inset: 0; top: auto; height: 60%;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, transparent);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 32px; pointer-events: none; opacity: 0; transform: translateY(20px);
+      transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 5;
+    }
+    .fc-card.is-active .fc-card-overlay { opacity: 1; transform: translateY(0); transition-delay: 0.1s; z-index: 5; }
+    
+    .fc-badge {
+      background: #000; color: #fff; padding: 4px 12px; border-radius: 999px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      width: fit-content; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .fc-desc { color: #fff; font-size: 18px; font-weight: 600; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin: 0; }
+    @media(min-width: 768px) { .fc-desc { font-size: 22px; } }
+
+    .fc-live {
+      position: absolute; top: 24px; left: 24px; display: flex; align-items: center; gap: 8px;
+      opacity: 0; transition: opacity 0.4s; z-index: 10;
+    }
+    .fc-card.is-active .fc-live { opacity: 1; transition-delay: 0.2s; }
+    .fc-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fff; }
+    .fc-live-txt { color: rgba(255,255,255,0.8); font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; font-family: monospace; }
+    
+    /* Mockup Utility Classes */
+    .mk-bg { background: radial-gradient(circle at 50% 0%, #2a2211, #111); padding: 24px; height: 100%; display: flex; flex-direction: column; gap: 12px; box-shadow: inset 0 0 60px rgba(0,0,0,0.8); }
+    .mk-row { display: flex; gap: 12px; align-items: center; }
+    .mk-col { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .mk-box { background: linear-gradient(145deg, #1e1e1e, #151515); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+    .mk-line { background: rgba(255,255,255,0.2); border-radius: 99px; height: 8px; }
+    .mk-line-dim { background: rgba(255,255,255,0.05); border-radius: 99px; height: 6px; }
+    .mk-gold { background: linear-gradient(135deg, var(--gold), #a57d22); }
+    .mk-circle { border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .mk-badge { padding: 4px 12px; border-radius: 12px; font-size: 9px; font-weight: bold; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+    .mk-glow { box-shadow: 0 0 16px rgba(212,168,67,0.3); }
+    .mk-text { color: #fff; font-family: sans-serif; font-size: 11px; font-weight: 600; }
+  </style>
+
+  <div class="fc-container will-reveal" id="ryg-carousel">
+    <div class="fc-left">
+      <div class="fc-fade-top"></div>
+      <div class="fc-fade-bot"></div>
+      <div class="fc-chips-wrapper" id="fc-chips-wrapper">
+        <!-- JS injects chips here -->
+      </div>
+    </div>
+    <div class="fc-right">
+      <div class="fc-card-stack" id="fc-card-stack">
+        <!-- JS injects cards here -->
+      </div>
+    </div>
+  </div>
+
+</section>
+<script>
+(function(){
+  const features = [
+    { icon: '🏠', label: 'Dashboard', desc: 'Acceso rápido, KPIs en vivo y estado de tu agencia.',
+      html: '<div class="fc-card-html"><div class="mk-bg"><div class="mk-row" style="justify-content:space-between"><div class="mk-line" style="width:40%"></div><div class="mk-circle mk-gold mk-glow" style="width:32px;height:32px"></div></div><div class="mk-row"><div class="mk-col mk-box" style="height:50px;justify-content:center"><div class="mk-line-dim" style="width:40%"></div><div class="mk-line mk-gold" style="width:70%"></div></div><div class="mk-col mk-box" style="height:50px;justify-content:center"><div class="mk-line-dim" style="width:30%"></div><div class="mk-line" style="width:80%;background:#10b981"></div></div><div class="mk-col mk-box" style="height:50px;justify-content:center"><div class="mk-line-dim" style="width:50%"></div><div class="mk-line" style="width:60%;background:#3b82f6"></div></div></div><div class="mk-col mk-box" style="flex:1"><div class="mk-line-dim" style="width:30%;margin-bottom:auto"></div><div class="mk-row" style="align-items:flex-end;height:70%"><div class="mk-gold" style="flex:1;height:40%;opacity:0.7"></div><div class="mk-gold" style="flex:1;height:70%;opacity:0.9"></div><div class="mk-gold" style="flex:1;height:50%;opacity:0.6"></div><div class="mk-gold mk-glow" style="flex:1;height:90%"></div><div class="mk-gold" style="flex:1;height:60%;opacity:0.8"></div></div></div></div></div>' },
+    { icon: '📈', label: 'Analítica', desc: 'Gráficas de leads, pipeline y zonas de interés.',
+      html: '<div class="fc-card-html"><div class="mk-bg"><div class="mk-row" style="height:40%"><div class="mk-box mk-col" style="justify-content:center;align-items:center"><div class="mk-circle mk-glow" style="width:60px;height:60px;border:8px solid rgba(255,255,255,0.05);border-top-color:var(--gold);border-right-color:var(--gold)"></div><div style="position:absolute;color:#fff;font-weight:bold;font-size:12px;font-family:sans-serif">75%</div></div><div class="mk-box mk-col" style="justify-content:center;align-items:center"><div class="mk-circle" style="width:60px;height:60px;border:8px solid rgba(255,255,255,0.05);border-left-color:#3b82f6;border-bottom-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,0.3)"></div><div style="position:absolute;color:#fff;font-weight:bold;font-size:12px;font-family:sans-serif">45%</div></div></div><div class="mk-box mk-col" style="flex:1"><div class="mk-line" style="width:40%;position:relative;z-index:2"></div><div style="position:absolute;bottom:-10px;left:0;right:0;height:100%"><svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;height:100%;stroke:var(--gold);stroke-width:2;fill:url(#gy);opacity:0.9;filter:drop-shadow(0 -4px 12px rgba(212,168,67,0.3))"><defs><linearGradient id="gy" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--gold)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--gold)" stop-opacity="0"/></linearGradient></defs><path d="M0,40 Q20,10 40,20 T80,5 T100,20 L100,40 Z" stroke="none"></path><path d="M0,40 Q20,10 40,20 T80,5 T100,20" fill="none"></path></svg></div></div></div></div>' },
+    { icon: '📊', label: 'CRM Pipeline', desc: 'Leads clasificados con Kanban unificado.',
+      html: '<div class="fc-card-html"><div class="mk-bg mk-row" style="align-items:stretch"><div class="mk-col"><div class="mk-line" style="width:70%;margin-bottom:8px"></div><div class="mk-box mk-col" style="border-left:3px solid var(--gold);padding:12px"><div class="mk-line" style="width:80%"></div><div class="mk-row" style="justify-content:space-between"><div class="mk-line-dim" style="width:40%"></div><div class="mk-circle" style="width:16px;height:16px;background:#333"></div></div></div><div class="mk-box mk-col" style="border-left:3px solid var(--gold);padding:12px"><div class="mk-line" style="width:60%"></div><div class="mk-row" style="justify-content:space-between"><div class="mk-line-dim" style="width:50%"></div><div class="mk-circle" style="width:16px;height:16px;background:#333"></div></div></div></div><div class="mk-col"><div class="mk-line" style="width:50%;margin-bottom:8px"></div><div class="mk-box mk-col" style="border-left:3px solid #3b82f6;padding:12px"><div class="mk-line" style="width:90%"></div><div class="mk-row" style="justify-content:space-between"><div class="mk-line-dim" style="width:30%"></div><div class="mk-circle" style="width:16px;height:16px;background:#333"></div></div></div></div><div class="mk-col"><div class="mk-line" style="width:80%;margin-bottom:8px"></div><div class="mk-box mk-col" style="border-left:3px solid #10b981;padding:12px"><div class="mk-line" style="width:70%"></div><div class="mk-row" style="justify-content:space-between"><div class="mk-line-dim" style="width:40%"></div><div class="mk-circle" style="width:16px;height:16px;background:#333"></div></div></div></div></div></div>' },
+    { icon: '🏢', label: 'Propiedades', desc: 'Gestión completa de tu inventario. Fotos y CRM.',
+      html: '<div class="fc-card-html"><div class="mk-bg" style="flex-direction:row;flex-wrap:wrap"><div class="mk-box mk-col" style="width:calc(50% - 6px);height:40%;padding:0"><div style="height:55%;background:linear-gradient(to right, #2a2a2a, #333)"><div class="mk-line mk-gold mk-glow" style="position:absolute;bottom:6px;right:6px;width:20px;height:6px"></div></div><div class="mk-col" style="padding:10px;gap:6px"><div class="mk-line" style="width:70%"></div><div class="mk-line-dim" style="width:40%"></div></div></div><div class="mk-box mk-col" style="width:calc(50% - 6px);height:40%;padding:0"><div style="height:55%;background:linear-gradient(to right, #333, #222)"></div><div class="mk-col" style="padding:10px;gap:6px"><div class="mk-line" style="width:50%"></div><div class="mk-line-dim" style="width:80%"></div></div></div><div class="mk-box mk-col" style="width:calc(50% - 6px);height:40%;padding:0"><div style="height:55%;background:linear-gradient(to right, #222, #1a1a1a)"></div><div class="mk-col" style="padding:10px;gap:6px"><div class="mk-line" style="width:80%"></div><div class="mk-line-dim" style="width:60%"></div></div></div><div class="mk-box mk-col" style="width:calc(50% - 6px);height:40%;padding:0"><div style="height:55%;background:linear-gradient(to right, #333, #2a2a2a)"></div><div class="mk-col" style="padding:10px;gap:6px"><div class="mk-line" style="width:60%"></div><div class="mk-line-dim" style="width:50%"></div></div></div></div></div>' },
+    { icon: '🌐', label: 'Portal 360°', desc: 'Tu portal con marca propia. Matchmaker y filtros.',
+      html: '<div class="fc-card-html"><div class="mk-bg"><div class="mk-row" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:12px"><div class="mk-circle" style="width:12px;height:12px;background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,0.4)"></div><div class="mk-circle" style="width:12px;height:12px;background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,0.4)"></div><div class="mk-circle" style="width:12px;height:12px;background:#10b981;box-shadow:0 0 10px rgba(16,185,129,0.4)"></div><div class="mk-line-dim" style="flex:1;margin-left:12px"></div></div><div class="mk-box mk-row" style="height:32px;border-radius:24px"><div class="mk-line" style="width:30%"></div></div><div class="mk-row"><div class="mk-badge mk-gold" style="color:#000;box-shadow:0 4px 12px rgba(212,168,67,0.3)">Casas</div><div class="mk-badge" style="background:rgba(255,255,255,0.1);color:#fff">Alquiler</div><div class="mk-badge" style="background:rgba(255,255,255,0.1);color:#fff">Quito</div></div><div class="mk-box mk-row"><div style="width:60px;height:60px;background:#333;border-radius:8px"></div><div class="mk-col" style="justify-content:center"><div class="mk-line" style="width:50%"></div><div class="mk-line-dim" style="width:80%"></div><div class="mk-line mk-gold" style="width:40%;margin-top:4px"></div></div></div></div></div>' },
+    { icon: '💛', label: 'Matchmaker', desc: 'Desliza y encuentra la propiedad ideal con IA.',
+      html: '<div class="fc-card-html"><div class="mk-bg" style="align-items:center;justify-content:center"><div style="width:80%;height:100%;background:#0a0a0a;border:6px solid #222;border-radius:32px;display:flex;flex-direction:column;align-items:center;padding:12px;box-shadow:0 20px 40px rgba(0,0,0,0.8)"><div style="width:35%;height:12px;background:#222;border-radius:0 0 12px 12px;margin-top:-12px;margin-bottom:12px"></div><div class="mk-box" style="flex:1;width:100%;background:linear-gradient(135deg,#3a2a00,#111);border:1px solid rgba(212,168,67,0.3);border-radius:16px;box-shadow:inset 0 0 40px rgba(212,168,67,0.1)"><div class="mk-badge" style="position:absolute;top:16px;left:16px;background:#ef4444;color:#fff;box-shadow:0 4px 12px rgba(239,68,68,0.4)">Match 95%</div><div style="position:absolute;bottom:16px;left:16px;right:16px" class="mk-col"><div class="mk-line" style="background:#fff;width:60%"></div><div class="mk-line" style="width:40%"></div><div class="mk-line-dim" style="width:80%"></div></div></div><div class="mk-row" style="margin-top:16px;margin-bottom:8px;gap:20px"><div class="mk-circle mk-row" style="width:40px;height:40px;background:#ef4444;box-shadow:0 8px 16px rgba(239,68,68,0.3);justify-content:center"><div style="width:16px;height:3px;background:#fff;transform:rotate(45deg);position:absolute"></div><div style="width:16px;height:3px;background:#fff;transform:rotate(-45deg);position:absolute"></div></div><div class="mk-circle mk-row" style="width:32px;height:32px;background:#3b82f6;box-shadow:0 8px 16px rgba(59,130,246,0.2);justify-content:center;margin-top:4px"><div style="width:12px;height:12px;border-top:3px solid #fff;border-left:3px solid #fff;transform:rotate(-45deg) translateY(2px)"></div></div><div class="mk-circle mk-row" style="width:40px;height:40px;background:var(--gold);box-shadow:0 8px 16px rgba(212,168,67,0.4);justify-content:center"><div style="width:18px;height:16px;background:#fff;clip-path:polygon(50% 100%,0 40%,0 0,50% 20%,100% 0,100% 40%)"></div></div></div></div></div></div>' },
+    { icon: '📅', label: 'Agenda', desc: 'Visitas, seguimientos y llamadas automáticas.',
+      html: '<div class="fc-card-html"><div class="mk-bg"><div class="mk-row" style="justify-content:space-between;margin-bottom:8px"><div class="mk-line" style="width:40%"></div><div class="mk-line mk-gold mk-glow" style="width:60px;height:16px"></div></div><div class="mk-row" style="gap:6px"><div class="mk-col mk-line-dim" style="flex:1"></div><div class="mk-col mk-line-dim" style="flex:1"></div><div class="mk-col mk-line-dim" style="flex:1"></div><div class="mk-col mk-line-dim" style="flex:1"></div><div class="mk-col mk-line-dim" style="flex:1"></div><div class="mk-col mk-line-dim" style="flex:1"></div><div class="mk-col mk-line-dim" style="flex:1"></div></div><div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:6px;grid-auto-rows:1fr;flex:1"><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0;border-bottom:3px solid var(--gold)"></div><div class="mk-box" style="padding:0"></div><div class="mk-box mk-glow" style="padding:0;background:rgba(212,168,67,0.15);border:1px solid var(--gold)"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0;background:rgba(59,130,246,0.15);border:1px solid #3b82f6"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0;background:rgba(239,68,68,0.15);border:1px solid #ef4444;box-shadow:0 0 10px rgba(239,68,68,0.2)"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div><div class="mk-box" style="padding:0"></div></div></div></div>' },
+    { icon: '📇', label: 'Contactos', desc: 'Historial 360, calificación inteligente.',
+      html: '<div class="fc-card-html"><div class="mk-bg" style="gap:14px"><div class="mk-box mk-row"><div class="mk-circle mk-gold mk-glow" style="width:40px;height:40px"></div><div class="mk-col"><div class="mk-line" style="width:60%"></div><div class="mk-line-dim" style="width:90%"></div></div><div class="mk-badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3)">HOT</div></div><div class="mk-box mk-row"><div class="mk-circle" style="width:40px;height:40px;background:#333;border:2px solid rgba(255,255,255,0.1)"></div><div class="mk-col"><div class="mk-line" style="width:45%"></div><div class="mk-line-dim" style="width:80%"></div></div><div class="mk-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">WARM</div></div><div class="mk-box mk-row"><div class="mk-circle" style="width:40px;height:40px;background:#333;border:2px solid rgba(255,255,255,0.1)"></div><div class="mk-col"><div class="mk-line" style="width:55%"></div><div class="mk-line-dim" style="width:70%"></div></div><div class="mk-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3)">COLD</div></div></div></div>' },
+    { icon: '📄', label: 'Contratos', desc: 'Generación automática instantánea en Google Docs.',
+      html: '<div class="fc-card-html"><div class="mk-bg mk-row" style="align-items:stretch"><div class="mk-col"><div class="mk-box mk-row" style="height:48px;border-color:var(--gold)"><div style="width:16px;height:16px;background:var(--gold);border-radius:4px;box-shadow:0 0 8px rgba(212,168,67,0.5)"></div><div class="mk-line" style="width:60%"></div></div><div class="mk-box mk-row" style="height:48px"><div style="width:16px;height:16px;background:#444;border-radius:4px"></div><div class="mk-line-dim" style="width:50%"></div></div><div class="mk-box mk-row" style="height:48px"><div style="width:16px;height:16px;background:#444;border-radius:4px"></div><div class="mk-line-dim" style="width:80%"></div></div></div><div class="mk-col" style="background:#fff;border-radius:8px;padding:20px;box-shadow:0 12px 24px rgba(0,0,0,0.6);position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:6px;background:#4285F4"></div><div style="width:50%;height:10px;background:#ccc;border-radius:5px;margin-bottom:12px;margin-top:6px"></div><div style="width:100%;height:6px;background:#e5e5e5;border-radius:3px"></div><div style="width:100%;height:6px;background:#e5e5e5;border-radius:3px"></div><div style="width:80%;height:6px;background:#e5e5e5;border-radius:3px"></div><div style="width:100%;height:6px;background:#e5e5e5;border-radius:3px;margin-top:8px"></div><div style="width:90%;height:6px;background:#e5e5e5;border-radius:3px"></div><div class="mk-row" style="justify-content:space-between;margin-top:auto"><div style="width:40px;height:16px;border-bottom:2px solid var(--gold)"></div><div style="width:40px;height:16px;border-bottom:2px solid #ccc"></div></div></div></div></div>' },
+    { icon: '👥', label: 'Roles', desc: 'Multi-nivel. Cada asesor ve solo de lo que es dueño.',
+      html: '<div class="fc-card-html"><div class="mk-bg"><div class="mk-row" style="justify-content:space-between;margin-bottom:8px"><div class="mk-line" style="width:30%;height:14px"></div><div class="mk-badge mk-gold" style="color:#000;box-shadow:0 4px 12px rgba(212,168,67,0.3);padding:6px 16px">+ ADD</div></div><div class="mk-box mk-col" style="padding:0"><div class="mk-row" style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(212,168,67,0.05)"><div class="mk-circle mk-gold mk-glow" style="width:32px;height:32px"></div><div class="mk-col" style="gap:6px"><div class="mk-line" style="width:80px"></div><div class="mk-line-dim" style="width:50px"></div></div><div class="mk-badge" style="background:rgba(212,168,67,0.2);border:1px solid var(--gold);color:var(--gold);margin-left:auto">ADMIN</div></div><div class="mk-row" style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05)"><div class="mk-circle" style="width:32px;height:32px;background:#444"></div><div class="mk-col" style="gap:6px"><div class="mk-line" style="width:70px"></div><div class="mk-line-dim" style="width:60px"></div></div><div class="mk-badge" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#aaa;margin-left:auto">ASESOR</div></div><div class="mk-row" style="padding:16px"><div class="mk-circle" style="width:32px;height:32px;background:#444"></div><div class="mk-col" style="gap:6px"><div class="mk-line" style="width:90px"></div><div class="mk-line-dim" style="width:40px"></div></div><div class="mk-badge" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#aaa;margin-left:auto">ASESOR</div></div></div></div></div>' }
+  ];
+
+  const chipsW = document.getElementById('fc-chips-wrapper');
+  const cardsW = document.getElementById('fc-card-stack');
+
+  features.forEach((f, i) => {
+    const chipCt = document.createElement('div');
+    chipCt.className = 'fc-chip-ctn';
+    chipCt.innerHTML = `<button class="fc-chip" data-idx="${i}"><div class="fc-chip-icon">${f.icon}</div><span>${f.label}</span></button>`;
+    chipsW.appendChild(chipCt);
+
+    const card = document.createElement('div');
+    card.className = 'fc-card';
+    card.innerHTML = `
+      ${f.html}
+      <div class="fc-live"><div class="fc-live-dot"></div><span class="fc-live-txt">Módulo Interactivo</span></div>
+      <div class="fc-card-overlay">
+        <div class="fc-badge">${i+1} • ${f.label}</div>
+        <p class="fc-desc">${f.desc}</p>
+      </div>
+    `;
+    cardsW.appendChild(card);
+  });
+
+  let currentIndex = 0;
+  const len = features.length;
+  const ITEM_HEIGHT = 65;
+  const chipCtnrs = document.querySelectorAll('.fc-chip-ctn');
+  const cardEls = document.querySelectorAll('.fc-card');
+  const btns = document.querySelectorAll('.fc-chip');
+  let isPaused = false;
+
+  function wrap(min, max, v) {
+    const rs = max - min;
+    return ((((v - min) % rs) + rs) % rs) + min;
+  }
+
+  function updateCarousel() {
+    chipCtnrs.forEach((ctn, i) => {
+      const btn = ctn.querySelector('.fc-chip');
+      const dist = i - currentIndex;
+      const wDist = wrap(-len/2, len/2, dist);
+      
+      let y = wDist * ITEM_HEIGHT;
+      let opacity = 1 - Math.abs(wDist) * 0.25;
+      
+      ctn.style.transform = `translateY(${y}px)`;
+      btn.style.opacity = opacity;
+      btn.style.pointerEvents = opacity > 0 ? 'auto' : 'none';
+      if(i === currentIndex) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+
+    cardEls.forEach((card, i) => {
+      const diff = i - currentIndex;
+      let nDiff = diff > len/2 ? diff - len : (diff < -len/2 ? diff + len : diff);
+      card.className = 'fc-card';
+      if (nDiff === 0) card.classList.add('is-active');
+      else if (nDiff === -1) card.classList.add('is-prev');
+      else if (nDiff === 1) card.classList.add('is-next');
+    });
+  }
+
+  btns.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      currentIndex = i;
+      updateCarousel();
+    });
+    btn.addEventListener('mouseenter', () => isPaused = true);
+    btn.addEventListener('mouseleave', () => isPaused = false);
+  });
+
+  setInterval(() => {
+    if (!isPaused) {
+      currentIndex = (currentIndex + 1) % len;
+      updateCarousel();
+    }
+  }, 3500);
+
+  setTimeout(updateCarousel, 100);
+})();
+</script>
+
+<div class="sep"></div>
+
+<!-- ══════════════════════════════
+     AIRA
+══════════════════════════════ -->
+<section class="feature-block" style="background:radial-gradient(ellipse at 30% 50%,rgba(99,102,241,.06) 0%,transparent 60%);">
+  <p class="fb-sup will-reveal">Inteligencia artificial</p>
+  <h2 class="fb-title will-reveal">Conoce a AIRA.</h2>
+  <p class="fb-sub will-reveal">El motor de inteligencia artificial que analiza los gustos de cada cliente y encuentra su propiedad ideal — en segundos, no en semanas.</p>
+
+  <div class="max-w-[1000px] mx-auto mt-16 grid grid-cols-1 md:grid-cols-6 gap-6 px-4 will-reveal z-10 relative">
+    
+    <!-- Card 1 -->
+    <div class="group relative bg-[#111]/80 backdrop-blur-md border border-[#3a3a3c] rounded-3xl p-8 flex flex-col items-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 hover:bg-[#1a1a1c] hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)] md:col-span-3">
+      <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#d4a843]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div class="w-14 h-14 rounded-2xl bg-[#1c1c1e] border border-white/5 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">🧠</div>
+      <h4 class="text-xl font-bold text-white mb-3 tracking-wide">Rating inteligente</h4>
+      <p class="text-[15px] text-zinc-400 leading-relaxed font-medium">AIRA califica cada propiedad según los gustos del cliente. Zona, precio, tamaño, amenidades — todo pesa en el score para evitar búsquedas repetitivas.</p>
+    </div>
+    
+    <!-- Card 2 -->
+    <div class="group relative bg-[#111]/80 backdrop-blur-md border border-[#3a3a3c] rounded-3xl p-8 flex flex-col items-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 hover:bg-[#1a1a1c] hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)] md:col-span-3">
+      <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#d4a843]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div class="w-14 h-14 rounded-2xl bg-[#1c1c1e] border border-white/5 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">💡</div>
+      <h4 class="text-xl font-bold text-white mb-3 tracking-wide">Te explica por qué</h4>
+      <p class="text-[15px] text-zinc-400 leading-relaxed font-medium">No solo recomienda — te dice la verdadera razón: "Esta propiedad coincide con tu presupuesto, zona preferida y tiene el jardín que buscas."</p>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="group relative bg-[#111]/80 backdrop-blur-md border border-[#3a3a3c] rounded-3xl p-8 flex flex-col items-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 hover:bg-[#1a1a1c] hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)] md:col-span-2">
+      <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#d4a843]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div class="w-14 h-14 rounded-2xl bg-[#1c1c1e] border border-white/5 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">🏠</div>
+      <h4 class="text-lg font-bold text-white mb-3 tracking-wide">Tours 360°</h4>
+      <p class="text-[14px] text-zinc-400 leading-relaxed font-medium">El cliente entra virtualmente antes de visitarla en físico. Menos visitas, más cierres reales.</p>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="group relative bg-[#111]/80 backdrop-blur-md border border-[#3a3a3c] rounded-3xl p-8 flex flex-col items-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 hover:bg-[#1a1a1c] hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)] md:col-span-2">
+      <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#d4a843]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div class="w-14 h-14 rounded-2xl bg-[#1c1c1e] border border-white/5 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">⚡</div>
+      <h4 class="text-lg font-bold text-white mb-3 tracking-wide">Velocidad</h4>
+      <p class="text-[14px] text-zinc-400 leading-relaxed font-medium">En vez de revisar 50 propiedades filtrando manualmente, AIRA escanea y prioriza en minutos.</p>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="group relative bg-gradient-to-br from-[#1a1a1c] to-[#0a0a0a] backdrop-blur-md border border-[#d4a843]/30 rounded-3xl p-8 flex flex-col items-start transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 hover:border-[#d4a843]/60 hover:shadow-[0_20px_50px_rgba(212,168,67,0.15)] md:col-span-2">
+      <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#d4a843]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4a843]/20 to-transparent border border-[#d4a843]/40 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 shadow-inner">🎯</div>
+      <h4 class="text-lg font-bold text-[#d4a843] mb-3 tracking-wide">Cero turismo</h4>
+      <p class="text-[14px] text-zinc-300 leading-relaxed font-medium">Tus asesores dejan de perder el día. Solo muestran inmuebles a clientes previamente convencidos.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ══════════════════════════════
+     INTERACTIVE SWITCHER (PORTAL & MATCHMAKER)
+══════════════════════════════ -->
+<section id="pm-showcase" class="relative min-h-screen w-full bg-black text-zinc-100 overflow-hidden flex flex-col items-center justify-center py-24 selection:bg-zinc-800">
+  
+  <!-- Dynamic Background Gradients -->
+  <div id="pm-bg-gradient" class="absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" style="background: radial-gradient(circle at 100% 50%, rgba(212, 168, 67, 0.15), transparent 50%); pointer-events:none;"></div>
+
+  <main class="relative z-10 w-full px-6 flex flex-col justify-center max-w-7xl mx-auto">
+    <div id="pm-container" class="flex flex-col md:flex-row-reverse items-center justify-center gap-12 md:gap-24 lg:gap-32 w-full transition-all duration-700 ease-in-out">
+      
+      <!-- Visual Column -->
+      <div class="relative group shrink-0" style="perspective:1000px;">
+        <!-- Animated Rings -->
+        <div id="pm-ring" class="absolute inset-[-20%] rounded-full border border-dashed border-white/10 transition-all duration-1000 border-r-[#d4a843]/50 animate-[spin_20s_linear_infinite]"></div>
+        <div id="pm-glow" class="absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-1000 bg-gradient-to-br from-[#d4a843] to-amber-900 animate-[pulse_4s_ease-in-out_infinite]"></div>
+
+        <!-- Image Container -->
+        <div class="relative h-80 w-80 md:h-[480px] md:w-[480px] lg:h-[550px] lg:w-[550px] xl:h-[600px] xl:w-[600px] rounded-full border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden bg-black/20 backdrop-blur-sm z-10">
+          <div class="relative z-10 w-full h-full flex items-center justify-center animate-[float_6s_ease-in-out_infinite]" style="animation: pm-float 6s ease-in-out infinite;">
+            
+            <!-- PORTAL MOCKUP -->
+            <div id="pm-visual-portal" class="absolute inset-0 flex items-center justify-center transition-all duration-700 opacity-0 scale-50 blur-md -translate-x-20 z-0">
+               <div style="transform: scale(0.60); transform-origin: center; width: 600px; background:#111;border:1px solid var(--muted2);border-radius:28px;overflow:hidden;box-shadow:0 60px 100px -20px rgba(0,0,0,.9);">
+                 <div style="background:#0a0a0a;padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--muted2);">
+                   <div style="display:flex;gap:8px;">
+                     <div style="width:14px;height:14px;border-radius:50%;background:#ff5f56;"></div>
+                     <div style="width:14px;height:14px;border-radius:50%;background:#ffbd2e;"></div>
+                     <div style="width:14px;height:14px;border-radius:50%;background:#27c93f;"></div>
+                   </div>
+                   <div style="flex:1;background:#1a1a1a;border-radius:10px;padding:8px 16px;font-size:14px;color:#666;text-align:center;">ryginmo.com</div>
+                 </div>
+                 <div style="padding:32px;">
+                   <div style="display:flex;gap:12px;margin-bottom:24px;">
+                     <div style="flex:1;background:#1a1a1a;border:1px solid var(--muted2);border-radius:14px;padding:14px 20px;font-size:16px;color:#666;">🔍 Buscar por zona, ciudad, tipo...</div>
+                     <div style="padding:14px 24px;background:var(--gold);color:#000;border-radius:14px;font-size:16px;font-weight:700;">Buscar</div>
+                   </div>
+                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                     <div style="background:#1a1a1a;border-radius:18px;overflow:hidden;border:1px solid var(--muted2);">
+                       <div style="height:140px;background:linear-gradient(135deg,#002a4a,#0a1a30);display:flex;align-items:center;justify-content:center;position:relative;">
+                         <span style="font-size:42px;">🏢</span>
+                       </div>
+                       <div style="padding:16px;"><div style="font-size:22px;font-weight:800;color:#3b82f6;">$185.000</div><div style="font-size:14px;color:#888;margin-top:4px;">Depto. · 3 hab · Cumbayá</div></div>
+                     </div>
+                     <div style="background:#1a1a1a;border-radius:18px;overflow:hidden;border:1px solid var(--muted2);">
+                       <div style="height:140px;background:linear-gradient(135deg,#001a0a,#0a1a10);display:flex;align-items:center;justify-content:center;position:relative;">
+                         <span style="font-size:42px;">🏠</span>
+                       </div>
+                       <div style="padding:16px;"><div style="font-size:22px;font-weight:800;color:#10b981;">$650/mes</div><div style="font-size:14px;color:#888;margin-top:4px;">Casa · 4 hab · Tumbaco</div></div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            </div>
+
+            <!-- MATCHMAKER MOCKUP -->
+            <div id="pm-visual-matchmaker" class="absolute inset-0 flex items-center justify-center transition-all duration-700 opacity-100 scale-100 blur-none translate-x-0 z-10">
+               <div style="transform: scale(0.85); transform-origin: center; width: 380px; background:#0a0a0a;border-radius:42px;border:8px solid #2c2c2e;box-shadow:0 60px 120px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06);overflow:hidden;position:relative;">
+                 <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:24px;background:#0a0a0a;border-radius:0 0 16px 16px;z-index:5;"></div>
+                 <div style="padding:48px 20px 24px;">
+                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                     <span style="font-size:16px;font-weight:800;color:#fff;">Matchmaker</span>
+                     <span style="font-size:12px;color:#555;">12 propiedades</span>
+                   </div>
+                   <div style="background:linear-gradient(145deg,#1c1700,#0f0f0f);border-radius:24px;overflow:hidden;border:1px solid rgba(212,168,67,.15);">
+                     <div style="height:220px;background:linear-gradient(135deg,#2a1f00 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;">
+                       <span style="font-size:72px;">🏡</span>
+                     </div>
+                     <div style="padding:20px;">
+                       <div style="font-size:24px;font-weight:900;color:var(--gold);">$165.000</div>
+                       <div style="font-size:14px;color:#ccc;margin-top:4px;">Casa 3 hab · Norte · Quito</div>
+                       <div style="margin-top:16px;background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.15);border-radius:16px;padding:14px;">
+                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                           <span style="font-size:12px;font-weight:700;color:var(--gold);">🧠 AIRA Match Score</span>
+                           <span style="font-size:18px;font-weight:900;color:var(--gold);">94%</span>
+                         </div>
+                         <div style="height:6px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;">
+                           <div style="width:94%;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:999px;"></div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   <div style="display:flex;justify-content:center;gap:24px;margin-top:24px;">
+                     <div style="width:64px;height:64px;border-radius:50%;border:2px solid #ef4444;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ef4444;background:rgba(239,68,68,.05);">✕</div>
+                     <div style="width:64px;height:64px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--gold);background:rgba(212,168,67,.05);">♥</div>
+                   </div>
+                 </div>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Label -->
+        <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
+          <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-zinc-500 bg-zinc-950/80 px-4 py-2 rounded-full border border-white/5 backdrop-blur transition-all duration-500">
+            <span id="pm-status-dot" class="h-1.5 w-1.5 rounded-full bg-[#d4a843] shadow-[0_0_10px_#d4a843] animate-[pulse_2s_infinite]"></span>
+            <span id="pm-status-txt">IA Activada</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Content Column -->
+      <div id="pm-text-col" class="flex flex-col items-end text-right w-full max-w-lg transition-all duration-700 ease-in-out opacity-100 translate-y-0 relative">
+        <h2 id="pm-sup" class="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-zinc-500 mb-2 transition-opacity duration-300">
+          Matchmaker
+        </h2>
+        <h1 id="pm-title" class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400 transition-opacity duration-300" style="-webkit-background-clip:text;">
+          Cero turismo inmobiliario.
+        </h1>
+        <p id="pm-desc" class="text-zinc-400 mb-8 leading-relaxed ml-auto text-sm sm:text-base transition-opacity duration-300">
+          Tu cliente desliza, califica y encuentra su propiedad ideal — con tours 360°, rating IA y cruces automáticos. No existe nada igual en Latinoamérica.
+        </p>
+
+        <!-- Feature Grid Box -->
+        <div class="w-full space-y-6 bg-zinc-900/40 p-6 rounded-3xl border border-white/5 backdrop-blur-md shadow-2xl">
+          <!-- Feat 1 -->
+          <div class="group">
+            <div id="pm-f1-layout" class="flex items-center justify-between mb-3 text-sm flex-row-reverse transition-all">
+              <div class="flex items-center gap-2 text-zinc-200">
+                <span id="pm-f1-icon" class="text-lg">🎯</span> <span id="pm-f1-label" class="font-medium">Precisión IA</span>
+              </div>
+              <span id="pm-f1-val" class="font-mono text-xs text-zinc-500 font-bold tracking-wider">94%</span>
+            </div>
+            <div class="relative h-2.5 w-full bg-zinc-800/80 rounded-full overflow-hidden shadow-inner">
+              <div id="pm-f1-bar" class="absolute top-0 bottom-0 right-0 bg-gradient-to-l from-[#d4a843] to-amber-700 opacity-90 transition-all duration-[1500ms] ease-out" style="width: 94%;"></div>
+            </div>
+          </div>
+          <!-- Feat 2 -->
+          <div class="group">
+            <div id="pm-f2-layout" class="flex items-center justify-between mb-3 text-sm flex-row-reverse transition-all">
+              <div class="flex items-center gap-2 text-zinc-200">
+                <span id="pm-f2-icon" class="text-lg">⚡</span> <span id="pm-f2-label" class="font-medium">Ahorreo de Tiempo</span>
+              </div>
+              <span id="pm-f2-val" class="font-mono text-xs text-zinc-500 font-bold tracking-wider">85%</span>
+            </div>
+            <div class="relative h-2.5 w-full bg-zinc-800/80 rounded-full overflow-hidden shadow-inner">
+              <div id="pm-f2-bar" class="absolute top-0 bottom-0 right-0 bg-gradient-to-l from-[#d4a843] to-amber-700 opacity-90 transition-all duration-[1500ms] ease-out delay-150" style="width: 85%;"></div>
+            </div>
+          </div>
+          
+          <div id="pm-btn-layout" class="pt-4 flex justify-end overflow-hidden">
+            <button class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#d4a843] hover:text-white transition-colors group">
+              <span class="mr-1">⎈</span> Explora Detalles
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300 inline-block font-sans">→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Extra Status -->
+        <div id="pm-extra-layout" class="mt-8 flex items-center gap-3 text-zinc-500 flex-row-reverse">
+          <span class="text-xl">🚀</span>
+          <span id="pm-extra-txt" class="text-sm font-semibold tracking-wide">100% Automatizado</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Switcher Navigation Pill -->
+  <div class="absolute bottom-12 inset-x-0 flex justify-center z-50">
+    <div class="flex items-center gap-1 p-1.5 rounded-full bg-zinc-900/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] ring-1 ring-white/5 relative overflow-hidden">
+      <!-- Active Sliding Pill -->
+      <div id="pm-pill-slider" class="absolute inset-y-1.5 w-32 rounded-full bg-gradient-to-b from-white/15 to-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] left-[6px] translate-x-full">
+         <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-8 rounded-full bg-gradient-to-r from-transparent via-white/60 to-transparent opacity-80"></span>
+      </div>
+      
+      <button id="pm-btn-left" class="relative z-10 w-32 h-10 rounded-full flex items-center justify-center text-sm font-bold tracking-wide focus:outline-none text-zinc-500 hover:text-zinc-300 transition-colors duration-300" onclick="switchPM('left')">
+        Portal 360°
+      </button>
+      <button id="pm-btn-right" class="relative z-10 w-32 h-10 rounded-full flex items-center justify-center text-sm font-bold tracking-wide focus:outline-none text-white transition-colors duration-300" onclick="switchPM('right')">
+        Matchmaker
+      </button>
+    </div>
+  </div>
+
+<style>
+  @keyframes pm-float {
+    0%, 100% { transform: translateY(-8px); }
+    50% { transform: translateY(8px); }
+  }
+</style>
+
+<script>
+  // Data for the Unified Switcher Component
+  const pmData = {
+    left: {
+      id: 'left',
+      sup: 'Visibilidad Inmobiliaria',
+      title: 'Tu portal. Tu marca.',
+      desc: 'Un portal donde tus clientes buscan, filtran y recorren propiedades con tours 360° — todo configurado bajo tu propia marca comercial.',
+      bg: 'radial-gradient(circle at 0% 50%, rgba(59, 130, 246, 0.15), transparent 50%)',
+      align: 'left', // Left text alignment
+      colorBase: '#3b82f6',
+      colorGlow: 'from-blue-600 to-indigo-900',
+      colorRing: 'border-l-blue-500/50',
+      gradientBar: 'from-blue-500 to-indigo-700',
+      statusTxt: 'Marca Blanca',
+      stats: [
+        { icon: '🔍', label: 'Búsqueda Avanzada', val: 98 },
+        { icon: '🪄', label: 'Match Integrado', val: 100 }
+      ],
+      extra: 'Tours 360° Activos'
+    },
+    right: {
+      id: 'right',
+      sup: 'Matchmaker',
+      title: 'Cero turismo inmobiliario.',
+      desc: 'Tu cliente desliza, califica y encuentra su propiedad ideal — con tours 360°, rating IA y cruces automáticos. No existe nada igual en Latinoamérica.',
+      bg: 'radial-gradient(circle at 100% 50%, rgba(212, 168, 67, 0.15), transparent 50%)',
+      align: 'right', // Right text alignment
+      colorBase: '#d4a843',
+      colorGlow: 'from-[#d4a843] to-amber-900',
+      colorRing: 'border-r-[#d4a843]/50',
+      gradientBar: 'from-[#d4a843] to-amber-700',
+      statusTxt: 'IA Activada',
+      stats: [
+        { icon: '🎯', label: 'Precisión IA', val: 94 },
+        { icon: '⚡', label: 'Ahorro de Tiempo', val: 85 }
+      ],
+      extra: '100% Automatizado'
+    }
+  };
+
+  function switchPM(side) {
+    const data = pmData[side];
+    const isLeft = side === 'left';
+
+    // 1. Update navigation Pill & buttons colors
+    document.getElementById('pm-pill-slider').style.transform = isLeft ? 'translateX(0)' : 'translateX(100%)';
+    const gapClass = isLeft ? 'gap-1' : 'gap-1'; // Fixed gap sizing via layout logic
+    document.getElementById('pm-btn-left').className = `relative z-10 w-32 h-10 rounded-full flex items-center justify-center text-sm font-bold tracking-wide focus:outline-none transition-colors duration-300 ${isLeft ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`;
+    document.getElementById('pm-btn-right').className = `relative z-10 w-32 h-10 rounded-full flex items-center justify-center text-sm font-bold tracking-wide focus:outline-none transition-colors duration-300 ${!isLeft ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`;
+
+    // 2. Update Layout / Re-order elements
+    const container = document.getElementById('pm-container');
+    const textCol = document.getElementById('pm-text-col');
+    
+    // Animate scale/opacity shrink before swapping text
+    textCol.style.opacity = '0';
+    textCol.style.transform = 'translateY(15px) scale(0.95)';
+    
+    setTimeout(() => {
+      textCol.style.opacity = '1';
+      textCol.style.transform = 'translateY(0) scale(1)';
+
+      // Container Flex Direction
+      container.className = `flex flex-col md:flex-row-reverse items-center justify-center gap-12 md:gap-24 lg:gap-32 w-full transition-all duration-700 ease-in-out ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`;
+      
+      // Text Alignment
+      textCol.className = `flex flex-col w-full max-w-lg transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] relative ${isLeft ? 'items-start text-left' : 'items-end text-right'}`;
+      
+      // Update Texts
+      document.getElementById('pm-sup').innerText = data.sup;
+      document.getElementById('pm-title').innerText = data.title;
+      document.getElementById('pm-desc').innerText = data.desc;
+      document.getElementById('pm-desc').className = `text-zinc-400 mb-8 leading-relaxed text-sm sm:text-base transition-opacity duration-300 ${isLeft ? 'mr-auto' : 'ml-auto'}`;
+      
+      // Update Feature Grid Layouts
+      const flexDirRow = isLeft ? 'flex-row' : 'flex-row-reverse';
+      document.getElementById('pm-f1-layout').className = `flex items-center justify-between mb-3 text-sm transition-all ${flexDirRow}`;
+      document.getElementById('pm-f2-layout').className = `flex items-center justify-between mb-3 text-sm transition-all ${flexDirRow}`;
+      document.getElementById('pm-btn-layout').className = `pt-4 flex overflow-hidden ${isLeft ? 'justify-start' : 'justify-end'}`;
+      document.getElementById('pm-extra-layout').className = `mt-8 flex items-center gap-3 text-zinc-500 ${flexDirRow}`;
+
+      // Update Feature Values
+      document.getElementById('pm-f1-icon').innerText = data.stats[0].icon;
+      document.getElementById('pm-f1-label').innerText = data.stats[0].label;
+      document.getElementById('pm-f1-val').innerText = data.stats[0].val + '%';
+      
+      document.getElementById('pm-f2-icon').innerText = data.stats[1].icon;
+      document.getElementById('pm-f2-label').innerText = data.stats[1].label;
+      document.getElementById('pm-f2-val').innerText = data.stats[1].val + '%';
+
+      document.getElementById('pm-extra-txt').innerText = data.extra;
+
+      // Animate progress bars from 0 back up
+      const b1 = document.getElementById('pm-f1-bar');
+      const b2 = document.getElementById('pm-f2-bar');
+      
+      b1.style.width = '0%';
+      b2.style.width = '0%';
+      
+      // Setup alignment for progress bar origins
+      setTimeout(() => {
+        b1.className = `absolute top-0 bottom-0 opacity-90 transition-all duration-[1200ms] ease-out ${isLeft ? 'left-0 bg-gradient-to-r' : 'right-0 bg-gradient-to-l'} ${data.gradientBar}`;
+        b2.className = `absolute top-0 bottom-0 opacity-90 transition-all duration-[1200ms] ease-out delay-150 ${isLeft ? 'left-0 bg-gradient-to-r' : 'right-0 bg-gradient-to-l'} ${data.gradientBar}`;
+        
+        // Trigger reflow & extend
+        b1.style.width = data.stats[0].val + '%';
+        b2.style.width = data.stats[1].val + '%';
+      }, 50);
+
+    }, 300); // Wait for the fade out
+
+    // 3. Update Colors & Visual Backgrounds
+    document.getElementById('pm-bg-gradient').style.background = data.bg;
+    document.getElementById('pm-ring').className = `absolute inset-[-20%] rounded-full border border-dashed border-white/10 transition-all duration-[1500ms] ease-in-out animate-[spin_20s_linear_infinite] ${data.colorRing}`;
+    document.getElementById('pm-glow').className = `absolute inset-0 rounded-full blur-2xl opacity-40 transition-all duration-[1500ms] ease-in-out bg-gradient-to-br animate-[pulse_6s_ease-in-out_infinite] ${data.colorGlow}`;
+    
+    document.getElementById('pm-status-dot').className = `h-1.5 w-1.5 rounded-full shadow-[0_0_10px_currentColor] animate-[pulse_2s_infinite] transition-colors`;
+    document.getElementById('pm-status-dot').style.backgroundColor = data.colorBase;
+    document.getElementById('pm-status-dot').style.color = data.colorBase;
+    document.getElementById('pm-status-txt').innerText = data.statusTxt;
+
+    // 4. Update the Mockup Visual Logic (Crossfade + Scale/Slide)
+    const visPortal = document.getElementById('pm-visual-portal');
+    const visMatch = document.getElementById('pm-visual-matchmaker');
+
+    if (isLeft) { // Show Portal (Left mode)
+      visPortal.className = "absolute inset-0 flex items-center justify-center transition-all duration-700 opacity-100 scale-100 blur-none translate-x-0 z-10 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+      visMatch.className = "absolute inset-0 flex items-center justify-center transition-all duration-[500ms] opacity-0 scale-50 blur-md translate-x-20 z-0 ease-in";
+    } else { // Show Matchmaker (Right mode)
+      visPortal.className = "absolute inset-0 flex items-center justify-center transition-all duration-[500ms] opacity-0 scale-50 blur-md -translate-x-20 z-0 ease-in";
+      visMatch.className = "absolute inset-0 flex items-center justify-center transition-all duration-700 opacity-100 scale-100 blur-none translate-x-0 z-10 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+    }
+  }
+
+  // Initialize default state
+  document.addEventListener('DOMContentLoaded', () => {
+    switchPM('left');
+  });
+</script>
+</section>
+
+<div class="sep"></div>
+
+
+
+<!-- ══════════════════════════════
+     BOT TELEGRAM + CONTRATOS
+══════════════════════════════ -->
+<section class="statement">
+  <p class="st-label will-reveal">Para tu equipo</p>
+  <h2 class="st-title will-reveal">Tu CRM en el bolsillo.<br><span style="background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Siempre contigo.</span></h2>
+  <p class="st-body will-reveal">Un bot de Telegram interno que tu equipo usa para consultar leads, hacer match y gestionar el CRM — desde cualquier lugar, en segundos.</p>
+
+  <div style="max-width:680px;margin:48px auto 0;background:#111;border:1px solid var(--muted2);border-radius:24px;overflow:hidden;" class="will-reveal">
+    <div style="background:#0d0d0d;padding:16px 20px;border-bottom:1px solid var(--muted2);display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8a5a10);display:flex;align-items:center;justify-content:center;font-size:14px;">🤖</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold);">AIRA Bot · Interno</div>
+        <div style="font-size:11px;color:#3a3;">● Online — solo para tu equipo</div>
+      </div>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+      <div style="align-self:flex-end;background:linear-gradient(135deg,var(--gold),#8a5a10);color:#000;border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:13px;font-weight:600;max-width:80%;">¿Cuáles son los leads HOT esta semana?</div>
+      <div style="align-self:flex-start;background:#1a1a1c;border-radius:4px 16px 16px 16px;padding:12px 16px;font-size:13px;color:#ccc;max-width:90%;line-height:1.6;">🔥 <strong style="color:var(--gold);">5 leads HOT esta semana:</strong><br><br>1. Carlos Mejía — $180k · Cumbayá · Compra inmediata<br>2. Jorge Ruiz — $300k · Cumbayá · Esta semana<br>3. Paola Vega — $220k · Norte · 1-3 meses<br>4. Martín Díaz — $450/mes · Renta inmediata<br>5. Sofía León — $130k · Sur · Urgente</div>
+      <div style="align-self:flex-end;background:linear-gradient(135deg,var(--gold),#8a5a10);color:#000;border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:13px;font-weight:600;max-width:80%;">/match Carlos Mejía</div>
+      <div style="align-self:flex-start;background:#1a1a1c;border-radius:4px 16px 16px 16px;padding:12px 16px;font-size:13px;color:#ccc;max-width:90%;line-height:1.6;">🏠 <strong style="color:var(--gold);">Match para Carlos Mejía</strong> 🔥<br>💰 $180.000 · 📍 Cumbayá · 🔄 Venta<br><br><strong>1.</strong> Casa Los Pinos — $175.000<br>Zona exacta, 3 hab, parqueo. Ideal.<br>🔗 <span style="color:var(--gold);">Ver propiedad →</span><br><br><strong>2.</strong> Depto. Miravalle — $182.000<br>Vista a montaña, conjunto cerrado.<br>🔗 <span style="color:var(--gold);">Ver propiedad →</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+
+
+<!-- ══════════════════════════════
+     VS TRADICIONAL
+══════════════════════════════ -->
+<section class="statement" id="comparacion">
+  <p class="st-label will-reveal">Comparación</p>
+  <h2 class="st-title will-reveal">Lo que RE/MAX y Century 21<br>no tienen.</h2>
+  <p class="st-body will-reveal" style="margin-bottom:40px;">Ellos venden una marca de los años 70. RyG vende tecnología del 2025.</p>
+  <div class="compare-table will-reveal">
+    <div class="ct-head">
+      <div>Funcionalidad</div>
+      <div>RyG</div>
+      <div>RE/MAX / Century 21</div>
+    </div>
+    <div class="ct-row">
+      <div>Portal inmobiliario propio</div>
+      <div><span class="check-g">✓</span></div>
+      <div><span class="cross-r">✕</span> Dependen de portales genéricos</div>
+    </div>
+    <div class="ct-row">
+      <div>Tinder de propiedades con IA</div>
+      <div><span class="check-g">✓</span></div>
+      <div><span class="cross-r">✕</span> No existe</div>
+    </div>
+    <div class="ct-row">
+      <div>Tours virtuales 360°</div>
+      <div><span class="check-g">✓</span></div>
+      <div><span class="cross-r">✕</span> Fotos estáticas</div>
+    </div>
+    <div class="ct-row">
+      <div>IA que recomienda propiedades</div>
+      <div><span class="check-g">✓</span> AIRA</div>
+      <div><span class="cross-r">✕</span> Excel y WhatsApp</div>
+    </div>
+    <div class="ct-row">
+      <div>CRM con pipeline kanban</div>
+      <div><span class="check-g">✓</span></div>
+      <div><span class="cross-r">✕</span> Hojas de cálculo</div>
+    </div>
+
+    <div class="ct-row">
+      <div>Agencia de publicidad integrada</div>
+      <div><span class="check-g">✓</span> Videos + tours</div>
+      <div><span class="cross-r">✕</span> Contratan aparte</div>
+    </div>
+    <div class="ct-row">
+      <div>Costo mensual</div>
+      <div><span class="check-g">$80</span>/mes</div>
+      <div><span class="cross-r">$500-1,000</span>/mes</div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ══════════════════════════════
+     RED / FRANQUICIA
+══════════════════════════════ -->
+<section class="franchise-block" id="red">
+  <p class="fb-sup will-reveal">Modelo de red</p>
+  <h2 class="fb-title will-reveal" style="font-size:clamp(38px,6vw,80px);">
+    Una tecnología.<br>
+    <span style="background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Todo el continente.</span>
+  </h2>
+  <p class="fb-sub will-reveal">Cada agencia aliada recibe su propia plataforma lista en días — bajo su marca, con el motor tecnológico de RyG. Sin programadores. Sin meses de espera.</p>
+
+  <div class="steps-flow will-reveal">
+    <div class="sf-step">
+      <div class="sf-num">1</div>
+      <div class="sf-body">
+        <h3>Agencia firma como aliada</h3>
+        <p>Se une a la red RyG bajo su propio nombre comercial. La tecnología es nuestra, la relación con el cliente es suya.</p>
+      </div>
+    </div>
+    <div class="sf-step">
+      <div class="sf-num">2</div>
+      <div class="sf-body">
+        <h3>Portal y CRM listos en días</h3>
+        <p>Configuramos el portal con su marca, entrenamos a AIRA con su inventario y activamos todos los módulos. En menos de una semana está operando.</p>
+      </div>
+    </div>
+    <div class="sf-step">
+      <div class="sf-num">3</div>
+      <div class="sf-body">
+        <h3>La red crece, todos se benefician</h3>
+        <p>Cada mejora en la plataforma llega a todas las agencias de la red al mismo tiempo. Más aliados = más recursos para innovar.</p>
+      </div>
+    </div>
+    <div class="sf-step">
+      <div class="sf-num">4</div>
+      <div class="sf-body">
+        <h3>Expansión a cualquier país</h3>
+        <p>El modelo funciona igual en Ecuador, Colombia, Venezuela, Perú o México. La plataforma se adapta al mercado local.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="franchise-countries will-reveal" style="margin-top:60px;">
+    <div class="fc-badge"><span class="fc-flag">🇪🇨</span> Ecuador</div>
+    <div class="fc-badge"><span class="fc-flag">🇨🇴</span> Colombia</div>
+    <div class="fc-badge"><span class="fc-flag">🇵🇪</span> Perú</div>
+    <div class="fc-badge"><span class="fc-flag">🇻🇪</span> Venezuela</div>
+    <div class="fc-badge"><span class="fc-flag">🇲🇽</span> México</div>
+    <div class="fc-badge"><span class="fc-flag">🌎</span> Próximos...</div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ══════════════════════════════
+     PRECIOS
+══════════════════════════════ -->
+<section class="statement" id="precios" style="padding-bottom:120px;">
+  <p class="st-label will-reveal">Planes</p>
+  <h2 class="st-title will-reveal">Empieza gratis.<br>Crece sin límites.</h2>
+  <p class="st-body will-reveal">Sin contratos anuales. Sin sorpresas. Cancela cuando quieras.</p>
+
+  <div class="pricing-row will-reveal">
+    <div class="pc">
+      <div class="pc-tier">Prueba</div>
+      <div class="pc-price"><sup>$</sup>0<span>/mes</span></div>
+      <div class="pc-desc">Para conocer la plataforma antes de comprometerte.</div>
+      <div class="pc-divider"></div>
+      <ul class="pc-list">
+        <li>Portal básico (10 propiedades)</li>
+        <li>AIRA (20 conversaciones/mes)</li>
+        <li>CRM básico (30 leads)</li>
+        <li class="off">Matchmaker Tinder</li>
+        <li class="off">Bot Telegram</li>
+        <li class="off">Contratos automáticos</li>
+      </ul>
+      <a href="#cta" class="pc-btn w">Empezar gratis</a>
+    </div>
+
+    <div class="pc best">
+      <div class="pc-tier">Agencia</div>
+      <div class="pc-price"><sup>$</sup>80<span>/mes</span></div>
+      <div class="pc-desc">Todo lo que una agencia profesional necesita para crecer.</div>
+      <div class="pc-divider"></div>
+      <ul class="pc-list">
+        <li>Portal completo ilimitado</li>
+        <li>AIRA sin límites</li>
+        <li>CRM + pipeline kanban</li>
+        <li>Matchmaker Tinder + Tours 360°</li>
+        <li>Bot Telegram para el equipo</li>
+        <li>Contratos automáticos</li>
+        <li>Soporte prioritario</li>
+      </ul>
+      <a href="#cta" class="pc-btn g">Quiero este plan</a>
+    </div>
+
+    <div class="pc">
+      <div class="pc-tier">Red Aliada</div>
+      <div class="pc-price"><sup>$</sup>150<span>/mes</span></div>
+      <div class="pc-desc">Para agencias que quieren ser parte de la expansión latinoamericana.</div>
+      <div class="pc-divider"></div>
+      <ul class="pc-list">
+        <li>Todo del plan Agencia</li>
+        <li>Marca co-branded RyG</li>
+        <li>Panel de métricas de red</li>
+        <li>Onboarding dedicado</li>
+        <li>Capacitación del equipo</li>
+        <li>Acceso anticipado a features</li>
+        <li>Expansión regional incluida</li>
+      </ul>
+      <a href="#cta" class="pc-btn w">Conversar</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     CTA FINAL
+══════════════════════════════ -->
+<section id="cta">
+  <h2 class="cta-title will-reveal">
+    Tu agencia.<br>
+    <span style="background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">El futuro.</span>
+  </h2>
+  <p class="cta-sub will-reveal">Escríbenos hoy y configuramos tu plataforma esta semana.</p>
+  <div class="cta-badges will-reveal">
+    <div class="cta-b"><strong>Setup</strong> en menos de 7 días</div>
+    <div class="cta-b"><strong>Sin</strong> contrato anual</div>
+    <div class="cta-b"><strong>Soporte</strong> directo por WhatsApp</div>
+  </div>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;" class="will-reveal">
+    <a href="https://wa.me/593998676863?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20la%20plataforma%20RyG" class="btn-apple primary" target="_blank" style="font-size:15px;padding:16px 36px;">💬 Escribir por WhatsApp</a>
+    <a href="mailto:nw@unionhermano.com" class="btn-apple secondary" style="font-size:15px;padding:16px 36px;">✉️ Enviar correo</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fl">
+    <div class="fi">RyG</div>
+    <span>RyG Inmobiliaria · Quito, Ecuador</span>
+  </div>
+  <span>ryginmo.com · 2025</span>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const container = document.getElementById('cinematic-hero');
+const mainCard = document.getElementById('mainCard');
+const isMobile = window.innerWidth < 768;
+
+/* ─── MOUSE TRACKING ON CARD ─── */
+let rafId = 0;
+window.addEventListener('mousemove', (e) => {
+  if(window.scrollY > window.innerHeight * 2) return;
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => {
+    if(!mainCard) return;
+    const rect = mainCard.getBoundingClientRect();
+    mainCard.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+    mainCard.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+  });
+});
+
+/* ─── INTRO ANIMATION ─── */
+gsap.set('.text-track', {autoAlpha:0, y:60, scale:.85, filter:'blur(20px)'});
+gsap.set('.text-days', {autoAlpha:1, clipPath:'inset(0 100% 0 0)'});
+gsap.set('.main-card', {y:window.innerHeight+200, autoAlpha:1});
+gsap.set(['#mockupWrapper','.floating-badge'], {autoAlpha:0});
+gsap.set(['#cardLeft','#cardRight'], {autoAlpha:0});
+gsap.set('.cta-wrapper', {autoAlpha:0, scale:.8, filter:'blur(30px)'});
+
+const introTl = gsap.timeline({delay:.3});
+introTl
+  .to('.text-track', {duration:1.8, autoAlpha:1, y:0, scale:1, filter:'blur(0px)', ease:'expo.out'})
+  .to('.text-days', {duration:1.4, clipPath:'inset(0 0% 0 0)', ease:'power4.inOut'}, '-=1.0');
+
+/* ─── CINEMATIC SCROLL TIMELINE ─── */
+const scrollTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: container,
+    start: 'top top',
+    end: '+=7000',
+    pin: true,
+    scrub: 1,
+    anticipatePin: 1,
+  }
+});
+
+scrollTl
+  // 1. Fade hero text, card slides up
+  .to(['.hero-text-wrapper','.bg-grid-theme'], {scale:1.15, filter:'blur(20px)', opacity:.2, ease:'power2.inOut', duration:2}, 0)
+  .to('.main-card', {y:0, ease:'power3.inOut', duration:2}, 0)
+  // 2. Card expands fullscreen
+  .to('.main-card', {width:'100%', height:'100%', borderRadius:'0px', ease:'power3.inOut', duration:1.5})
+  // 3. Laptop emerges from depth
+  .fromTo('#mockupWrapper',
+    {y:300, scale:.5, autoAlpha:0, rotationX:30},
+    {y:0, scale:1, autoAlpha:1, rotationX:0, ease:'expo.out', duration:2.5}, '-=0.8')
+  // 4. CRM inner content loads progressively
+  .to('.crm-anim', {opacity:1, y:0, duration:0.8, stagger:0.06, ease:'power3.out'}, '-=1.5')
+  // 5. Floating badges pop in around laptop
+  .fromTo('.floating-badge',
+    {y:60, autoAlpha:0, scale:.7},
+    {y:0, autoAlpha:1, scale:1, ease:'back.out(1.7)', duration:1.2, stagger:.15}, '-=0.5')
+  // 6. Card text appears
+  .fromTo('#cardLeft', {x:-60, autoAlpha:0}, {x:0, autoAlpha:1, ease:'power4.out', duration:1.5}, '-=1.0')
+  .fromTo('#cardRight', {x:60, autoAlpha:0, scale:.8}, {x:0, autoAlpha:1, scale:1, ease:'expo.out', duration:1.5}, '<')
+  // 7. Hold 
+  .to({}, {duration:3})
+  // 8. Hide hero text, show CTA
+  .set('.hero-text-wrapper', {autoAlpha:0})
+  .set('.cta-wrapper', {autoAlpha:1})
+  .to({}, {duration:1.5})
+  // 9. Elements exit
+  .to(['#mockupWrapper','.floating-badge','#cardLeft','#cardRight'], {
+    scale:.9, y:-40, autoAlpha:0, ease:'power3.in', duration:1.2, stagger:.05
+  })
+  // 10. Card pulls back
+  .to('.main-card', {
+    width: isMobile ? '92vw' : '85vw',
+    height: isMobile ? '92vh' : '85vh',
+    borderRadius: isMobile ? '32px' : '40px',
+    ease: 'expo.inOut', duration: 1.8
+  }, 'pullback')
+  .to('.cta-wrapper', {scale:1, filter:'blur(0px)', ease:'expo.inOut', duration:1.8}, 'pullback')
+  // 11. Card exits upward
+  .to('.main-card', {y:-window.innerHeight-300, ease:'power3.in', duration:1.5});
+
+/* ─── SCROLL REVEALS ─── */
+document.querySelectorAll('.will-reveal').forEach(el => {
+  gsap.to(el, {
+    opacity:1, y:0, duration:.9, ease:'power3.out',
+    scrollTrigger: {trigger:el, start:'top 85%', once:true}
+  });
+});
+
+/* ─── PHONE FLOAT ─── */
+document.querySelectorAll('.phone-mockup').forEach((p, i) => {
+  gsap.to(p, {
+    y: i%2===0 ? -10 : 10, repeat:-1, yoyo:true,
+    duration:2.8+i*.4, ease:'sine.inOut', delay:i*.3
+  });
+});
+</script>
+</body>
+</html>
+
