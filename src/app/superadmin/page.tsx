@@ -76,61 +76,94 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2 mb-8 justify-center">
-          <div className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="text-xs font-bold uppercase tracking-widest text-red-400">Super Admin</span>
+    <div className="min-h-screen flex">
+      {/* Panel izquierdo — identidad Kuadra */}
+      <div className="hidden lg:flex w-[420px] shrink-0 flex-col justify-between p-10"
+        style={{ background: "linear-gradient(160deg, #0f1c3a 0%, #0a1628 60%, #050d1a 100%)" }}>
+        <div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-8"
+            style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
+            <span className="text-white font-black text-sm tracking-tight">KD</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white leading-snug mb-3">
+            Panel de<br />control interno
+          </h2>
+          <p className="text-[#4a6fa5] text-sm leading-relaxed">
+            Acceso exclusivo para administración de la plataforma Kuadra.
+            Todas las sesiones quedan registradas.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold text-white text-center mb-1">Acceso restringido</h1>
-        <p className="text-gray-500 text-sm text-center mb-8">Kuadra · Panel de control interno</p>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-widest text-red-500/70">Zona restringida</span>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5 block">
-              Clave maestra
-            </label>
-            <input
-              type="password"
-              value={key}
-              onChange={e => setKey(e.target.value)}
-              placeholder="••••••••••••••••••••"
-              required
-              className="w-full bg-gray-900 border border-gray-800 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 placeholder-gray-600"
-            />
+      {/* Panel derecho — formulario */}
+      <div className="flex-1 bg-zinc-950 flex items-center justify-center px-6">
+        <div className="w-full max-w-sm">
+          {/* Logo mobile */}
+          <div className="lg:hidden flex items-center gap-2 mb-8">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
+              <span className="text-white font-black text-xs">KD</span>
+            </div>
+            <span className="text-white font-bold text-sm">Kuadra</span>
           </div>
 
-          {totpEnabled && (
+          <h1 className="text-xl font-bold text-white mb-1">Identificación</h1>
+          <p className="text-zinc-500 text-sm mb-7">Ingresa tus credenciales de administrador</p>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5 block">
-                Código TOTP (6 dígitos)
+              <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
+                Clave maestra
               </label>
               <input
-                type="text"
-                inputMode="numeric"
-                value={totp}
-                onChange={e => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="000000"
-                maxLength={6}
-                className="w-full bg-gray-900 border border-gray-800 text-white rounded-xl px-4 py-3 text-sm font-mono text-center tracking-[0.4em] focus:outline-none focus:border-blue-500 placeholder-gray-600"
+                type="password"
+                value={key}
+                onChange={e => setKey(e.target.value)}
+                placeholder="••••••••••••••••••••"
+                required
+                autoFocus
+                className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
               />
             </div>
-          )}
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-400">
-              {error}
-            </div>
-          )}
+            {totpEnabled && (
+              <div>
+                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
+                  Código de verificación
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={totp}
+                  onChange={e => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000 000"
+                  maxLength={6}
+                  className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm font-mono text-center tracking-[0.5em] focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
+                />
+                <p className="text-[10px] text-zinc-600 mt-1.5">Código rotativo de 6 dígitos desde tu app de contraseñas</p>
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 text-sm"
-          >
-            {loading ? "Verificando…" : "Acceder"}
-          </button>
-        </form>
+            {error && (
+              <div className="bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-3 text-sm text-red-400">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 text-sm mt-1"
+              style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
+            >
+              {loading ? "Verificando…" : "Acceder →"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
