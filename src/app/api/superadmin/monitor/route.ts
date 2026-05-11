@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { securityEvents } from "@/lib/security-events";
 
 function requireSuperAdmin(req: NextRequest) {
   const key = req.headers.get("x-superadmin-key");
@@ -6,20 +7,6 @@ function requireSuperAdmin(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   return null;
-}
-
-// In-memory event log (se resetea al reiniciar servidor)
-export const securityEvents: {
-  ts: string; ip: string; tipo: "success" | "failed" | "blocked"; detalle: string;
-}[] = [];
-
-export function logSecurityEvent(
-  ip: string,
-  tipo: "success" | "failed" | "blocked",
-  detalle: string
-) {
-  securityEvents.unshift({ ts: new Date().toISOString(), ip, tipo, detalle });
-  if (securityEvents.length > 200) securityEvents.length = 200;
 }
 
 export async function GET(req: NextRequest) {
@@ -30,8 +17,8 @@ export async function GET(req: NextRequest) {
   const recent = securityEvents.filter(e => new Date(e.ts).getTime() > last24h);
 
   const kpis = {
-    exitosos: recent.filter(e => e.tipo === "success").length,
-    fallidos:  recent.filter(e => e.tipo === "failed").length,
+    exitosos:   recent.filter(e => e.tipo === "success").length,
+    fallidos:   recent.filter(e => e.tipo === "failed").length,
     bloqueados: recent.filter(e => e.tipo === "blocked").length,
   };
 
