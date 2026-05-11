@@ -119,6 +119,7 @@ export default function Page() {
   };
 
   return (
+    <>
     <div className="kl">
       <style dangerouslySetInnerHTML={{ __html: css }} />
 
@@ -556,8 +557,9 @@ export default function Page() {
         </div>
       </footer>
 
-      <ChatBot />
     </div>
+    <ChatBot />
+    </>
   );
 }
 
