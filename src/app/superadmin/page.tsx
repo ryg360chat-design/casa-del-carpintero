@@ -96,160 +96,155 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Panel izquierdo — mismo estilo que login de la herramienta */}
-      <div
-        className="hidden lg:flex flex-col w-[420px] shrink-0 relative overflow-hidden"
-        style={{ background: "linear-gradient(145deg, #18181b 0%, #09090b 100%)" }}
-      >
-        <div className="absolute top-[-80px] right-[-80px] w-[340px] h-[340px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(25,87,166,0.22) 0%, transparent 70%)" }} />
-        <div className="absolute bottom-[-60px] left-[-60px] w-[260px] h-[260px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(38,122,140,0.15) 0%, transparent 70%)" }} />
-        <div className="relative flex flex-col h-full p-10">
-          <div className="flex items-center gap-3 mb-auto">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shrink-0"
-              style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">KD</span>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+        .sa-root { font-family: 'Inter', sans-serif; }
+        .sa-wordmark { font-family: 'Instrument Serif', serif; }
+      `}</style>
+
+      <div className="sa-root min-h-screen flex" style={{ background: "#f3eee7" }}>
+
+        {/* Panel izquierdo — editorial, igual a la landing */}
+        <div className="hidden lg:flex flex-col w-[420px] shrink-0 p-12 justify-between"
+          style={{ background: "#ffffff", borderRight: "1px solid rgba(26,23,20,0.10)" }}>
+          <div>
+            <div className="flex items-center gap-3 mb-12">
+              <span className="sa-wordmark text-2xl" style={{ color: "#1a1714" }}>Kuadra</span>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded"
+                style={{ background: "#f3eee7", color: "#9a9490", border: "1px solid rgba(26,23,20,0.15)" }}>
+                INTERNO
+              </span>
             </div>
-            <div>
-              <p className="text-white font-bold text-base leading-tight tracking-tight">Kuadra</p>
-              <p className="text-[11px] font-medium" style={{ color: "rgba(38,122,140,0.9)" }}>Panel interno</p>
+            <div className="flex items-center gap-2 mb-8">
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#c8472a" }} />
+              <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#c8472a" }}>
+                Zona restringida
+              </span>
             </div>
-          </div>
-          <div className="my-auto">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-widest text-red-400/80">Zona restringida</span>
-            </div>
-            <h1 className="text-3xl font-bold text-white leading-snug mb-4">
-              Acceso<br /><span style={{ color: "#267A8C" }}>autorizado</span> únicamente
+            <h1 className="sa-wordmark text-4xl leading-tight mb-5" style={{ color: "#1a1714" }}>
+              Acceso<br /><em style={{ color: "#c8472a" }}>autorizado</em><br />únicamente.
             </h1>
-            <p className="text-zinc-400 text-sm leading-relaxed">
-              Todas las sesiones quedan registradas.<br />Uso exclusivo del equipo de Kuadra.
+            <p className="text-sm leading-relaxed" style={{ color: "#5a5450" }}>
+              Todas las sesiones quedan registradas. Uso exclusivo del equipo de Kuadra.
             </p>
           </div>
-          <div className="text-[11px] text-zinc-700 mt-auto pt-6 border-t border-zinc-800">© 2026 Kuadra</div>
+          <p className="text-[11px] pt-6" style={{ color: "#9a9490", borderTop: "1px solid rgba(26,23,20,0.10)" }}>
+            © 2026 Kuadra
+          </p>
         </div>
-      </div>
 
-      {/* Panel derecho — formulario */}
-      <div className="flex-1 bg-zinc-950 flex items-center justify-center px-6">
-        <div className="w-full max-w-sm">
-          {/* Logo mobile */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
-              <span className="text-white font-black text-xs">KD</span>
+        {/* Panel derecho — formulario */}
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="w-full max-w-sm">
+
+            {/* Logo mobile */}
+            <div className="lg:hidden mb-10">
+              <span className="sa-wordmark text-2xl" style={{ color: "#1a1714" }}>Kuadra</span>
             </div>
-            <span className="text-white font-bold text-sm">Kuadra</span>
-          </div>
 
-          {!setupMode ? (
-            <>
-              <h1 className="text-xl font-bold text-white mb-1">Identificación</h1>
-              <p className="text-zinc-500 text-sm mb-7">Ingresa tus credenciales de administrador</p>
+            {!setupMode ? (
+              <>
+                <h2 className="sa-wordmark text-3xl mb-1" style={{ color: "#1a1714" }}>Identificación</h2>
+                <p className="text-sm mb-8" style={{ color: "#9a9490" }}>Ingresa tus credenciales de administrador</p>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div>
-                  <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
-                    Clave maestra
-                  </label>
-                  <input
-                    type="password"
-                    value={key}
-                    onChange={e => setKey(e.target.value)}
-                    placeholder="••••••••••••••••••••"
-                    required
-                    autoFocus
-                    className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
-                  />
-                </div>
-
-                {totpEnabled && (
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <div>
-                    <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5 block">
-                      Código de verificación
+                    <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2"
+                      style={{ color: "#9a9490" }}>
+                      Clave maestra
                     </label>
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      value={totp}
-                      onChange={e => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="000 000"
-                      maxLength={6}
-                      className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg px-4 py-3 text-sm font-mono text-center tracking-[0.5em] focus:outline-none focus:border-[#1957A6] focus:ring-1 focus:ring-[#1957A6]/30 placeholder-zinc-700 transition-colors"
+                      type="password"
+                      value={key}
+                      onChange={e => setKey(e.target.value)}
+                      placeholder="••••••••••••••••••••"
+                      required
+                      autoFocus
+                      className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
+                      style={{ background: "#fff", border: "1px solid rgba(26,23,20,0.18)", color: "#1a1714" }}
+                      onFocus={e => e.target.style.borderColor = "#c8472a"}
+                      onBlur={e => e.target.style.borderColor = "rgba(26,23,20,0.18)"}
                     />
-                    <p className="text-[10px] text-zinc-600 mt-1.5">Código rotativo de 6 dígitos desde tu app de contraseñas</p>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-3 text-sm text-red-400">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 text-sm"
-                  style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
-                >
-                  {loading ? "Verificando…" : "Acceder →"}
-                </button>
-              </form>
-            </>
-          ) : (
-            /* ── Pantalla de setup QR ── */
-            <>
-              <button
-                onClick={() => { setSetupMode(false); setQrData(null); setError(""); }}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-6 flex items-center gap-1"
-              >
-                ← Volver al login
-              </button>
-              <h1 className="text-xl font-bold text-white mb-1">Configurar verificación</h1>
-              <p className="text-zinc-500 text-sm mb-6">
-                Escanea el QR con la cámara de tu iPhone
-              </p>
-
-              {qrData && (
-                <div className="flex flex-col items-center gap-5">
-                  <div className="bg-white p-3 rounded-2xl shadow-xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrData.qr} alt="QR TOTP" width={200} height={200} />
                   </div>
 
-                  <div className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">O ingresa la clave manualmente</p>
-                    <p className="text-sm font-mono text-zinc-300 tracking-[0.25em] break-all select-all">{qrData.secret}</p>
-                  </div>
+                  {totpEnabled && (
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2"
+                        style={{ color: "#9a9490" }}>
+                        Código de verificación
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={totp}
+                        onChange={e => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="000 000"
+                        maxLength={6}
+                        className="w-full px-4 py-3 rounded-xl text-sm font-mono text-center outline-none transition-all"
+                        style={{ background: "#fff", border: "1px solid rgba(26,23,20,0.18)", color: "#1a1714", letterSpacing: "0.4em" }}
+                        onFocus={e => e.target.style.borderColor = "#c8472a"}
+                        onBlur={e => e.target.style.borderColor = "rgba(26,23,20,0.18)"}
+                      />
+                      <p className="text-[10px] mt-1.5" style={{ color: "#9a9490" }}>Código rotativo desde tu app de contraseñas</p>
+                    </div>
+                  )}
 
-                  <div className="w-full bg-[#0f1c3a]/60 border border-[#1957A6]/20 rounded-xl p-4">
-                    <p className="text-xs font-semibold text-[#4a8fd4] mb-2">Pasos:</p>
-                    <ol className="text-xs text-zinc-400 space-y-1.5 list-decimal list-inside">
-                      <li>Abre la <strong className="text-white">cámara del iPhone</strong> y apunta al QR</li>
-                      <li>Toca la notificación que aparece</li>
-                      <li>Apple Passwords guarda el código automáticamente</li>
-                      <li>Vuelve al login y usa el código de 6 dígitos</li>
-                    </ol>
-                  </div>
+                  {error && (
+                    <div className="text-sm px-4 py-3 rounded-xl"
+                      style={{ background: "rgba(200,71,42,0.08)", color: "#c8472a", border: "1px solid rgba(200,71,42,0.2)" }}>
+                      {error}
+                    </div>
+                  )}
 
                   <button
-                    onClick={() => { setSetupMode(false); setQrData(null); }}
-                    className="w-full text-white font-semibold py-3 rounded-lg text-sm transition-all"
-                    style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all mt-1"
+                    style={{ background: loading ? "#e07b62" : "#c8472a" }}
                   >
-                    Ya escaneé el QR → Ir al login
+                    {loading ? "Verificando…" : "Acceder →"}
                   </button>
-                </div>
-              )}
-            </>
-          )}
+                </form>
+              </>
+            ) : (
+              /* ── Setup QR ── */
+              <>
+                <button
+                  onClick={() => { setSetupMode(false); setQrData(null); setError(""); }}
+                  className="text-xs mb-6 flex items-center gap-1 transition-colors"
+                  style={{ color: "#9a9490" }}
+                >
+                  ← Volver
+                </button>
+                <h2 className="sa-wordmark text-3xl mb-1" style={{ color: "#1a1714" }}>Configurar verificación</h2>
+                <p className="text-sm mb-6" style={{ color: "#9a9490" }}>Escanea el QR con la cámara del iPhone</p>
+
+                {qrData && (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="bg-white p-3 rounded-2xl" style={{ border: "1px solid rgba(26,23,20,0.10)" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={qrData.qr} alt="QR TOTP" width={200} height={200} />
+                    </div>
+                    <div className="w-full p-4 rounded-xl text-center" style={{ background: "#fff", border: "1px solid rgba(26,23,20,0.10)" }}>
+                      <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#9a9490" }}>Clave manual</p>
+                      <p className="text-sm font-mono break-all select-all" style={{ color: "#1a1714" }}>{qrData.secret}</p>
+                    </div>
+                    <button
+                      onClick={() => { setSetupMode(false); setQrData(null); }}
+                      className="w-full py-3 rounded-xl text-sm font-semibold text-white"
+                      style={{ background: "#c8472a" }}
+                    >
+                      Ya escaneé el QR → Ir al login
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
