@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { OrgPlan } from "@/lib/org";
-import { PLAN_LABEL } from "@/lib/org";
+import type { OrgPlan } from "@/lib/org-types";
+import { PLAN_LABEL } from "@/lib/org-types";
 
 type Org = {
   id: string;
