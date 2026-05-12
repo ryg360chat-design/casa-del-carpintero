@@ -299,8 +299,19 @@ export default async function PedidosPage({
           ) : null}
         </div>
 
-        {/* Toggle vista */}
-        <div className="flex items-center gap-1 bg-zinc-100 rounded-lg p-1">
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/exportar/pedidos"
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 border border-zinc-200 bg-white hover:bg-zinc-50 px-3 py-2 rounded-lg transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Exportar CSV
+          </a>
+
+          {/* Toggle vista */}
+          <div className="flex items-center gap-1 bg-zinc-100 rounded-lg p-1">
           <Link
             href={buildUrl({ vista: "dias", dia: diaSeleccionado, semana: semanaBase })}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
@@ -324,6 +335,7 @@ export default async function PedidosPage({
             </svg>
             Lista
           </Link>
+          </div>
         </div>
       </div>
 
