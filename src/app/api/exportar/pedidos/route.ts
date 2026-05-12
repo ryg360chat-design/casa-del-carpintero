@@ -40,8 +40,9 @@ export async function GET() {
     "Fecha Ingreso", "Fecha Entrega Est.", "Fecha Entrega Real", "Notas",
   ];
 
-  const rows = (pedidos ?? []).map((p, i) => {
-    const cliente = (p.cliente as { nombre?: string; codigo?: string } | null);
+  type PedidoRow = { cliente: { nombre?: string; codigo?: string } | null; numero_boleta?: string; tipo_tablero?: string; marca_melamina?: string; cant_planchas?: number; cant_piezas?: number; canto_grueso?: string; canto_delgado?: string; maquina_asignada?: string; estado?: string; prioridad?: string; fecha_ingreso?: string; fecha_entrega_estimada?: string; fecha_entrega_real?: string; notas?: string };
+  const rows = (pedidos ?? [] as PedidoRow[]).map((p: PedidoRow, i: number) => {
+    const cliente = p.cliente;
     return [
       i + 1,
       cliente?.nombre ?? "",
