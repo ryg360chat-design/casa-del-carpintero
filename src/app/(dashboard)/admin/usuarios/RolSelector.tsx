@@ -2,28 +2,28 @@
 
 import { useState, useTransition } from "react";
 import { cambiarRol, desactivarUsuario, type UserRole } from "./actions";
+import { getRolLabel } from "@/lib/roles";
 
-const ROLES: { value: UserRole; label: string; color: string }[] = [
-  { value: "gerencia",        label: "Gerencia",           color: "bg-red-100 text-red-700 border-red-200" },
-  { value: "admin",           label: "Admin sistema",      color: "bg-orange-100 text-orange-700 border-orange-200" },
-  { value: "administracion",  label: "Administración",     color: "bg-amber-100 text-amber-700 border-amber-200" },
-  { value: "ventas",          label: "Ventas",             color: "bg-blue-100 text-blue-700 border-blue-200" },
-  { value: "logistica",       label: "Logística",          color: "bg-cyan-100 text-cyan-700 border-cyan-200" },
-  { value: "produccion",      label: "Producción",         color: "bg-violet-100 text-violet-700 border-violet-200" },
-  { value: "almacen_tableros",label: "Almacén Tableros",   color: "bg-green-100 text-green-700 border-green-200" },
-  { value: "almacen_cantos",  label: "Almacén Cantos",     color: "bg-teal-100 text-teal-700 border-teal-200" },
-  { value: "corte_especial",  label: "Corte Especial",     color: "bg-pink-100 text-pink-700 border-pink-200" },
-  { value: "viewer",          label: "Visualizador",       color: "bg-zinc-100 text-zinc-500 border-zinc-200" },
-  { value: "developer",       label: "Desarrollador",      color: "bg-zinc-900 text-white border-zinc-700" },
+const ROLES: { value: UserRole; color: string }[] = [
+  { value: "gerencia",         color: "bg-red-100 text-red-700 border-red-200" },
+  { value: "admin",            color: "bg-orange-100 text-orange-700 border-orange-200" },
+  { value: "administracion",   color: "bg-amber-100 text-amber-700 border-amber-200" },
+  { value: "ventas",           color: "bg-blue-100 text-blue-700 border-blue-200" },
+  { value: "logistica",        color: "bg-cyan-100 text-cyan-700 border-cyan-200" },
+  { value: "produccion",       color: "bg-violet-100 text-violet-700 border-violet-200" },
+  { value: "almacen_tableros", color: "bg-green-100 text-green-700 border-green-200" },
+  { value: "almacen_cantos",   color: "bg-teal-100 text-teal-700 border-teal-200" },
+  { value: "corte_especial",   color: "bg-pink-100 text-pink-700 border-pink-200" },
+  { value: "viewer",           color: "bg-zinc-100 text-zinc-500 border-zinc-200" },
+  { value: "developer",        color: "bg-zinc-900 text-white border-zinc-700" },
 ];
 
-export function RolBadge({ rol }: { rol: string }) {
+export function RolBadge({ rol, rolesNombres }: { rol: string; rolesNombres?: Record<string, string> }) {
   const found = ROLES.find(r => r.value === rol);
   const color = found?.color ?? "bg-zinc-100 text-zinc-500 border-zinc-200";
-  const label = found?.label ?? rol;
   return (
     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${color}`}>
-      {label}
+      {getRolLabel(rol, rolesNombres)}
     </span>
   );
 }
@@ -34,12 +34,14 @@ export function RolSelector({
   esSelf,
   esBaneado,
   canAssignDeveloper,
+  rolesNombres,
 }: {
   userId: string;
   rolActual: UserRole;
   esSelf: boolean;
   esBaneado: boolean;
   canAssignDeveloper: boolean;
+  rolesNombres?: Record<string, string>;
 }) {
   const [rol, setRol] = useState<UserRole>(rolActual);
   const [error, setError] = useState("");
@@ -80,7 +82,7 @@ export function RolSelector({
           className="text-xs font-semibold pr-7 pl-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-40 appearance-none cursor-pointer transition-colors hover:border-zinc-300"
         >
           {rolesVisibles.map(r => (
-            <option key={r.value} value={r.value}>{r.label}</option>
+            <option key={r.value} value={r.value}>{getRolLabel(r.value, rolesNombres)}</option>
           ))}
         </select>
         <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400">

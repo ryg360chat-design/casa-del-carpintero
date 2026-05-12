@@ -15,6 +15,7 @@ export type Organization = {
   activo: boolean;
   features_enabled: string[];
   config: Record<string, unknown>;
+  roles_nombres: Record<string, string>;
 };
 
 export const PLAN_LABEL: Record<OrgPlan, string> = {

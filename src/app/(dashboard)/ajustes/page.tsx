@@ -1,14 +1,17 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserRole, IS_ADMIN } from "@/lib/auth";
+import { getOrganization } from "@/lib/org";
 import MaquinaToggle from "@/components/MaquinaToggle";
 import CopiarLink from "./CopiarLink";
+import RolesNombresForm from "./RolesNombresForm";
 
 export default async function AjustesPage() {
   const role = await getUserRole();
   if (!IS_ADMIN.includes(role)) redirect("/dashboard");
 
   const supabase = await createClient();
+  const org = await getOrganization();
 
   const { data: maquinas } = await supabase.from("maquinas").select("*").order("id");
 
@@ -37,6 +40,15 @@ export default async function AjustesPage() {
                 />
               ))}
             </div>
+          </div>
+
+          {/* Nombres de roles */}
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
+            <div className="px-5 pt-5 pb-3 border-b border-zinc-100">
+              <h2 className="font-bold text-zinc-900 text-sm uppercase tracking-wide">Nombres de roles</h2>
+              <p className="text-zinc-500 text-xs mt-0.5">Personalizá cómo se llama cada rol en tu taller</p>
+            </div>
+            <RolesNombresForm rolesNombres={org?.roles_nombres ?? {}} />
           </div>
 
           {/* Link para clientes */}

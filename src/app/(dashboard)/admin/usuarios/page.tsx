@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserRole, IS_ADMIN, IS_DEVELOPER } from "@/lib/auth";
+import { getOrganization } from "@/lib/org";
 import { RolSelector, BanToggle, RolBadge } from "./RolSelector";
 import type { UserRole } from "./actions";
 
@@ -45,7 +46,11 @@ export default async function UsuariosPage() {
   if (!IS_ADMIN.includes(role)) redirect("/dashboard");
 
   const supabase = await createClient();
-  const { data: { user: me } } = await supabase.auth.getUser();
+  const [{ data: { user: me } }, org] = await Promise.all([
+    supabase.auth.getUser(),
+    getOrganization(),
+  ]);
+  const rolesNombres = org?.roles_nombres ?? {};
 
   const admin = createAdminClient();
 
@@ -144,7 +149,7 @@ export default async function UsuariosPage() {
             <div key={r} className={`flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border ${ROLE_COLOR[r] ?? "bg-zinc-100 text-zinc-600 border-zinc-200"}`}>
               <span>{count}</span>
               <span className="opacity-70">·</span>
-              <span className="capitalize">{r}</span>
+              <span>{rolesNombres[r] || r}</span>
             </div>
           ))}
         </div>
@@ -192,7 +197,7 @@ export default async function UsuariosPage() {
               {/* Rol actual (badge si es developer o self, selector si no) */}
               <div className="shrink-0">
                 {u.rol === "developer" || u.id === me?.id
-                  ? <RolBadge rol={u.rol} />
+                  ? <RolBadge rol={u.rol} rolesNombres={rolesNombres} />
                   : (
                     <RolSelector
                       userId={u.id}
@@ -200,6 +205,7 @@ export default async function UsuariosPage() {
                       esSelf={u.id === me?.id}
                       esBaneado={u.baneado}
                       canAssignDeveloper={canAssignDeveloper}
+                      rolesNombres={rolesNombres}
                     />
                   )
                 }
