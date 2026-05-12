@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { setPrecioVenta } from "./actions";
+import { setPrecioVenta, updateCostosConfig } from "./actions";
 
 type Pedido = {
   id: string;
@@ -28,6 +28,78 @@ const ESTADO_COLOR: Record<string, string> = {
 };
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+function ConfigPanel({
+  costoPlanche, costoCantoMetro, onClose,
+}: { costoPlanche: number; costoCantoMetro: number; onClose: () => void }) {
+  const [planche, setPlanche] = useState(String(costoPlanche));
+  const [canto, setCanto] = useState(String(costoCantoMetro));
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [, startTransition] = useTransition();
+
+  function handleSave() {
+    const p = parseFloat(planche);
+    const c = parseFloat(canto);
+    if (isNaN(p) || isNaN(c) || p < 0 || c < 0) return;
+    setSaving(true);
+    startTransition(async () => {
+      await updateCostosConfig(p, c);
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => { setSaved(false); onClose(); }, 1200);
+    });
+  }
+
+  return (
+    <div className="mb-5 bg-white border border-zinc-200 rounded-2xl shadow-sm p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="font-bold text-zinc-900 text-sm">Configuración de costos</p>
+          <p className="text-xs text-zinc-400 mt-0.5">Estos valores se usan para calcular el costo estimado de cada pedido.</p>
+        </div>
+        <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 p-1 rounded-lg hover:bg-zinc-100 transition-colors">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5">Costo por planche ($)</label>
+          <p className="text-[11px] text-zinc-400 mb-2">Precio de compra de una plancha de material (MDF, Melamina, etc.)</p>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
+            <input type="number" min="0" step="0.5" value={planche}
+              onChange={(e) => setPlanche(e.target.value)}
+              className="w-full pl-7 pr-3 py-2 text-sm border border-zinc-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900"
+              placeholder="22.00" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5">Costo por metro de canto ($)</label>
+          <p className="text-[11px] text-zinc-400 mb-2">Costo del metro lineal de tapacantos aplicado en producción.</p>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
+            <input type="number" min="0" step="0.05" value={canto}
+              onChange={(e) => setCanto(e.target.value)}
+              className="w-full pl-7 pr-3 py-2 text-sm border border-zinc-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900"
+              placeholder="0.80" />
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-3 mt-4">
+        <button onClick={onClose} className="text-sm text-zinc-500 hover:text-zinc-700 px-4 py-2 rounded-xl hover:bg-zinc-100 transition-colors">
+          Cancelar
+        </button>
+        <button onClick={handleSave} disabled={saving || saved}
+          className="text-sm font-semibold px-5 py-2 rounded-xl text-white transition-all disabled:opacity-60 flex items-center gap-2"
+          style={{ background: saved ? "#10b981" : "#1957A6" }}>
+          {saved ? (<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>Guardado</>) :
+           saving ? "Guardando..." : "Guardar costos"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function fmt(n: number) {
   return "$" + n.toLocaleString("es-EC", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -117,6 +189,7 @@ export default function FinancieroClient({
   const canEdit = ["developer", "admin", "gerencia"].includes(role);
   const [filtro, setFiltro] = useState<"todos" | "con_precio" | "sin_precio">("todos");
   const [page, setPage] = useState(0);
+  const [showConfig, setShowConfig] = useState(false);
 
   function navMes(delta: number) {
     let m = mes + delta; let y = año;
@@ -162,6 +235,18 @@ export default function FinancieroClient({
           <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Módulo Financiero</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{pedidos.length} pedidos registrados</p>
         </div>
+        <div className="flex items-center gap-2">
+        {canEdit && (
+          <button onClick={() => setShowConfig(v => !v)}
+            title="Configurar costos"
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 transition-colors text-zinc-600"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            Configurar costos
+          </button>
+        )}
         <div className="flex items-center gap-2 bg-white border border-zinc-200 rounded-xl px-3 py-2 shadow-sm">
           <button onClick={() => navMes(-1)} className="p-1 hover:bg-zinc-100 rounded-lg transition-colors text-zinc-500 hover:text-zinc-800">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
@@ -177,7 +262,16 @@ export default function FinancieroClient({
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
+        </div>
       </div>
+
+      {showConfig && canEdit && (
+        <ConfigPanel
+          costoPlanche={costoPlanche}
+          costoCantoMetro={costoCantoMetro}
+          onClose={() => setShowConfig(false)}
+        />
+      )}
 
       {/* KPIs principales */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
