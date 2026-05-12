@@ -161,10 +161,11 @@ export default async function MaterialesPDFPage() {
       .limit(20),
   ]);
 
-  const mats = materiales ?? [];
+  type MatRow = { id: string; tipo: string; marca: string; espesor: string; stock_actual: number; stock_minimo: number; precio_unitario: number };
+  const mats = (materiales ?? []) as MatRow[];
   const movs = movimientos ?? [];
 
-  const valorTotal = mats.reduce((s: number, m) => s + m.stock_actual * m.precio_unitario, 0);
+  const valorTotal = mats.reduce((s, m) => s + m.stock_actual * m.precio_unitario, 0);
   const bajoMinimo = mats.filter(m => m.stock_actual <= m.stock_minimo);
   const hace30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
