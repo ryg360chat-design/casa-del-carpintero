@@ -335,3 +335,24 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* ─── Print / PDF ────────────────────────────────────────── */
+@media print {
+  aside,
+  header,
+  nav,
+  [data-bottomnav] {
+    display: none !important;
+  }
+  main {
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+    background: white !important;
+  }
+  body {
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

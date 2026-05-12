@@ -5,11 +5,17 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const PAGE_META: Record<string, { title: string; breadcrumb?: string }> = {
-  "/dashboard":  { title: "Panel de Producción" },
-  "/pedidos":    { title: "Pedidos", breadcrumb: "Gestión" },
-  "/produccion": { title: "Producción", breadcrumb: "Gestión" },
-  "/calendario": { title: "Calendario", breadcrumb: "Planificación" },
-  "/ajustes":    { title: "Ajustes", breadcrumb: "Sistema" },
+  "/dashboard":       { title: "Panel de Producción" },
+  "/pedidos":         { title: "Pedidos",               breadcrumb: "Gestión" },
+  "/produccion":      { title: "Producción",             breadcrumb: "Gestión" },
+  "/calendario":      { title: "Calendario",             breadcrumb: "Planificación" },
+  "/materiales":      { title: "Control de Materiales",  breadcrumb: "Bodega" },
+  "/financiero":      { title: "Financiero",             breadcrumb: "Análisis" },
+  "/reporte":         { title: "Reporte Diario",         breadcrumb: "Análisis" },
+  "/ajustes":         { title: "Ajustes",                breadcrumb: "Sistema" },
+  "/admin/usuarios":  { title: "Usuarios",               breadcrumb: "Admin" },
+  "/admin/invitar":   { title: "Invitar",                breadcrumb: "Admin" },
+  "/dev":             { title: "Dev Tools",              breadcrumb: "Sistema" },
 };
 
 export default function TopBar({ canCreatePedido = true }: { canCreatePedido?: boolean }) {
@@ -67,7 +73,7 @@ export default function TopBar({ canCreatePedido = true }: { canCreatePedido?: b
         )}
         {!isDetail && !isNuevo && (
           <span className="text-sm font-semibold text-zinc-800 truncate">
-            {meta?.title ?? "Casa del Carpintero"}
+            {meta?.title ?? "Kuadra"}
           </span>
         )}
       </div>

@@ -227,14 +227,12 @@ export default function Sidebar({
 
       {/* Logo */}
       <div className="h-[57px] flex items-center px-[14px] border-b border-zinc-800/80 overflow-hidden gap-3">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-content-center items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
-          <span className="text-white font-black text-[11px] tracking-tight">
-            {orgNombre.slice(0, 2).toUpperCase()}
-          </span>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6 0%, #267A8C 100%)" }}>
+          <span className="text-white font-black text-[14px] tracking-tight">K</span>
         </div>
         <div className="opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150 delay-75 min-w-0">
-          <p className="text-white text-[10px] font-black leading-tight tracking-widest whitespace-nowrap truncate max-w-[140px]">
-            {orgNombre.toUpperCase()}
+          <p className="text-white text-[11px] font-black leading-tight tracking-widest whitespace-nowrap">
+            KUADRA
           </p>
           <div className="flex items-center gap-1 mt-0.5">
             <span
@@ -244,8 +242,8 @@ export default function Sidebar({
               {planBadge.label}
             </span>
             <span className="text-zinc-600 text-[8px]">·</span>
-            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap text-zinc-500">
-              KUADRA
+            <span className="text-[8.5px] font-semibold tracking-wider uppercase whitespace-nowrap text-zinc-500 truncate max-w-[90px]">
+              {orgNombre}
             </span>
           </div>
         </div>
