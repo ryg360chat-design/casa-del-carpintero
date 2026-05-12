@@ -134,9 +134,10 @@ function PrecioInput({ pedidoId, inicial }: { pedidoId: string; inicial: number 
 }
 
 function MiniChart({ pedidos, costoPlanche, costoCantoMetro }: { pedidos: Pedido[]; costoPlanche: number; costoCantoMetro: number }) {
-  if (pedidos.length === 0) return null;
-
-  const byWeek: Record<number, { ingresos: number; costo: number }> = { 1: { ingresos: 0, costo: 0 }, 2: { ingresos: 0, costo: 0 }, 3: { ingresos: 0, costo: 0 }, 4: { ingresos: 0, costo: 0 } };
+  const byWeek: Record<number, { ingresos: number; costo: number }> = {
+    1: { ingresos: 0, costo: 0 }, 2: { ingresos: 0, costo: 0 },
+    3: { ingresos: 0, costo: 0 }, 4: { ingresos: 0, costo: 0 },
+  };
   pedidos.forEach((p) => {
     const d = new Date(p.fecha_ingreso).getDate();
     const w = Math.min(Math.ceil(d / 7), 4);
@@ -145,31 +146,30 @@ function MiniChart({ pedidos, costoPlanche, costoCantoMetro }: { pedidos: Pedido
   });
 
   const maxVal = Math.max(...Object.values(byWeek).map((v) => v.ingresos), 1);
-  const H = 90; const barW = 40; const gap = 28; const padX = 16;
-  const VW = 4 * barW + 3 * gap + padX * 2;
 
   return (
-    <svg width={VW} height={H + 24} viewBox={`0 0 ${VW} ${H + 24}`} style={{ overflow: "visible", display: "block" }}>
-      {[1, 2, 3, 4].map((w, i) => {
-        const x = padX + i * (barW + gap);
-        const hI = (byWeek[w].ingresos / maxVal) * H;
-        const hC = (byWeek[w].costo / maxVal) * H;
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 12, width: "100%", height: 110, paddingBottom: 24, position: "relative" }}>
+      {[1, 2, 3, 4].map((w) => {
+        const pctI = byWeek[w].ingresos / maxVal;
+        const pctC = byWeek[w].costo / maxVal;
         const hasData = byWeek[w].ingresos > 0;
         return (
-          <g key={w}>
-            <rect x={x} y={H - Math.max(hI, 2)} width={barW} height={Math.max(hI, 2)} rx="4"
-              fill={hasData ? "#1957A6" : "#e4e4e7"} opacity={hasData ? "0.85" : "0.4"} />
-            {hC > 0 && <rect x={x} y={H - hC} width={barW} height={hC} rx="4" fill="#f59e0b" opacity="0.5" />}
-            <text x={x + barW / 2} y={H + 16} textAnchor="middle" fontSize="11" fill="#9ca3af" fontWeight="500">S{w}</text>
+          <div key={w} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", position: "relative" }}>
             {hasData && (
-              <text x={x + barW / 2} y={H - hI - 5} textAnchor="middle" fontSize="10" fill="#1957A6" fontWeight="700">
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#1957A6", marginBottom: 4, whiteSpace: "nowrap" }}>
                 {fmt(byWeek[w].ingresos)}
-              </text>
+              </span>
             )}
-          </g>
+            <div style={{ width: "100%", position: "relative", height: `${Math.max(pctI * 86, 3)}px`, borderRadius: 6, background: hasData ? "rgba(25,87,166,0.85)" : "#e4e4e7", overflow: "hidden" }}>
+              {pctC > 0 && (
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${(pctC / pctI) * 100}%`, background: "rgba(245,158,11,0.55)", borderRadius: 6 }} />
+              )}
+            </div>
+            <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500, marginTop: 6, position: "absolute", bottom: 0 }}>S{w}</span>
+          </div>
         );
       })}
-    </svg>
+    </div>
   );
 }
 
