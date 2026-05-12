@@ -401,7 +401,7 @@ export default async function ReportePDFPage({
       {/* Barra de impresión */}
       <div className="print-bar">
         <div>
-          <div className="print-title">Reporte Diario — {orgNombre}</div>
+          <div className="print-title">Kuadra — Reporte Diario</div>
           <div className="print-sub" style={{ textTransform: "capitalize" }}>{fechaHoy}</div>
         </div>
         <PrintButton />
@@ -412,15 +412,10 @@ export default async function ReportePDFPage({
         <div className="header">
           <div className="header-top">
             <div className="logo">
-              <div className="logo-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-              </div>
+              <div className="logo-icon" style={{ fontSize: 18, fontWeight: 900, color: "white", fontFamily: "sans-serif" }}>K</div>
               <div>
-                <div className="logo-name">{orgNombre}</div>
-                <div className="logo-sub">Kuadra · Reporte de producción</div>
+                <div className="logo-name">Kuadra</div>
+                <div className="logo-sub">{orgNombre} · Reporte de producción</div>
               </div>
             </div>
             <div className="header-date">
