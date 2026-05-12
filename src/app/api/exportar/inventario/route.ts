@@ -33,8 +33,9 @@ export async function GET(req: Request) {
       .limit(5000);
 
     const headers = ["Fecha", "Material", "Marca", "Espesor", "Tipo Movimiento", "Cantidad", "Stock Resultante", "Pedido ID", "Notas"];
-    const rows = (movs ?? []).map(m => {
-      const mat = m.materiales as { tipo?: string; marca?: string; espesor?: string } | null;
+    type MovRow = { created_at: string; tipo: string; cantidad: number; stock_resultante: number; pedido_id: string | null; notas: string | null; materiales: { tipo?: string; marca?: string; espesor?: string } | null };
+    const rows = (movs ?? [] as MovRow[]).map((m: MovRow) => {
+      const mat = m.materiales;
       return [
         new Date(m.created_at).toLocaleString("es-PE", { timeZone: TZ, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
         mat?.tipo ?? "",
