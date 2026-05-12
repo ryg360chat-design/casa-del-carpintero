@@ -145,20 +145,21 @@ function MiniChart({ pedidos, costoPlanche, costoCantoMetro }: { pedidos: Pedido
   });
 
   const maxVal = Math.max(...Object.values(byWeek).map((v) => v.ingresos), 1);
-  const VW = 460; const H = 90; const barW = 72; const gap = 42;
+  const H = 90; const barW = 40; const gap = 28; const padX = 16;
+  const VW = 4 * barW + 3 * gap + padX * 2;
 
   return (
-    <svg width="100%" height={H + 24} viewBox={`0 0 ${VW} ${H + 24}`} preserveAspectRatio="none" style={{ overflow: "visible" }}>
+    <svg width={VW} height={H + 24} viewBox={`0 0 ${VW} ${H + 24}`} style={{ overflow: "visible", display: "block" }}>
       {[1, 2, 3, 4].map((w, i) => {
-        const x = i * (barW + gap) + 20;
+        const x = padX + i * (barW + gap);
         const hI = (byWeek[w].ingresos / maxVal) * H;
         const hC = (byWeek[w].costo / maxVal) * H;
         const hasData = byWeek[w].ingresos > 0;
         return (
           <g key={w}>
-            <rect x={x} y={H - Math.max(hI, 2)} width={barW} height={Math.max(hI, 2)} rx="5"
-              fill={hasData ? "#1957A6" : "#e4e4e7"} opacity={hasData ? "0.85" : "0.5"} />
-            {hC > 0 && <rect x={x} y={H - hC} width={barW} height={hC} rx="5" fill="#f59e0b" opacity="0.5" />}
+            <rect x={x} y={H - Math.max(hI, 2)} width={barW} height={Math.max(hI, 2)} rx="4"
+              fill={hasData ? "#1957A6" : "#e4e4e7"} opacity={hasData ? "0.85" : "0.4"} />
+            {hC > 0 && <rect x={x} y={H - hC} width={barW} height={hC} rx="4" fill="#f59e0b" opacity="0.5" />}
             <text x={x + barW / 2} y={H + 16} textAnchor="middle" fontSize="11" fill="#9ca3af" fontWeight="500">S{w}</text>
             {hasData && (
               <text x={x + barW / 2} y={H - hI - 5} textAnchor="middle" fontSize="10" fill="#1957A6" fontWeight="700">
