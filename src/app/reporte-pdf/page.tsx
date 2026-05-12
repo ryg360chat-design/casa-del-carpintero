@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { getOrganization } from "@/lib/org";
 import PrintButton from "@/components/PrintButton";
 import { limaTime } from "@/lib/time";
 import { horasProductivasHasta, PROD } from "@/lib/productividad";
 
 export const metadata = {
-  title: "Reporte Diario — Casa del Carpintero",
+  title: "Reporte Diario — Kuadra",
 };
 
 const STYLES = `
@@ -248,6 +249,8 @@ export default async function ReportePDFPage({
 }) {
   const { fecha: fechaParam } = await searchParams;
   const supabase = await createClient();
+  const org = await getOrganization();
+  const orgNombre = org?.nombre ?? "Taller";
 
   let hoy: Date;
   if (fechaParam && /^\d{4}-\d{2}-\d{2}$/.test(fechaParam)) {
@@ -398,7 +401,7 @@ export default async function ReportePDFPage({
       {/* Barra de impresión */}
       <div className="print-bar">
         <div>
-          <div className="print-title">Reporte Diario — Casa del Carpintero</div>
+          <div className="print-title">Reporte Diario — {orgNombre}</div>
           <div className="print-sub" style={{ textTransform: "capitalize" }}>{fechaHoy}</div>
         </div>
         <PrintButton />
@@ -416,8 +419,8 @@ export default async function ReportePDFPage({
                 </svg>
               </div>
               <div>
-                <div className="logo-name">Casa del Carpintero</div>
-                <div className="logo-sub">Production OS · Reporte de producción</div>
+                <div className="logo-name">{orgNombre}</div>
+                <div className="logo-sub">Kuadra · Reporte de producción</div>
               </div>
             </div>
             <div className="header-date">
@@ -725,7 +728,7 @@ export default async function ReportePDFPage({
         </div>
 
         <div className="footer">
-          <span>© 2026 Casa del Carpintero · Production OS</span>
+          <span>© 2026 {orgNombre} · Kuadra</span>
           <span>Generado el {fechaHoy} a las {horaGenera}</span>
         </div>
       </div>

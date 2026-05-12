@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { registrarEntrada, crearMaterial, editarMaterial } from "./actions";
 
 type Material = {
@@ -192,6 +193,7 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
   materiales: Material[]; movimientos: Movimiento[]; orgId: string; role: string;
 }) {
   const canEdit = ["developer", "admin", "gerencia", "almacen_tableros"].includes(role);
+  const router = useRouter();
   const [tab, setTab] = useState<"inventario" | "kardex" | "reporte">("inventario");
   const [showEntrada, setShowEntrada] = useState(false);
   const [showNuevo, setShowNuevo] = useState(false);
@@ -450,14 +452,14 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
         <div>
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-zinc-500">Análisis de consumo — últimos 30 días</p>
-            <button onClick={() => window.print()}
+            <button onClick={() => router.push("/materiales-pdf")}
               className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-600 flex items-center gap-1.5">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 6 2 18 2 18 9"/>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
                 <rect x="6" y="14" width="12" height="8"/>
               </svg>
-              Imprimir / PDF
+              Ver PDF
             </button>
           </div>
 
