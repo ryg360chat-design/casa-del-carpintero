@@ -133,7 +133,7 @@ export default function Page() {
           <a href="#inicio">Producto</a>
           <a href="#modulos">Módulos</a>
           <a href="#porque">Por qué</a>
-          <a href="#precios">Precios</a>
+          {/* <a href="#precios">Precios</a> */}
           <a href="#ecosistema">Ecosistema</a>
         </div>
         <div className="kl-nav-actions">
@@ -398,8 +398,8 @@ export default function Page() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <section className="kl-pricing-section" id="precios">
+      {/* PRICING — suspendido 2026-05-12, reactivar cuando esté lista la estrategia de precios */}
+      {false && <section className="kl-pricing-section" id="precios">
         <div className="kl-container">
           <div className="kl-eyebrow kl-eyebrow-center">◆ Inversión transparente</div>
           <h2 className="kl-section-title kl-title-center">El plan que se adapta<br /><span className="kl-title-muted">a tu taller.</span></h2>
@@ -495,7 +495,7 @@ export default function Page() {
 
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ECOSYSTEM */}
       <section className="kl-ecosystem-section" id="ecosistema">
