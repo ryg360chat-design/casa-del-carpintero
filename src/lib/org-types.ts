@@ -13,6 +13,8 @@ export type Organization = {
   subscribed_at: string | null;
   stripe_customer_id: string | null;
   activo: boolean;
+  features_enabled: string[];
+  config: Record<string, unknown>;
 };
 
 export const PLAN_LABEL: Record<OrgPlan, string> = {

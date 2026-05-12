@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { canUseFeature } from "@/lib/plans";
+import { canUseFeature, hasOrgFeature } from "@/lib/plans";
 import type { OrgPlan } from "@/lib/org";
 import clsx from "clsx";
 
@@ -44,6 +44,17 @@ const navItems: NavItem[] = [
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Financiero",
+    href: "/financiero",
+    feature: "modulo_financiero",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
       </svg>
     ),
   },
@@ -139,6 +150,7 @@ export default function Sidebar({
   isDeveloper = false,
   orgNombre = "Kuadra",
   orgPlan = "trial",
+  orgFeatures = [],
 }: {
   userEmail: string;
   userRole?: string;
@@ -146,6 +158,7 @@ export default function Sidebar({
   isDeveloper?: boolean;
   orgNombre?: string;
   orgPlan?: OrgPlan;
+  orgFeatures?: string[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -164,6 +177,7 @@ export default function Sidebar({
     if (item.href === "/dev") return isDeveloper;
     if (item.href === "/ajustes" || item.href === "/admin/invitar" || item.href === "/admin/usuarios") return isAdmin;
     if (item.href === "/reporte") return canViewReporte && canUseFeature(orgPlan, "reporte_diario");
+    if (item.href === "/financiero") return hasOrgFeature(orgPlan, orgFeatures, "modulo_financiero", isDeveloper);
     if (item.href === "/produccion" || item.href === "/produccion/rendimiento" || item.href === "/calendario") {
       if (userRole === "viewer") return false;
       if (item.feature && !canUseFeature(orgPlan, item.feature)) return false;

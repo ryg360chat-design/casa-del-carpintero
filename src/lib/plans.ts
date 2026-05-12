@@ -10,6 +10,8 @@ export type PlanFeature =
   | "reporte_historial"
   | "exportar_csv"
   | "modulo_financiero"
+  | "control_materiales"
+  | "reporte_materiales"
   | "crm_clientes"
   | "inventario"
   | "personalizacion"
@@ -26,6 +28,8 @@ const PLAN_FEATURES: Record<PlanFeature, OrgPlan[]> = {
   reporte_historial:    ["empresarial"],
   exportar_csv:         ["empresarial"],
   modulo_financiero:    ["profesional", "empresarial"],
+  control_materiales:   ["profesional", "empresarial"],
+  reporte_materiales:   ["profesional", "empresarial"],
   crm_clientes:         ["empresarial"],
   inventario:           ["empresarial"],
   personalizacion:      ["empresarial"],
@@ -56,6 +60,25 @@ export const PLAN_PRICE_ANUAL: Record<OrgPlan, number> = {
 
 export function canUseFeature(plan: OrgPlan, feature: PlanFeature): boolean {
   return PLAN_FEATURES[feature]?.includes(plan) ?? false;
+}
+
+// Módulos nuevos requieren además que la org los tenga habilitados explícitamente
+export const GATED_FEATURES: PlanFeature[] = [
+  "modulo_financiero",
+  "control_materiales",
+  "reporte_materiales",
+];
+
+export function hasOrgFeature(
+  plan: OrgPlan,
+  featuresEnabled: string[],
+  feature: PlanFeature,
+  isDeveloper = false,
+): boolean {
+  if (isDeveloper) return true;
+  if (!canUseFeature(plan, feature)) return false;
+  if (GATED_FEATURES.includes(feature)) return featuresEnabled.includes(feature);
+  return true;
 }
 
 export function getUpgradePlan(plan: OrgPlan): OrgPlan | null {
