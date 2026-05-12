@@ -33,6 +33,54 @@ export async function registrarEntrada(materialId: string, cantidad: number, not
   return { ok: true };
 }
 
+export async function crearMaterial(
+  tipo: string, marca: string, espesor: string,
+  stockInicial: number, stockMinimo: number, precioUnitario: number,
+) {
+  const supabase = await createClient();
+  const org = await getOrganization();
+  if (!org) return { error: "Sin organización" };
+
+  const { data: mat, error } = await supabase.from("materiales").insert({
+    organization_id: org.id,
+    tipo: tipo.trim(), marca: marca.trim(), espesor: espesor.trim(),
+    stock_actual: stockInicial,
+    stock_minimo: stockMinimo,
+    precio_unitario: precioUnitario,
+    activo: true,
+  }).select("id").single();
+
+  if (error) return { error: error.message };
+
+  if (stockInicial > 0 && mat) {
+    await supabase.from("movimientos_material").insert({
+      organization_id: org.id,
+      material_id: mat.id,
+      tipo: "entrada",
+      cantidad: stockInicial,
+      stock_resultante: stockInicial,
+      notas: "Stock inicial",
+    });
+  }
+
+  revalidatePath("/materiales");
+  return { ok: true };
+}
+
+export async function editarMaterial(materialId: string, stockMinimo: number, precioUnitario: number) {
+  const supabase = await createClient();
+  const org = await getOrganization();
+  if (!org) return { error: "Sin organización" };
+
+  await supabase.from("materiales")
+    .update({ stock_minimo: stockMinimo, precio_unitario: precioUnitario, updated_at: new Date().toISOString() })
+    .eq("id", materialId)
+    .eq("organization_id", org.id);
+
+  revalidatePath("/materiales");
+  return { ok: true };
+}
+
 export async function registrarSalidaPedido(
   orgId: string,
   pedidoId: string,
