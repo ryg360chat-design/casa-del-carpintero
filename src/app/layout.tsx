@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Casa del Carpintero — Gestión de Cortes",
-  description: "Sistema de gestión de pedidos de corte",
+  title: "Kuadra — Gestión de Producción",
+  description: "Sistema de gestión de producción para carpintería",
 };
 
 export default function RootLayout({

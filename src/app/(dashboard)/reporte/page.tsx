@@ -231,8 +231,8 @@ export default async function ReportePage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-bold text-white text-base leading-tight">Casa del Carpintero</p>
-                    <p className="text-[11px] text-zinc-400">Production OS · Reporte de producción</p>
+                    <p className="font-bold text-white text-base leading-tight">Kuadra</p>
+                    <p className="text-[11px] text-zinc-400">Reporte de producción</p>
                   </div>
                 </div>
               </div>
@@ -557,7 +557,7 @@ export default async function ReportePage() {
 
         {/* Pie */}
         <div className="mt-6 pt-4 border-t border-zinc-200 flex items-center justify-between text-xs text-zinc-400 print:block">
-          <span>© 2026 RyG SaaS · Casa del Carpintero</span>
+          <span>© 2026 Kuadra</span>
           <span className="print:block">Generado el {fechaHoy} a las {horaGenera}</span>
         </div>
 

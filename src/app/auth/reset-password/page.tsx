@@ -188,11 +188,11 @@ export default function ResetPasswordPage() {
         <div className="flex items-center gap-2.5 mb-8">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm shrink-0"
             style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-            <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
+            <span className="text-white font-black text-[13px] tracking-tight">K</span>
           </div>
           <div>
-            <p className="font-bold text-zinc-900 text-sm leading-tight">Casa del Carpintero</p>
-            <p className="text-[10px] text-zinc-400">Production OS</p>
+            <p className="font-bold text-zinc-900 text-sm leading-tight">Kuadra</p>
+            <p className="text-[10px] text-zinc-400">Gestión de producción</p>
           </div>
         </div>
         <Suspense fallback={<div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center text-sm text-zinc-400">Cargando...</div>}>

@@ -53,7 +53,7 @@ export default async function AjustesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-bold text-zinc-900 text-sm uppercase tracking-wide">Sistema</h2>
-                <p className="text-zinc-500 text-xs mt-0.5">Casa del Carpintero — Gestión de producción</p>
+                <p className="text-zinc-500 text-xs mt-0.5">Kuadra — Gestión de producción</p>
               </div>
               <span className="text-xs font-bold bg-zinc-900 text-white px-2.5 py-1 rounded-full tracking-widest">
                 BETA

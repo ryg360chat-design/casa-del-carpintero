@@ -98,10 +98,10 @@ export default async function SeguimientoPage({
         <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "linear-gradient(135deg, #1957A6, #267A8C)" }}>
-              <span className="text-white font-black text-[13px] tracking-tight">CDC</span>
+              <span className="text-white font-black text-[13px] tracking-tight">K</span>
             </div>
             <div>
-              <p className="text-zinc-900 text-sm font-bold leading-tight">Casa del Carpintero</p>
+              <p className="text-zinc-900 text-sm font-bold leading-tight">Kuadra</p>
               <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "#267A8C" }}>Seguimiento</p>
             </div>
           </div>
@@ -296,7 +296,7 @@ export default async function SeguimientoPage({
               </svg>
             </div>
             <p className="text-zinc-500 text-sm">Ingresá el código de tu pedido para ver el estado.</p>
-            <p className="text-zinc-400 text-xs mt-1">Casa del Carpintero · Corte y melamina</p>
+            <p className="text-zinc-400 text-xs mt-1">Kuadra · Gestión de producción</p>
           </div>
         )}
       </main>
