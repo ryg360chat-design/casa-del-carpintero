@@ -78,21 +78,23 @@ function MiniChart({ pedidos, costoPlanche, costoCantoMetro }: { pedidos: Pedido
   });
 
   const maxVal = Math.max(...Object.values(byWeek).map((v) => v.ingresos), 1);
-  const W = 280; const H = 80; const barW = 32; const gap = 24;
+  const VW = 460; const H = 90; const barW = 72; const gap = 42;
 
   return (
-    <svg width={W} height={H + 20} viewBox={`0 0 ${W} ${H + 20}`} style={{ overflow: "visible" }}>
+    <svg width="100%" height={H + 24} viewBox={`0 0 ${VW} ${H + 24}`} preserveAspectRatio="none" style={{ overflow: "visible" }}>
       {[1, 2, 3, 4].map((w, i) => {
-        const x = i * (barW + gap) + 10;
+        const x = i * (barW + gap) + 20;
         const hI = (byWeek[w].ingresos / maxVal) * H;
         const hC = (byWeek[w].costo / maxVal) * H;
+        const hasData = byWeek[w].ingresos > 0;
         return (
           <g key={w}>
-            <rect x={x} y={H - hI} width={barW} height={hI} rx="4" fill="#1957A6" opacity="0.85" />
-            {hC > 0 && <rect x={x} y={H - hC} width={barW} height={hC} rx="4" fill="#f59e0b" opacity="0.5" />}
-            <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="10" fill="#9ca3af">S{w}</text>
-            {byWeek[w].ingresos > 0 && (
-              <text x={x + barW / 2} y={H - hI - 4} textAnchor="middle" fontSize="9" fill="#1957A6" fontWeight="600">
+            <rect x={x} y={H - Math.max(hI, 2)} width={barW} height={Math.max(hI, 2)} rx="5"
+              fill={hasData ? "#1957A6" : "#e4e4e7"} opacity={hasData ? "0.85" : "0.5"} />
+            {hC > 0 && <rect x={x} y={H - hC} width={barW} height={hC} rx="5" fill="#f59e0b" opacity="0.5" />}
+            <text x={x + barW / 2} y={H + 16} textAnchor="middle" fontSize="11" fill="#9ca3af" fontWeight="500">S{w}</text>
+            {hasData && (
+              <text x={x + barW / 2} y={H - hI - 5} textAnchor="middle" fontSize="10" fill="#1957A6" fontWeight="700">
                 {fmt(byWeek[w].ingresos)}
               </text>
             )}
@@ -203,13 +205,15 @@ export default function FinancieroClient({
       {/* Segunda fila: gráfico + top cliente */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="md:col-span-2 bg-white rounded-2xl border border-zinc-200 shadow-sm p-5">
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-3">Ingresos por semana</p>
-          <div className="flex items-end gap-3">
-            <MiniChart pedidos={pedidos} costoPlanche={costoPlanche} costoCantoMetro={costoCantoMetro} />
-            <div className="flex flex-col gap-2 text-xs text-zinc-500 pb-5">
-              <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-blue-700 opacity-85 inline-block"/><span>Ingresos</span></div>
-              <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-400 opacity-50 inline-block"/><span>Costo est.</span></div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Ingresos por semana</p>
+            <div className="flex items-center gap-3 text-xs text-zinc-400">
+              <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-blue-700 opacity-85 inline-block"/><span>Ingresos</span></div>
+              <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 opacity-50 inline-block"/><span>Costo est.</span></div>
             </div>
+          </div>
+          <div className="w-full">
+            <MiniChart pedidos={pedidos} costoPlanche={costoPlanche} costoCantoMetro={costoCantoMetro} />
           </div>
         </div>
 
