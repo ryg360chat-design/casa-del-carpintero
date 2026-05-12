@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getOrganization } from "@/lib/org";
 import ImprimirBtn from "@/components/ImprimirBtn";
 import GuardarReporteBtn from "@/components/GuardarReporteBtn";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
@@ -21,6 +22,8 @@ const CIRC = 2 * Math.PI * 44; // r=44 → ≈ 276.5
 
 export default async function ReportePage() {
   const supabase = await createClient();
+  const org = await getOrganization();
+  const orgNombre = org?.nombre ?? "Taller";
 
   const startOfToday = limaStartOfToday();
   const endOfToday   = limaEndOfToday();
@@ -228,8 +231,8 @@ export default async function ReportePage() {
                     K
                   </div>
                   <div>
-                    <p className="font-bold text-white text-base leading-tight">Kuadra</p>
-                    <p className="text-[11px] text-zinc-400">Reporte de producción</p>
+                    <p className="font-bold text-white text-base leading-tight">{orgNombre}</p>
+                    <p className="text-[11px] text-zinc-400">Kuadra · Reporte de producción</p>
                   </div>
                 </div>
               </div>
