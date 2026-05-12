@@ -44,7 +44,7 @@ export default async function AjustesPage() {
 
           {/* Nombres de roles */}
           <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
-            <div className="px-5 pt-5 pb-3 border-b border-zinc-100">
+            <div className="px-5 pt-4 pb-3 border-b border-zinc-100">
               <h2 className="font-bold text-zinc-900 text-sm uppercase tracking-wide">Nombres de roles</h2>
               <p className="text-zinc-500 text-xs mt-0.5">Personalizá cómo se llama cada rol en tu taller</p>
             </div>
