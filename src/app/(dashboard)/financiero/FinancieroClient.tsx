@@ -147,25 +147,28 @@ function MiniChart({ pedidos, costoPlanche, costoCantoMetro }: { pedidos: Pedido
 
   const maxVal = Math.max(...Object.values(byWeek).map((v) => v.ingresos), 1);
 
+  const BAR_H = 120;
+
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 12, width: "100%", height: 110, paddingBottom: 24, position: "relative" }}>
+    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-around", width: "100%", height: BAR_H + 32, paddingBottom: 28 }}>
       {[1, 2, 3, 4].map((w) => {
         const pctI = byWeek[w].ingresos / maxVal;
         const pctC = byWeek[w].costo / maxVal;
         const hasData = byWeek[w].ingresos > 0;
+        const barH = Math.max(pctI * BAR_H, hasData ? 4 : 3);
         return (
-          <div key={w} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", position: "relative" }}>
+          <div key={w} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 64, gap: 0 }}>
             {hasData && (
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#1957A6", marginBottom: 4, whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#1957A6", marginBottom: 5, whiteSpace: "nowrap" }}>
                 {fmt(byWeek[w].ingresos)}
               </span>
             )}
-            <div style={{ width: "100%", position: "relative", height: `${Math.max(pctI * 86, 3)}px`, borderRadius: 6, background: hasData ? "rgba(25,87,166,0.85)" : "#e4e4e7", overflow: "hidden" }}>
+            <div style={{ width: 64, height: barH, borderRadius: 6, background: hasData ? "rgba(25,87,166,0.85)" : "#f0f0f0", position: "relative", overflow: "hidden", flexShrink: 0 }}>
               {pctC > 0 && (
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${(pctC / pctI) * 100}%`, background: "rgba(245,158,11,0.55)", borderRadius: 6 }} />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${(pctC / pctI) * 100}%`, background: "rgba(245,158,11,0.5)" }} />
               )}
             </div>
-            <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500, marginTop: 6, position: "absolute", bottom: 0 }}>S{w}</span>
+            <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500, marginTop: 7 }}>S{w}</span>
           </div>
         );
       })}
