@@ -67,8 +67,9 @@ export async function GET(req: Request) {
     .eq("activo", true)
     .order("tipo").order("marca");
 
+  type MatRow = { tipo: string; marca: string; espesor: string; stock_actual: number; stock_minimo: number; precio_unitario: number };
   const headers = ["Tipo", "Marca", "Espesor", "Stock Actual", "Stock Mínimo", "Precio Unitario", "Valor Total", "Estado"];
-  const rows = (mats ?? []).map(m => {
+  const rows = (mats ?? [] as MatRow[]).map((m: MatRow) => {
     const valorTotal = (m.stock_actual ?? 0) * (m.precio_unitario ?? 0);
     const estado = (m.stock_actual ?? 0) <= 0 ? "SIN STOCK" : (m.stock_actual ?? 0) <= (m.stock_minimo ?? 0) ? "BAJO MÍNIMO" : "OK";
     return [
