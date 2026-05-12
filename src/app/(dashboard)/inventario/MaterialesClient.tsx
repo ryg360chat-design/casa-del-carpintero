@@ -235,7 +235,7 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Control de Materiales</h1>
+          <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Inventario</h1>
           <p className="text-sm text-zinc-500 mt-0.5">
             {materiales.length} materiales ·{" "}
             {bajoMinimo.length > 0
@@ -452,7 +452,7 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
         <div>
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-zinc-500">Análisis de consumo — últimos 30 días</p>
-            <button onClick={() => router.push("/materiales-pdf")}
+            <button onClick={() => router.push("/inventario-pdf")}
               className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-600 flex items-center gap-1.5">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 6 2 18 2 18 9"/>

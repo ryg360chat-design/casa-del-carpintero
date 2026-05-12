@@ -9,7 +9,7 @@ const PAGE_META: Record<string, { title: string; breadcrumb?: string }> = {
   "/pedidos":         { title: "Pedidos",               breadcrumb: "Gestión" },
   "/produccion":      { title: "Producción",             breadcrumb: "Gestión" },
   "/calendario":      { title: "Calendario",             breadcrumb: "Planificación" },
-  "/materiales":      { title: "Control de Materiales",  breadcrumb: "Bodega" },
+  "/inventario":      { title: "Inventario",              breadcrumb: "Bodega" },
   "/financiero":      { title: "Financiero",             breadcrumb: "Análisis" },
   "/reporte":         { title: "Reporte Diario",         breadcrumb: "Análisis" },
   "/ajustes":         { title: "Ajustes",                breadcrumb: "Sistema" },

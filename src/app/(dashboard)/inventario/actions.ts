@@ -29,7 +29,7 @@ export async function registrarEntrada(materialId: string, cantidad: number, not
     notas: notas || null,
   });
 
-  revalidatePath("/materiales");
+  revalidatePath("/inventario");
   return { ok: true };
 }
 
@@ -63,7 +63,7 @@ export async function crearMaterial(
     });
   }
 
-  revalidatePath("/materiales");
+  revalidatePath("/inventario");
   return { ok: true };
 }
 
@@ -77,7 +77,7 @@ export async function editarMaterial(materialId: string, stockMinimo: number, pr
     .eq("id", materialId)
     .eq("organization_id", org.id);
 
-  revalidatePath("/materiales");
+  revalidatePath("/inventario");
   return { ok: true };
 }
 
