@@ -9,19 +9,30 @@ import NuevoClienteModal from "./NuevoClienteModal";
 
 function fmtFecha(iso: string | null | undefined): string {
   if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("es-PE", { timeZone: TZ, day: "2-digit", month: "short", year: "numeric" });
+}
+
+function fmtFechaCorta(iso: string | null | undefined): string {
+  if (!iso) return "—";
   return new Date(iso).toLocaleDateString("es-PE", { timeZone: TZ, day: "2-digit", month: "short" });
 }
 
 type PedidoSub = { id: string; precio_venta: number | null; estado: string | null; fecha_ingreso: string | null };
 type ClienteRow = { id: string; nombre: string; codigo?: string | null; telefono?: string | null; pedidos: PedidoSub[] };
-type CrmCard = ClienteRow & { totalPedidos: number; totalFacturado: number; pedidosActivos: PedidoSub[]; ultimoPedido: string | null; columna: string };
 
-const COLUMNAS = [
-  { key: "cola",       label: "En cola",              color: "text-orange-600", bg: "bg-orange-50",  border: "border-orange-200", dot: "bg-orange-400" },
-  { key: "produccion", label: "En producción",         color: "text-blue-600",   bg: "bg-blue-50",    border: "border-blue-200",   dot: "bg-blue-500" },
-  { key: "listo",      label: "Listo para entregar",   color: "text-green-600",  bg: "bg-green-50",   border: "border-green-200",  dot: "bg-green-500" },
-  { key: "sin_activos",label: "Sin pedidos activos",   color: "text-zinc-400",   bg: "bg-zinc-50",    border: "border-zinc-200",   dot: "bg-zinc-400" },
+const KANBAN_COLS = [
+  { key: "cola",        label: "En cola",             color: "text-orange-600", bg: "bg-orange-50",  border: "border-orange-200", dot: "bg-orange-400" },
+  { key: "produccion",  label: "En producción",        color: "text-blue-600",   bg: "bg-blue-50",    border: "border-blue-200",   dot: "bg-blue-500" },
+  { key: "listo",       label: "Listo para entregar",  color: "text-green-600",  bg: "bg-green-50",   border: "border-green-200",  dot: "bg-green-500" },
+  { key: "sin_activos", label: "Sin pedidos activos",  color: "text-zinc-400",   bg: "bg-zinc-50",    border: "border-zinc-200",   dot: "bg-zinc-400" },
 ];
+
+const ESTADO_BADGE: Record<string, string> = {
+  "En cola":       "bg-orange-50 text-orange-600 border-orange-200",
+  "En corte":      "bg-blue-50 text-blue-600 border-blue-200",
+  "En tapacantos": "bg-purple-50 text-purple-600 border-purple-200",
+  "Listo":         "bg-green-50 text-green-700 border-green-200",
+};
 
 function getColumna(peds: PedidoSub[]): string {
   const activos = peds.filter(p => !["Cancelado", "Despachado"].includes(p.estado ?? ""));
@@ -31,13 +42,26 @@ function getColumna(peds: PedidoSub[]): string {
   return "sin_activos";
 }
 
-export default async function CrmPage() {
-  const [role, org] = await Promise.all([getUserRole(), getOrganization()]);
+const PER_PAGE = 15;
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+export default async function CrmPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ vista?: string; pagina?: string; mes?: string; año?: string }>;
+}) {
+  const [role, org, params] = await Promise.all([getUserRole(), getOrganization(), searchParams]);
   if (!org) redirect("/dashboard");
 
   const canAccess = hasOrgFeature(org.plan, org.features_enabled ?? [], "crm_clientes", role === "developer");
   if (!canAccess) redirect("/dashboard");
   if (!["developer", "admin", "gerencia", "administracion", "ventas"].includes(role)) redirect("/dashboard");
+
+  const vista = params.vista ?? "lista";
+  const pagina = Math.max(1, parseInt(params.pagina ?? "1"));
+  const filtroMes = params.mes ? parseInt(params.mes) : null;
+  const filtroAño = params.año ? parseInt(params.año) : null;
+  const añoActual = new Date().getFullYear();
 
   const supabase = await createClient();
   const { data: clientes } = await supabase
@@ -46,93 +70,210 @@ export default async function CrmPage() {
     .eq("organization_id", org.id)
     .order("nombre");
 
+  type CrmCard = ClienteRow & {
+    totalPedidos: number; totalFacturado: number;
+    pedidosActivos: PedidoSub[]; ultimoPedido: string | null; columna: string;
+  };
+
   const cards: CrmCard[] = (clientes ?? [] as ClienteRow[]).map((c: ClienteRow): CrmCard => {
     const peds = c.pedidos ?? [];
+    // Aplicar filtro de mes/año si existe
+    const pedsFiltrados = (filtroMes && filtroAño)
+      ? peds.filter(p => {
+          if (!p.fecha_ingreso) return false;
+          const d = new Date(p.fecha_ingreso);
+          return d.getMonth() + 1 === filtroMes && d.getFullYear() === filtroAño;
+        })
+      : peds;
     const pedidosActivos = peds.filter(p => !["Cancelado", "Despachado"].includes(p.estado ?? ""));
-    const totalFacturado = peds.reduce((s, p) => s + (p.precio_venta ?? 0), 0);
-    const ultimoPedido = peds.map(p => p.fecha_ingreso).filter(Boolean).sort().at(-1) ?? null;
-    return { ...c, totalPedidos: peds.length, totalFacturado, pedidosActivos, ultimoPedido, columna: getColumna(peds) };
+    const totalFacturado = pedsFiltrados.reduce((s, p) => s + (p.precio_venta ?? 0), 0);
+    const ultimoPedido = pedsFiltrados.map(p => p.fecha_ingreso).filter(Boolean).sort().at(-1) ?? null;
+    return { ...c, totalPedidos: pedsFiltrados.length, totalFacturado, pedidosActivos, ultimoPedido, columna: getColumna(peds) };
   });
 
-  const byCol = (key: string) => cards.filter(c => c.columna === key);
+  // Para lista: ordenar por facturado desc, paginar
+  const cardsSorted = [...cards].sort((a, b) => b.totalFacturado - a.totalFacturado);
+  const totalPaginas = Math.ceil(cardsSorted.length / PER_PAGE);
+  const paginados = cardsSorted.slice((pagina - 1) * PER_PAGE, pagina * PER_PAGE);
+
+  // URL helpers
+  function buildUrl(overrides: Record<string, string | null>) {
+    const p = new URLSearchParams();
+    if (vista !== "lista" || overrides.vista !== undefined) p.set("vista", overrides.vista ?? vista);
+    if (filtroMes && overrides.mes !== null) p.set("mes", overrides.mes ?? String(filtroMes));
+    if (filtroAño && overrides.año !== null) p.set("año", overrides.año ?? String(filtroAño));
+    if (overrides.mes && overrides.año) { p.set("mes", overrides.mes); p.set("año", overrides.año); }
+    if (overrides.pagina) p.set("pagina", overrides.pagina);
+    const str = p.toString();
+    return str ? `/crm?${str}` : "/crm";
+  }
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <div className="flex-1 min-w-0">
           <h1 className="text-xl font-bold text-zinc-900">CRM de Clientes</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">{cards.length} clientes · {cards.filter(c => c.columna !== "sin_activos").length} con pedidos activos</p>
+          <p className="text-sm text-zinc-500 mt-0.5">
+            {cards.length} clientes · {cards.filter(c => c.columna !== "sin_activos").length} con pedidos activos
+          </p>
         </div>
+
+        {/* Filtro mes/año */}
+        <form method="GET" action="/crm" className="flex items-center gap-2">
+          {vista === "kanban" && <input type="hidden" name="vista" value="kanban" />}
+          <select name="mes" defaultValue={filtroMes ?? ""} className="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+            <option value="">Todos los meses</option>
+            {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+          </select>
+          <select name="año" defaultValue={filtroAño ?? ""} className="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+            <option value="">Todos los años</option>
+            {[añoActual, añoActual - 1, añoActual - 2].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <button type="submit" className="text-xs px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-medium transition-colors">Filtrar</button>
+          {(filtroMes || filtroAño) && (
+            <Link href={buildUrl({ mes: null, año: null })} className="text-xs text-zinc-400 hover:text-zinc-700">Limpiar</Link>
+          )}
+        </form>
+
+        {/* Toggle vista */}
+        <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden text-xs font-medium">
+          <Link href={buildUrl({ vista: "lista" })} className={`px-3 py-1.5 transition-colors ${vista !== "kanban" ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-50"}`}>Lista</Link>
+          <Link href={buildUrl({ vista: "kanban" })} className={`px-3 py-1.5 transition-colors ${vista === "kanban" ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-50"}`}>Kanban</Link>
+        </div>
+
         <NuevoClienteModal />
       </div>
 
-      {/* Kanban */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {COLUMNAS.map((col) => {
-          const colCards = byCol(col.key);
-          return (
-            <div key={col.key} className="flex flex-col gap-3">
-              {/* Column header */}
-              <div className={`flex items-center justify-between px-3 py-2 rounded-lg border ${col.border} ${col.bg}`}>
-                <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${col.dot}`} />
-                  <span className={`text-xs font-semibold ${col.color}`}>{col.label}</span>
-                </div>
-                <span className={`text-xs font-bold ${col.color}`}>{colCards.length}</span>
-              </div>
+      {/* Filtro activo badge */}
+      {filtroMes && filtroAño && (
+        <div className="mb-4 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-2">
+          Mostrando: {MESES[filtroMes - 1]} {filtroAño}
+          <Link href={buildUrl({ mes: null, año: null })} className="text-blue-500 hover:text-blue-800 font-semibold">× Quitar</Link>
+        </div>
+      )}
 
-              {/* Cards */}
-              <div className="flex flex-col gap-2">
-                {colCards.length === 0 && (
-                  <div className="border border-dashed border-zinc-200 rounded-xl p-4 text-center text-zinc-400 text-xs">
-                    Sin clientes
-                  </div>
+      {/* VISTA LISTA */}
+      {vista !== "kanban" && (
+        <div className="space-y-4">
+          <div className="border border-zinc-200 rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-zinc-50 border-b border-zinc-100 text-xs text-zinc-500 uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 font-semibold">Cliente</th>
+                  <th className="text-left px-4 py-3 font-semibold hidden sm:table-cell">Teléfono</th>
+                  <th className="text-right px-4 py-3 font-semibold">Pedidos</th>
+                  <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Activos</th>
+                  <th className="text-right px-4 py-3 font-semibold">Facturado</th>
+                  <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Último pedido</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {paginados.length === 0 && (
+                  <tr><td colSpan={7} className="px-4 py-10 text-center text-zinc-400 text-sm">Sin clientes en este período</td></tr>
                 )}
-                {colCards.map((c) => (
-                  <Link key={c.id} href={`/crm/${c.id}`} className="block border border-zinc-200 rounded-xl p-4 bg-white hover:shadow-sm hover:border-zinc-300 transition-all group">
-                    {/* Avatar + nombre */}
-                    <div className="flex items-center gap-2.5 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[12px] font-bold shrink-0">
-                        {c.nombre[0].toUpperCase()}
+                {paginados.map((c) => (
+                  <tr key={c.id} className="hover:bg-zinc-50 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                          {c.nombre[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-medium text-zinc-900">{c.nombre}</div>
+                          {c.codigo && <div className="text-xs text-zinc-400">{c.codigo}</div>}
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <div className="font-semibold text-zinc-900 text-sm truncate group-hover:text-blue-700 transition-colors">{c.nombre}</div>
-                        {c.telefono && <div className="text-xs text-zinc-400">{c.telefono}</div>}
-                      </div>
-                    </div>
-
-                    {/* Pedidos activos badges */}
-                    {c.pedidosActivos.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {c.pedidosActivos.map((p) => (
-                          <span key={p.id} className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${
-                            p.estado === "En cola"        ? "bg-orange-50 text-orange-600 border-orange-200" :
-                            p.estado === "En corte"       ? "bg-blue-50 text-blue-600 border-blue-200" :
-                            p.estado === "En tapacantos"  ? "bg-purple-50 text-purple-600 border-purple-200" :
-                            p.estado === "Listo"          ? "bg-green-50 text-green-700 border-green-200" :
-                            "bg-zinc-50 text-zinc-500 border-zinc-200"
-                          }`}>
-                            {p.estado}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Stats footer */}
-                    <div className="flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-100">
-                      <span>{c.totalPedidos} pedido{c.totalPedidos !== 1 ? "s" : ""}</span>
-                      <span className="font-semibold text-zinc-600">
-                        {c.totalFacturado > 0 ? `S/ ${c.totalFacturado.toFixed(0)}` : "—"}
-                      </span>
-                      <span>{fmtFecha(c.ultimoPedido)}</span>
-                    </div>
-                  </Link>
+                    </td>
+                    <td className="px-4 py-3 text-zinc-500 hidden sm:table-cell">{c.telefono ?? "—"}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-zinc-700">{c.totalPedidos}</td>
+                    <td className="px-4 py-3 text-right hidden md:table-cell">
+                      {c.pedidosActivos.length > 0
+                        ? <span className="inline-flex items-center gap-1 text-blue-600 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />{c.pedidosActivos.length}</span>
+                        : <span className="text-zinc-400">0</span>}
+                    </td>
+                    <td className="px-4 py-3 text-right font-semibold text-zinc-800">
+                      {c.totalFacturado > 0 ? `S/ ${c.totalFacturado.toFixed(2)}` : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right text-zinc-400 text-xs hidden lg:table-cell">{fmtFecha(c.ultimoPedido)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <Link href={`/crm/${c.id}`} className="text-xs text-blue-600 hover:text-blue-800 font-medium">Ver / Editar →</Link>
+                    </td>
+                  </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Paginación */}
+          {totalPaginas > 1 && (
+            <div className="flex items-center justify-between text-xs text-zinc-500">
+              <span>Página {pagina} de {totalPaginas} · {cards.length} clientes</span>
+              <div className="flex gap-1">
+                {pagina > 1 && (
+                  <Link href={buildUrl({ pagina: String(pagina - 1) })} className="px-3 py-1.5 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors font-medium">← Anterior</Link>
+                )}
+                {pagina < totalPaginas && (
+                  <Link href={buildUrl({ pagina: String(pagina + 1) })} className="px-3 py-1.5 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors font-medium">Siguiente →</Link>
+                )}
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* VISTA KANBAN */}
+      {vista === "kanban" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {KANBAN_COLS.map((col) => {
+            const colCards = cards.filter(c => c.columna === col.key);
+            return (
+              <div key={col.key} className="flex flex-col gap-3">
+                <div className={`flex items-center justify-between px-3 py-2 rounded-lg border ${col.border} ${col.bg}`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${col.dot}`} />
+                    <span className={`text-xs font-semibold ${col.color}`}>{col.label}</span>
+                  </div>
+                  <span className={`text-xs font-bold ${col.color}`}>{colCards.length}</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {colCards.length === 0 && (
+                    <div className="border border-dashed border-zinc-200 rounded-xl p-4 text-center text-zinc-400 text-xs">Sin clientes</div>
+                  )}
+                  {colCards.map((c) => (
+                    <Link key={c.id} href={`/crm/${c.id}`} className="block border border-zinc-200 rounded-xl p-4 bg-white hover:shadow-sm hover:border-zinc-300 transition-all group">
+                      <div className="flex items-center gap-2.5 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[12px] font-bold shrink-0">
+                          {c.nombre[0].toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-zinc-900 text-sm truncate group-hover:text-blue-700 transition-colors">{c.nombre}</div>
+                          {c.telefono && <div className="text-xs text-zinc-400">{c.telefono}</div>}
+                        </div>
+                      </div>
+                      {c.pedidosActivos.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {c.pedidosActivos.map((p) => (
+                            <span key={p.id} className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${ESTADO_BADGE[p.estado ?? ""] ?? "bg-zinc-50 text-zinc-500 border-zinc-200"}`}>
+                              {p.estado}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                        <span>{c.totalPedidos} pedido{c.totalPedidos !== 1 ? "s" : ""}</span>
+                        <span className="font-semibold text-zinc-600">{c.totalFacturado > 0 ? `S/ ${c.totalFacturado.toFixed(0)}` : "—"}</span>
+                        <span>{fmtFechaCorta(c.ultimoPedido)}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

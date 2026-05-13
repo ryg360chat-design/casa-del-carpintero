@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TZ } from "@/lib/time";
 import Link from "next/link";
 import NotasForm from "./NotasForm";
+import EditarClienteForm from "./EditarClienteForm";
 
 function fmtFecha(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -68,32 +69,19 @@ export default async function ClienteDetallePage({ params }: { params: Promise<{
         <span className="font-semibold text-zinc-800">{cliente.nombre as string}</span>
       </div>
 
-      {/* Header */}
-      <div className="border border-zinc-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+      {/* Header con edición inline */}
+      <div className="border border-zinc-200 rounded-xl p-5 flex gap-4">
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-lg shrink-0">
           {(cliente.nombre as string)[0].toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold text-zinc-900">{cliente.nombre as string}</h1>
-          {cliente.codigo && <p className="text-xs text-zinc-400 mt-0.5">Código: {cliente.codigo as string}</p>}
-          <div className="flex flex-wrap gap-4 mt-2 text-sm text-zinc-600">
-            {cliente.telefono && (
-              <span className="flex items-center gap-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.92a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-                {cliente.telefono as string}
-              </span>
-            )}
-            {cliente.email && (
-              <span className="flex items-center gap-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                </svg>
-                {cliente.email as string}
-              </span>
-            )}
-          </div>
+          {cliente.codigo && <p className="text-xs text-zinc-400 mb-1">Código: {cliente.codigo as string}</p>}
+          <EditarClienteForm
+            clienteId={id}
+            nombre={(cliente.nombre as string)}
+            telefono={(cliente.telefono as string | null) ?? ""}
+            email={(cliente.email as string | null) ?? ""}
+          />
         </div>
       </div>
 
