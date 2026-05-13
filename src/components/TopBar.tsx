@@ -11,6 +11,7 @@ const PAGE_META: Record<string, { title: string; breadcrumb?: string }> = {
   "/calendario":      { title: "Calendario",             breadcrumb: "Planificación" },
   "/inventario":      { title: "Inventario",              breadcrumb: "Bodega" },
   "/financiero":      { title: "Financiero",             breadcrumb: "Análisis" },
+  "/crm":             { title: "Clientes",               breadcrumb: "CRM" },
   "/reporte":         { title: "Reporte Diario",         breadcrumb: "Análisis" },
   "/ajustes":         { title: "Ajustes",                breadcrumb: "Sistema" },
   "/admin/usuarios":  { title: "Usuarios",               breadcrumb: "Admin" },

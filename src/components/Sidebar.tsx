@@ -69,6 +69,19 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    label: "Clientes",
+    href: "/crm",
+    feature: "crm_clientes",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+  },
+  {
     label: "Rendimiento",
     href: "/produccion/rendimiento",
     feature: "rendimiento",
@@ -189,6 +202,7 @@ export default function Sidebar({
     if (item.href === "/reporte") return canViewReporte && canUseFeature(orgPlan, "reporte_diario");
     if (item.href === "/financiero") return hasOrgFeature(orgPlan, orgFeatures, "modulo_financiero", isDeveloper);
     if (item.href === "/inventario") return hasOrgFeature(orgPlan, orgFeatures, "control_materiales", isDeveloper);
+    if (item.href === "/crm") return hasOrgFeature(orgPlan, orgFeatures, "crm_clientes", isDeveloper);
     if (item.href === "/produccion" || item.href === "/produccion/rendimiento" || item.href === "/calendario") {
       if (userRole === "viewer") return false;
       if (item.feature && !canUseFeature(orgPlan, item.feature)) return false;
