@@ -5,6 +5,7 @@ import { hasOrgFeature } from "@/lib/plans";
 import { createClient } from "@/lib/supabase/server";
 import { TZ } from "@/lib/time";
 import Link from "next/link";
+import NuevoClienteModal from "./NuevoClienteModal";
 
 function fmtFecha(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -62,6 +63,7 @@ export default async function CrmPage() {
           <h1 className="text-xl font-bold text-zinc-900">CRM de Clientes</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{cards.length} clientes · {cards.filter(c => c.columna !== "sin_activos").length} con pedidos activos</p>
         </div>
+        <NuevoClienteModal />
       </div>
 
       {/* Kanban */}
