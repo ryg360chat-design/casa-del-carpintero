@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getUserRole, IS_ADMIN, CAN_ADVANCE_STATE, CAN_DESPACHAR } from "@/lib/auth";
+import { getOrganization } from "@/lib/org";
 import { limaTodayKey } from "@/lib/time";
 
 const SIGUIENTE_ESTADO: Record<string, string> = {
@@ -92,11 +93,14 @@ export async function guardarReporte(stats: {
     return { error: "Datos inválidos" };
   }
 
+  const org = await getOrganization();
+  if (!org) return { error: "No autorizado" };
+
   const supabase = await createClient();
   const fecha = limaTodayKey();
   const { error } = await supabase
     .from("reportes_guardados")
-    .upsert({ fecha, stats }, { onConflict: "fecha" });
+    .upsert({ fecha, stats, organization_id: org.id }, { onConflict: "organization_id,fecha" });
   if (error) return { error: error.message };
   revalidatePath("/reporte");
   return { ok: true };
