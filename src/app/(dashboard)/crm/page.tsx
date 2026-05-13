@@ -32,13 +32,15 @@ export default async function CrmPage() {
     email?: string | null; pedidos: PedidoSub[];
   };
 
-  const rows = (clientes ?? [] as ClienteRow[]).map((c: ClienteRow) => {
+  type CrmRow = ClienteRow & { total: number; totalFacturado: number; activos: number; ultimoPedido: string | null };
+
+  const rows: CrmRow[] = (clientes ?? [] as ClienteRow[]).map((c: ClienteRow): CrmRow => {
     const peds = c.pedidos ?? [];
     const totalFacturado = peds.reduce((s, p) => s + (p.precio_venta ?? 0), 0);
     const activos = peds.filter(p => !["Cancelado", "Despachado"].includes(p.estado ?? "")).length;
     const ultimoPedido = peds.map(p => p.fecha_ingreso).filter(Boolean).sort().at(-1) ?? null;
     return { ...c, total: peds.length, totalFacturado, activos, ultimoPedido };
-  }).sort((a, b) => b.totalFacturado - a.totalFacturado);
+  }).sort((a: CrmRow, b: CrmRow) => b.totalFacturado - a.totalFacturado);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
