@@ -237,12 +237,12 @@ export default function FinancieroClient({
       )}
 
       {/* Header + nav mes */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Módulo Financiero</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900 tracking-tight">Módulo Financiero</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{pedidos.length} pedidos registrados</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <a
             href={`/api/exportar/financiero?mes=${mes}&año=${año}`}
             className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 border border-zinc-200 bg-white hover:bg-zinc-50 px-3 py-2 rounded-lg transition-colors shadow-sm"

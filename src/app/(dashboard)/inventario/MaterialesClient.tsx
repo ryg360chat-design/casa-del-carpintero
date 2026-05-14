@@ -233,9 +233,9 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
       {editando && canEdit && <EditarModal material={editando} onClose={() => setEditando(null)} />}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Inventario</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900 tracking-tight">Inventario</h1>
           <p className="text-sm text-zinc-500 mt-0.5">
             {materiales.length} materiales ·{" "}
             {bajoMinimo.length > 0

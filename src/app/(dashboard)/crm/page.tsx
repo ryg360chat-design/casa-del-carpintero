@@ -101,38 +101,40 @@ export default async function CrmPage({
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-bold text-zinc-900">CRM de Clientes</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
-            {cards.length} clientes · {cards.filter(c => c.pedidosActivos.length > 0).length} con pedidos activos
-          </p>
+      <div className="mb-5 space-y-3">
+        {/* Fila 1: título + nuevo cliente */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-zinc-900">CRM de Clientes</h1>
+            <p className="text-sm text-zinc-500 mt-0.5">
+              {cards.length} clientes · {cards.filter(c => c.pedidosActivos.length > 0).length} con pedidos activos
+            </p>
+          </div>
+          <NuevoClienteModal />
         </div>
 
-        {/* Filtro mes/año */}
-        <form method="GET" action="/crm" className="flex items-center gap-2">
-          {vista === "kanban" && <input type="hidden" name="vista" value="kanban" />}
-          <select name="mes" defaultValue={filtroMes ?? ""} className="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-            <option value="">Todos los meses</option>
-            {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
-          </select>
-          <select name="año" defaultValue={filtroAño ?? ""} className="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-            <option value="">Todos los años</option>
-            {[añoActual, añoActual - 1, añoActual - 2].map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
-          <button type="submit" className="text-xs px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-medium transition-colors">Filtrar</button>
-          {(filtroMes || filtroAño) && (
-            <Link href={buildUrl({ mes: null, año: null })} className="text-xs text-zinc-400 hover:text-zinc-700">Limpiar</Link>
-          )}
-        </form>
-
-        {/* Toggle vista */}
-        <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden text-xs font-medium">
-          <Link href={buildUrl({ vista: "lista" })} className={`px-3 py-1.5 transition-colors ${vista !== "kanban" ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-50"}`}>Lista</Link>
-          <Link href={buildUrl({ vista: "kanban" })} className={`px-3 py-1.5 transition-colors ${vista === "kanban" ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-50"}`}>Kanban</Link>
+        {/* Fila 2: filtros + toggle vista */}
+        <div className="flex flex-wrap items-center gap-2">
+          <form method="GET" action="/crm" className="flex items-center gap-2 flex-wrap">
+            {vista === "kanban" && <input type="hidden" name="vista" value="kanban" />}
+            <select name="mes" defaultValue={filtroMes ?? ""} className="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+              <option value="">Todos los meses</option>
+              {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+            </select>
+            <select name="año" defaultValue={filtroAño ?? ""} className="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+              <option value="">Todos los años</option>
+              {[añoActual, añoActual - 1, añoActual - 2].map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <button type="submit" className="text-xs px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-medium transition-colors">Filtrar</button>
+            {(filtroMes || filtroAño) && (
+              <Link href={buildUrl({ mes: null, año: null })} className="text-xs text-zinc-400 hover:text-zinc-700">Limpiar</Link>
+            )}
+          </form>
+          <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden text-xs font-medium ml-auto">
+            <Link href={buildUrl({ vista: "lista" })} className={`px-3 py-1.5 transition-colors ${vista !== "kanban" ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-50"}`}>Lista</Link>
+            <Link href={buildUrl({ vista: "kanban" })} className={`px-3 py-1.5 transition-colors ${vista === "kanban" ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-50"}`}>Kanban</Link>
+          </div>
         </div>
-
-        <NuevoClienteModal />
       </div>
 
       {/* Filtro activo badge */}
