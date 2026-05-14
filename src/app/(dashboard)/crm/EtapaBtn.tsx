@@ -21,10 +21,10 @@ export default function EtapaBtn({ clienteId, etapaDestino, label, variant }: Pr
         startTransition(() => { moverEtapaCrm(clienteId, etapaDestino).catch(() => {}); });
       }}
       disabled={pending}
-      className={`flex-1 text-[10px] font-medium px-2 py-1 rounded-lg border transition-all disabled:opacity-40 ${
+      className={`flex-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all disabled:opacity-40 ${
         variant === "next"
-          ? "border-blue-200 text-blue-600 hover:bg-blue-50 active:bg-blue-100"
-          : "border-zinc-200 text-zinc-500 hover:bg-zinc-50 active:bg-zinc-100"
+          ? "border-blue-300 text-blue-600 bg-white hover:bg-blue-50 active:bg-blue-100"
+          : "border-zinc-300 text-zinc-600 bg-white hover:bg-zinc-100 active:bg-zinc-200"
       }`}
     >
       {pending ? "···" : label}
