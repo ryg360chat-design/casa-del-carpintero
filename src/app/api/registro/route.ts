@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendBienvenidaEmail } from "@/lib/send-emails";
 
 const REGISTRATION_SECRET = process.env.REGISTRATION_SECRET;
 
@@ -88,6 +89,9 @@ export async function POST(req: NextRequest) {
     { id: `${slug}-M1`, nombre: "Máquina 1", activa: true, organization_id: org.id },
     { id: `${slug}-M2`, nombre: "Máquina 2", activa: true, organization_id: org.id },
   ]);
+
+  // Enviar email de bienvenida (fire-and-forget, no bloquea la respuesta)
+  sendBienvenidaEmail(email.trim(), org.nombre, nombre.trim()).catch(() => {});
 
   return NextResponse.json({ success: true, org_nombre: org.nombre });
 }

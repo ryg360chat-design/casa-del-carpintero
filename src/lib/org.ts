@@ -11,7 +11,7 @@ export const getOrganization = cache(async () => {
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("organization_id, organizations(id, nombre, slug, plan, max_maquinas, max_usuarios, trial_ends_at, subscribed_at, activo, features_enabled, config, roles_nombres)")
+      .select("organization_id, organizations(id, nombre, slug, plan, max_maquinas, max_usuarios, trial_ends_at, subscribed_at, activo, features_enabled, config, roles_nombres, email_trial_warning_sent, email_trial_expired_sent, onboarding_done, created_at)")
       .eq("id", user.id)
       .maybeSingle();
 

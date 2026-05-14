@@ -16,6 +16,10 @@ export type Organization = {
   features_enabled: string[];
   config: Record<string, unknown>;
   roles_nombres: Record<string, string>;
+  email_trial_warning_sent: boolean;
+  email_trial_expired_sent: boolean;
+  onboarding_done: boolean;
+  created_at: string | null;
 };
 
 export const PLAN_LABEL: Record<OrgPlan, string> = {
