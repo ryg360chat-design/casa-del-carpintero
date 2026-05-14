@@ -20,7 +20,8 @@ export async function middleware(request: NextRequest) {
   const isPublicPage =
     pathname === "/" ||
     pathname.startsWith("/seguimiento") ||
-    pathname.startsWith("/dev");
+    pathname.startsWith("/dev") ||
+    pathname.startsWith("/trial-expirado");
 
   const isAuthPage =
     pathname.startsWith("/login") ||

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserRole, CAN_CREATE_PEDIDO, IS_ADMIN, IS_DEVELOPER } from "@/lib/auth";
-import { getOrganization } from "@/lib/org";
+import { getOrganization, isTrialExpired } from "@/lib/org";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
 import NavigationProgress from "@/components/NavigationProgress";
@@ -20,6 +20,17 @@ export default async function DashboardLayout({
   }
 
   const [role, org] = await Promise.all([getUserRole(), getOrganization()]);
+
+  // Bloquear acceso si el trial venció
+  if (org && isTrialExpired(org) && role !== "developer") {
+    redirect("/trial-expirado");
+  }
+
+  // Bloquear si la org fue suspendida por el super admin
+  if (org && !org.activo && role !== "developer") {
+    redirect("/trial-expirado");
+  }
+
   const canCreatePedido = CAN_CREATE_PEDIDO.includes(role);
   const isAdmin = IS_ADMIN.includes(role);
   const isDeveloper = IS_DEVELOPER.includes(role);
