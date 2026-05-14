@@ -47,16 +47,38 @@ export default async function OnboardingBanner({ org }: Props) {
   const step3 = (pedidosCount ?? 0) > 0;
   const allDone = step1 && step2 && step3;
 
-  // Si todo está listo, marcar y no mostrar
-  if (allDone) {
-    const admin = createAdminClient();
-    await admin.from("organizations").update({ onboarding_done: true }).eq("id", org.id);
-    return null;
-  }
-
   const completed = [step1, step2, step3].filter(Boolean).length;
 
   const dismiss = markDone.bind(null, org.id);
+
+  // Estado "todo listo" — banner de felicitación antes de cerrar
+  if (allDone) {
+    return (
+      <div className="mx-4 mt-4 mb-0 rounded-2xl border border-emerald-200 bg-emerald-50 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l4 4 6-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-emerald-800">¡Tu taller está configurado!</p>
+              <p className="text-xs text-emerald-600 mt-0.5">Completaste los primeros pasos. Ya puedes usar Kuadra al 100%.</p>
+            </div>
+          </div>
+          <form action={dismiss}>
+            <button
+              type="submit"
+              className="text-xs text-emerald-600 hover:text-emerald-800 font-medium transition-colors whitespace-nowrap ml-4"
+            >
+              Cerrar ×
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   const steps = [
     {
