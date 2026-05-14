@@ -12,7 +12,7 @@ type Org = {
   id: string; nombre: string; slug: string; plan: string; activo: boolean;
   max_usuarios: number; max_maquinas: number; trial_ends_at: string | null;
   subscribed_at: string | null; created_at: string;
-  _usuarios: number; _pedidos_mes: number;
+  _usuarios: number; _pedidos_mes: number; _storage_gb: number;
 };
 type Usuario = { id: string; nombre: string | null; rol: string; organization_id: string; orgNombre: string };
 type Activity = { orgId: string; orgNombre: string; estado: string; fecha: string };
@@ -28,6 +28,7 @@ const PLAN_COLOR: Record<string, string> = {
 };
 const PLAN_PRICE: Record<string, number> = { trial: 0, basico: 300, profesional: 500, empresarial: 900 };
 const PLAN_BAR_COLOR: Record<string, string> = { trial: "#9a9490", basico: "#3b82f6", profesional: "#8b5cf6", empresarial: "#f59e0b" };
+const STORAGE_MAX_GB: Record<string, number> = { trial: 0.5, basico: 1, profesional: 5, empresarial: 20 };
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
@@ -561,7 +562,7 @@ function Dashboard({ saKey }: { saKey: string }) {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    {["Taller", "Plan", "Usuarios", "Pedidos/mes", "Estado", "Trial / Suscrito", "Acciones"].map(h => (
+                    {["Taller", "Plan", "Usuarios", "Storage", "Pedidos/mes", "Estado", "Trial / Suscrito", "Acciones"].map(h => (
                       <th key={h} style={tableHead}>{h}</th>
                     ))}
                   </tr>
@@ -599,6 +600,26 @@ function Dashboard({ saKey }: { saKey: string }) {
                             </div>
                           </div>
                         </td>
+                        {/* ── STORAGE ── */}
+                        {(() => {
+                          const maxGb = STORAGE_MAX_GB[org.plan] ?? 1;
+                          const usedGb = org._storage_gb ?? 0;
+                          const pct = maxGb > 0 ? usedGb / maxGb : 0;
+                          const barColor = pct >= 0.95 ? "#ef4444" : pct >= 0.75 ? "#f59e0b" : "#22c55e";
+                          const textColor = pct >= 0.95 ? "#ef4444" : pct >= 0.75 ? "#f59e0b" : C.text;
+                          return (
+                            <td style={tableCell}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: textColor, whiteSpace: "nowrap" }}>
+                                  {usedGb.toFixed(2)}/{maxGb} GB
+                                </span>
+                                <div style={{ width: 52, height: 5, borderRadius: 3, background: "rgba(26,23,20,0.08)", overflow: "hidden" }}>
+                                  <div style={{ height: "100%", borderRadius: 3, width: `${Math.min(100, pct * 100)}%`, background: barColor }} />
+                                </div>
+                              </div>
+                            </td>
+                          );
+                        })()}
                         <td style={tableCell}>{org._pedidos_mes}</td>
                         <td style={tableCell}>
                           <span style={{ fontSize: 12, fontWeight: 700, color: org.activo ? "#16a34a" : "#ef4444" }}>

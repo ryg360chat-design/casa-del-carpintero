@@ -33,6 +33,23 @@ export async function GET(req: NextRequest) {
     admin.from("leads").select("*", { count: "exact", head: true }),
   ]);
 
+  // Storage usage per org (via storage.objects — returns 0 if no buckets exist yet)
+  const storageByOrg: Record<string, number> = {};
+  try {
+    const { data: storageObjs } = await admin
+      .schema("storage")
+      .from("objects")
+      .select("name, metadata")
+      .like("name", "%/%");
+    for (const obj of storageObjs ?? []) {
+      const orgId = String(obj.name).split("/")[0];
+      const bytes = Number((obj.metadata as { size?: number } | null)?.size ?? 0);
+      if (orgId) storageByOrg[orgId] = (storageByOrg[orgId] ?? 0) + bytes;
+    }
+  } catch {
+    // storage schema not accessible — ignore
+  }
+
   const orgList = orgs ?? [];
   const profileList = profiles ?? [];
 
@@ -78,6 +95,7 @@ export async function GET(req: NextRequest) {
     ...o,
     _usuarios: countByOrg[o.id]?.users ?? 0,
     _pedidos_mes: countByOrg[o.id]?.pedidosMes ?? 0,
+    _storage_gb: Math.round((storageByOrg[o.id] ?? 0) / (1024 * 1024 * 1024) * 100) / 100,
   }));
 
   // Usuarios para tab usuarios
