@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TZ } from "@/lib/time";
 import Link from "next/link";
 import NuevoClienteModal from "./NuevoClienteModal";
-import EtapaBtn from "./EtapaBtn";
+import KanbanBoard from "./KanbanBoard";
 
 function fmtFecha(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -215,69 +215,19 @@ export default async function CrmPage({
         </div>
       )}
 
-      {/* VISTA KANBAN — etapas manuales de CRM */}
+      {/* VISTA KANBAN — drag and drop */}
       {vista === "kanban" && (
-        <div className="flex gap-4 overflow-x-auto pb-4" style={{ marginLeft: "-24px", marginRight: "-24px", paddingLeft: "24px", paddingRight: "24px" }}>
-          {ETAPAS.map((etapa, etapaIdx) => {
-            const colCards = cards.filter(c => (c.etapa_crm ?? "activo") === etapa.key);
-            const prevEtapa = ETAPAS[etapaIdx - 1] ?? null;
-            const nextEtapa = ETAPAS[etapaIdx + 1] ?? null;
-            return (
-              <div key={etapa.key} className="flex-shrink-0 w-72 flex flex-col gap-3">
-                {/* Header columna */}
-                <div className={`flex items-center justify-between px-4 py-2.5 rounded-xl border ${etapa.border} ${etapa.bg}`}>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${etapa.dot}`} />
-                    <span className={`text-sm font-semibold ${etapa.color}`}>{etapa.label}</span>
-                  </div>
-                  <span className={`text-sm font-bold ${etapa.color} bg-white/60 px-2 py-0.5 rounded-full`}>{colCards.length}</span>
-                </div>
-
-                {/* Cards */}
-                <div className="flex flex-col gap-2.5">
-                  {colCards.length === 0 && (
-                    <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center text-zinc-400 text-xs">Sin clientes aquí</div>
-                  )}
-                  {colCards.map((c) => (
-                    <div key={c.id} className="border border-zinc-200 rounded-xl bg-white shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group overflow-hidden">
-                      {/* Info del cliente — clickable */}
-                      <Link href={`/crm/${c.id}`} className="block px-4 pt-4 pb-3">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                            {c.nombre[0].toUpperCase()}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-semibold text-zinc-900 text-sm truncate group-hover:text-blue-700 transition-colors">{c.nombre}</div>
-                            {c.telefono && <div className="text-xs text-zinc-400 truncate">{c.telefono}</div>}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-xs pt-2.5 border-t border-zinc-100">
-                          <span className="text-zinc-400">{c.totalPedidos} pedido{c.totalPedidos !== 1 ? "s" : ""}</span>
-                          <span className="font-semibold text-zinc-700">{c.totalFacturado > 0 ? `S/ ${c.totalFacturado.toFixed(0)}` : "—"}</span>
-                          {c.pedidosActivos.length > 0
-                            ? <span className="text-blue-500 font-medium">{c.pedidosActivos.length} activo{c.pedidosActivos.length !== 1 ? "s" : ""}</span>
-                            : <span className="text-zinc-300">sin activos</span>
-                          }
-                        </div>
-                      </Link>
-
-                      {/* Botones mover etapa */}
-                      <div className={`flex gap-2 px-4 py-2.5 border-t border-zinc-100 bg-zinc-50`}>
-                        <span className="text-[10px] text-zinc-400 self-center mr-1 shrink-0">Mover a:</span>
-                        {prevEtapa && (
-                          <EtapaBtn clienteId={c.id} etapaDestino={prevEtapa.key} label={`← ${prevEtapa.label}`} variant="prev" />
-                        )}
-                        {nextEtapa && (
-                          <EtapaBtn clienteId={c.id} etapaDestino={nextEtapa.key} label={`${nextEtapa.label} →`} variant="next" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <KanbanBoard
+          initialCards={cards.map(c => ({
+            id: c.id,
+            nombre: c.nombre,
+            telefono: c.telefono,
+            etapa_crm: c.etapa_crm,
+            totalPedidos: c.totalPedidos,
+            totalFacturado: c.totalFacturado,
+            pedidosActivos: c.pedidosActivos.length,
+          }))}
+        />
       )}
     </div>
   );
