@@ -127,8 +127,9 @@ function DroppableColumn({
         }`}
       >
         {cards.length === 0 && !isOver && (
-          <div className="border-2 border-dashed border-zinc-200 rounded-xl flex-1 flex items-center justify-center text-zinc-400 text-xs">
-            Arrastra clientes aquí
+          <div className="border-2 border-dashed border-zinc-200 rounded-xl flex-1 flex flex-col items-center justify-center gap-1 text-zinc-400 min-h-[100px]">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 9l4 4 10-10"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
+            <span className="text-[11px]">Sin clientes aquí</span>
           </div>
         )}
         {cards.map((card) => (

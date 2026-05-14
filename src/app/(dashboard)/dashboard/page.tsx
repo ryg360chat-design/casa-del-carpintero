@@ -324,12 +324,16 @@ export default async function DashboardPage() {
 
               {/* Orders */}
               {pedidos.length === 0 ? (
-                <div className="text-center py-12 text-zinc-400 text-sm border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-                  <svg className="mx-auto mb-2 text-zinc-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                    <rect width="6" height="4" x="9" y="3" rx="1"/>
-                  </svg>
-                  Sin pedidos activos
+                <div className="text-center py-10 border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50 animate-fade-in">
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center mx-auto mb-3 shadow-sm">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="1.5">
+                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                      <rect width="6" height="4" x="9" y="3" rx="1"/>
+                      <path d="M9 12h6M9 16h4"/>
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-zinc-600 mb-0.5">Todo despejado</p>
+                  <p className="text-xs text-zinc-400">No hay pedidos activos en este momento</p>
                 </div>
               ) : (
                 <ShowMoreList gap="gap-3">

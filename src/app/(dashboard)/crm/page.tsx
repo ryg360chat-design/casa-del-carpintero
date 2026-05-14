@@ -163,7 +163,22 @@ export default async function CrmPage({
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 {paginados.length === 0 && (
-                  <tr><td colSpan={7} className="px-4 py-10 text-center text-zinc-400 text-sm">Sin clientes en este período</td></tr>
+                  <tr>
+                    <td colSpan={7}>
+                      <div className="text-center py-14 animate-fade-in">
+                        <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center mx-auto mb-3">
+                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                          </svg>
+                        </div>
+                        <p className="text-sm font-semibold text-zinc-700 mb-1">Sin clientes en este período</p>
+                        <p className="text-xs text-zinc-400 max-w-[200px] mx-auto">
+                          {filtroMes ? "Prueba con otro mes o quita el filtro." : "Agrega tu primer cliente con el botón de arriba."}
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
                 )}
                 {paginados.map((c) => (
                   <tr key={c.id} className="hover:bg-zinc-50 transition-colors">

@@ -110,8 +110,15 @@ export default async function ClienteDetallePage({ params }: { params: Promise<{
       <div>
         <h2 className="text-sm font-semibold text-zinc-700 mb-3">Historial de pedidos ({peds.length})</h2>
         {peds.length === 0 ? (
-          <div className="border border-dashed border-zinc-200 rounded-xl p-8 text-center text-zinc-400 text-sm">
-            Sin pedidos aún
+          <div className="border border-dashed border-zinc-200 rounded-xl py-10 px-4 text-center animate-fade-in">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center mx-auto mb-3">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="1.5">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                <rect width="6" height="4" x="9" y="3" rx="1"/>
+              </svg>
+            </div>
+            <p className="text-sm font-semibold text-zinc-600 mb-1">Sin pedidos aún</p>
+            <p className="text-xs text-zinc-400">Cuando este cliente tenga pedidos aparecerán aquí.</p>
           </div>
         ) : (
           <div className="border border-zinc-200 rounded-xl overflow-hidden">

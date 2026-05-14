@@ -172,8 +172,8 @@ export default function BottomNav({
 
       {/* Slide-up drawer for extra items */}
       {drawerOpen && hasExtras && (
-        <div className="fixed left-0 right-0 z-50 md:hidden bg-white border-t border-zinc-200 px-4 pt-3 pb-4 shadow-2xl rounded-t-2xl animate-fade-in-up" style={{ bottom: "calc(57px + env(safe-area-inset-bottom))" }}>
-          <div className="w-10 h-1 bg-zinc-200 rounded-full mx-auto mb-3" />
+        <div className="fixed left-0 right-0 z-50 md:hidden bg-zinc-900 border-t border-zinc-800 px-4 pt-3 pb-4 animate-fade-in-up" style={{ bottom: "calc(57px + env(safe-area-inset-bottom))" }}>
+          <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-3" />
           <div className="grid grid-cols-3 gap-2">
             {visibleExtras.map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href);
@@ -185,8 +185,8 @@ export default function BottomNav({
                   className={clsx(
                     "flex flex-col items-center gap-2 py-3 px-2 rounded-xl border transition-colors",
                     isActive
-                      ? "bg-blue-50 border-blue-200 text-blue-600"
-                      : "bg-zinc-50 border-zinc-100 text-zinc-600 active:bg-zinc-100"
+                      ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
+                      : "bg-zinc-800 border-zinc-700 text-zinc-300 active:bg-zinc-700"
                   )}
                 >
                   {item.icon}
