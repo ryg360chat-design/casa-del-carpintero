@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TZ } from "@/lib/time";
 import Link from "next/link";
 import NuevoClienteModal from "./NuevoClienteModal";
+import EtapaBtn from "./EtapaBtn";
 
 function fmtFecha(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -18,28 +19,18 @@ function fmtFechaCorta(iso: string | null | undefined): string {
 }
 
 type PedidoSub = { id: string; precio_venta: number | null; estado: string | null; fecha_ingreso: string | null };
-type ClienteRow = { id: string; nombre: string; codigo?: string | null; telefono?: string | null; pedidos: PedidoSub[] };
+type ClienteRow = { id: string; nombre: string; codigo?: string | null; telefono?: string | null; etapa_crm?: string | null; pedidos: PedidoSub[] };
 
-const KANBAN_COLS = [
-  { key: "cola",        label: "En cola",             color: "text-orange-600", bg: "bg-orange-50",  border: "border-orange-200", dot: "bg-orange-400" },
-  { key: "produccion",  label: "En producción",        color: "text-blue-600",   bg: "bg-blue-50",    border: "border-blue-200",   dot: "bg-blue-500" },
-  { key: "listo",       label: "Listo para entregar",  color: "text-green-600",  bg: "bg-green-50",   border: "border-green-200",  dot: "bg-green-500" },
-  { key: "sin_activos", label: "Sin pedidos activos",  color: "text-zinc-400",   bg: "bg-zinc-50",    border: "border-zinc-200",   dot: "bg-zinc-400" },
+const ETAPAS = [
+  { key: "prospecto",  label: "Prospecto",  color: "text-zinc-600",   bg: "bg-zinc-50",    border: "border-zinc-200",   dot: "bg-zinc-400",   badge: "bg-zinc-100 text-zinc-600 border-zinc-200" },
+  { key: "contactado", label: "Contactado", color: "text-sky-600",    bg: "bg-sky-50",     border: "border-sky-200",    dot: "bg-sky-500",    badge: "bg-sky-50 text-sky-700 border-sky-200" },
+  { key: "activo",     label: "Activo",     color: "text-green-600",  bg: "bg-green-50",   border: "border-green-200",  dot: "bg-green-500",  badge: "bg-green-50 text-green-700 border-green-200" },
+  { key: "frecuente",  label: "Frecuente",  color: "text-violet-600", bg: "bg-violet-50",  border: "border-violet-200", dot: "bg-violet-500", badge: "bg-violet-50 text-violet-700 border-violet-200" },
+  { key: "inactivo",   label: "Inactivo",   color: "text-red-400",    bg: "bg-red-50",     border: "border-red-200",    dot: "bg-red-400",    badge: "bg-red-50 text-red-500 border-red-200" },
 ];
 
-const ESTADO_BADGE: Record<string, string> = {
-  "En cola":       "bg-orange-50 text-orange-600 border-orange-200",
-  "En corte":      "bg-blue-50 text-blue-600 border-blue-200",
-  "En tapacantos": "bg-purple-50 text-purple-600 border-purple-200",
-  "Listo":         "bg-green-50 text-green-700 border-green-200",
-};
-
-function getColumna(peds: PedidoSub[]): string {
-  const activos = peds.filter(p => !["Cancelado", "Despachado"].includes(p.estado ?? ""));
-  if (activos.some(p => p.estado === "Listo")) return "listo";
-  if (activos.some(p => p.estado === "En tapacantos" || p.estado === "En corte")) return "produccion";
-  if (activos.some(p => p.estado === "En cola")) return "cola";
-  return "sin_activos";
+function getEtapa(etapa_crm: string | null | undefined) {
+  return ETAPAS.find(e => e.key === etapa_crm) ?? ETAPAS[2]; // default: activo
 }
 
 const PER_PAGE = 15;
@@ -66,18 +57,17 @@ export default async function CrmPage({
   const supabase = await createClient();
   const { data: clientes } = await supabase
     .from("clientes")
-    .select("id, nombre, codigo, telefono, pedidos(id, precio_venta, estado, fecha_ingreso)")
+    .select("id, nombre, codigo, telefono, etapa_crm, pedidos(id, precio_venta, estado, fecha_ingreso)")
     .eq("organization_id", org.id)
     .order("nombre");
 
   type CrmCard = ClienteRow & {
     totalPedidos: number; totalFacturado: number;
-    pedidosActivos: PedidoSub[]; ultimoPedido: string | null; columna: string;
+    pedidosActivos: PedidoSub[]; ultimoPedido: string | null;
   };
 
   const cards: CrmCard[] = (clientes ?? [] as ClienteRow[]).map((c: ClienteRow): CrmCard => {
     const peds = c.pedidos ?? [];
-    // Aplicar filtro de mes/año si existe
     const pedsFiltrados = (filtroMes && filtroAño)
       ? peds.filter(p => {
           if (!p.fecha_ingreso) return false;
@@ -88,7 +78,7 @@ export default async function CrmPage({
     const pedidosActivos = peds.filter(p => !["Cancelado", "Despachado"].includes(p.estado ?? ""));
     const totalFacturado = pedsFiltrados.reduce((s, p) => s + (p.precio_venta ?? 0), 0);
     const ultimoPedido = pedsFiltrados.map(p => p.fecha_ingreso).filter(Boolean).sort().at(-1) ?? null;
-    return { ...c, totalPedidos: pedsFiltrados.length, totalFacturado, pedidosActivos, ultimoPedido, columna: getColumna(peds) };
+    return { ...c, totalPedidos: pedsFiltrados.length, totalFacturado, pedidosActivos, ultimoPedido };
   });
 
   // Para lista: ordenar por facturado desc, paginar
@@ -115,7 +105,7 @@ export default async function CrmPage({
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-bold text-zinc-900">CRM de Clientes</h1>
           <p className="text-sm text-zinc-500 mt-0.5">
-            {cards.length} clientes · {cards.filter(c => c.columna !== "sin_activos").length} con pedidos activos
+            {cards.length} clientes · {cards.filter(c => c.pedidosActivos.length > 0).length} con pedidos activos
           </p>
         </div>
 
@@ -182,7 +172,9 @@ export default async function CrmPage({
                         </div>
                         <div>
                           <div className="font-medium text-zinc-900">{c.nombre}</div>
-                          {c.codigo && <div className="text-xs text-zinc-400">{c.codigo}</div>}
+                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${getEtapa(c.etapa_crm).badge}`}>
+                            {getEtapa(c.etapa_crm).label}
+                          </span>
                         </div>
                       </div>
                     </td>
@@ -223,50 +215,64 @@ export default async function CrmPage({
         </div>
       )}
 
-      {/* VISTA KANBAN */}
+      {/* VISTA KANBAN — etapas manuales de CRM */}
       {vista === "kanban" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {KANBAN_COLS.map((col) => {
-            const colCards = cards.filter(c => c.columna === col.key);
+        <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1">
+          {ETAPAS.map((etapa, etapaIdx) => {
+            const colCards = cards.filter(c => (c.etapa_crm ?? "activo") === etapa.key);
+            const prevEtapa = ETAPAS[etapaIdx - 1] ?? null;
+            const nextEtapa = ETAPAS[etapaIdx + 1] ?? null;
             return (
-              <div key={col.key} className="flex flex-col gap-3">
-                <div className={`flex items-center justify-between px-3 py-2 rounded-lg border ${col.border} ${col.bg}`}>
+              <div key={etapa.key} className="flex-shrink-0 w-60 flex flex-col gap-3">
+                {/* Header columna */}
+                <div className={`flex items-center justify-between px-3 py-2 rounded-lg border ${etapa.border} ${etapa.bg}`}>
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${col.dot}`} />
-                    <span className={`text-xs font-semibold ${col.color}`}>{col.label}</span>
+                    <span className={`w-2 h-2 rounded-full ${etapa.dot}`} />
+                    <span className={`text-xs font-semibold ${etapa.color}`}>{etapa.label}</span>
                   </div>
-                  <span className={`text-xs font-bold ${col.color}`}>{colCards.length}</span>
+                  <span className={`text-xs font-bold ${etapa.color}`}>{colCards.length}</span>
                 </div>
+
+                {/* Cards */}
                 <div className="flex flex-col gap-2">
                   {colCards.length === 0 && (
                     <div className="border border-dashed border-zinc-200 rounded-xl p-4 text-center text-zinc-400 text-xs">Sin clientes</div>
                   )}
                   {colCards.map((c) => (
-                    <Link key={c.id} href={`/crm/${c.id}`} className="block border border-zinc-200 rounded-xl p-4 bg-white hover:shadow-sm hover:border-zinc-300 transition-all group">
-                      <div className="flex items-center gap-2.5 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[12px] font-bold shrink-0">
-                          {c.nombre[0].toUpperCase()}
+                    <div key={c.id} className="border border-zinc-200 rounded-xl bg-white hover:shadow-sm hover:border-zinc-300 transition-all group overflow-hidden">
+                      <Link href={`/crm/${c.id}`} className="block p-3.5">
+                        {/* Nombre */}
+                        <div className="flex items-center gap-2 mb-2.5">
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                            {c.nombre[0].toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-semibold text-zinc-900 text-sm truncate group-hover:text-blue-700 transition-colors">{c.nombre}</div>
+                            {c.telefono && <div className="text-[10px] text-zinc-400 truncate">{c.telefono}</div>}
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <div className="font-semibold text-zinc-900 text-sm truncate group-hover:text-blue-700 transition-colors">{c.nombre}</div>
-                          {c.telefono && <div className="text-xs text-zinc-400">{c.telefono}</div>}
+                        {/* Stats */}
+                        <div className="flex items-center justify-between text-[10px] text-zinc-400 pt-2 border-t border-zinc-100">
+                          <span>{c.totalPedidos} pedido{c.totalPedidos !== 1 ? "s" : ""}</span>
+                          <span className="font-semibold text-zinc-600">{c.totalFacturado > 0 ? `S/ ${c.totalFacturado.toFixed(0)}` : "—"}</span>
+                          {c.pedidosActivos.length > 0 && (
+                            <span className="text-blue-500 font-medium">{c.pedidosActivos.length} activo{c.pedidosActivos.length !== 1 ? "s" : ""}</span>
+                          )}
                         </div>
-                      </div>
-                      {c.pedidosActivos.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {c.pedidosActivos.map((p) => (
-                            <span key={p.id} className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${ESTADO_BADGE[p.estado ?? ""] ?? "bg-zinc-50 text-zinc-500 border-zinc-200"}`}>
-                              {p.estado}
-                            </span>
-                          ))}
+                      </Link>
+
+                      {/* Botones mover */}
+                      {(prevEtapa || nextEtapa) && (
+                        <div className="flex gap-1 px-3 pb-3">
+                          {prevEtapa && (
+                            <EtapaBtn clienteId={c.id} etapaDestino={prevEtapa.key} label={`← ${prevEtapa.label}`} variant="prev" />
+                          )}
+                          {nextEtapa && (
+                            <EtapaBtn clienteId={c.id} etapaDestino={nextEtapa.key} label={`${nextEtapa.label} →`} variant="next" />
+                          )}
                         </div>
                       )}
-                      <div className="flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-100">
-                        <span>{c.totalPedidos} pedido{c.totalPedidos !== 1 ? "s" : ""}</span>
-                        <span className="font-semibold text-zinc-600">{c.totalFacturado > 0 ? `S/ ${c.totalFacturado.toFixed(0)}` : "—"}</span>
-                        <span>{fmtFechaCorta(c.ultimoPedido)}</span>
-                      </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </div>

@@ -13,7 +13,7 @@ export async function crearCliente(data: { nombre: string; telefono?: string; em
   const supabase = await createClient();
   const { error } = await supabase
     .from("clientes")
-    .insert({ nombre: data.nombre, telefono: data.telefono || null, email: data.email || null, organization_id: org.id });
+    .insert({ nombre: data.nombre, telefono: data.telefono || null, email: data.email || null, organization_id: org.id, etapa_crm: "prospecto" });
 
   if (error) return { error: error.message };
   revalidatePath("/crm");
@@ -35,6 +35,26 @@ export async function editarCliente(clienteId: string, data: { nombre: string; t
   if (error) return { error: error.message };
   revalidatePath("/crm");
   revalidatePath(`/crm/${clienteId}`);
+  return { ok: true };
+}
+
+export async function moverEtapaCrm(clienteId: string, etapa: string) {
+  const [role, org] = await Promise.all([getUserRole(), getOrganization()]);
+  if (!org) return { error: "No autorizado" };
+  if (!["developer", "admin", "gerencia", "administracion", "ventas"].includes(role)) return { error: "Sin permisos" };
+
+  const VALIDAS = ["prospecto", "contactado", "activo", "frecuente", "inactivo"];
+  if (!VALIDAS.includes(etapa)) return { error: "Etapa inválida" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("clientes")
+    .update({ etapa_crm: etapa })
+    .eq("id", clienteId)
+    .eq("organization_id", org.id);
+
+  if (error) return { error: error.message };
+  revalidatePath("/crm");
   return { ok: true };
 }
 
