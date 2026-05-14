@@ -109,7 +109,7 @@ function DroppableColumn({
   const { setNodeRef } = useDroppable({ id: etapa.key });
 
   return (
-    <div className="flex-shrink-0 w-72 flex flex-col gap-3">
+    <div className="flex-shrink-0 w-72 flex flex-col gap-3 self-stretch">
       {/* Header */}
       <div className={`flex items-center justify-between px-4 py-2.5 rounded-xl border ${etapa.border} ${etapa.bg}`}>
         <div className="flex items-center gap-2">
@@ -122,12 +122,12 @@ function DroppableColumn({
       {/* Drop zone */}
       <div
         ref={setNodeRef}
-        className={`flex flex-col gap-2.5 min-h-[80px] rounded-xl p-1 transition-colors ${
+        className={`flex flex-col gap-2.5 flex-1 min-h-[160px] rounded-xl p-1 transition-colors ${
           isOver ? "bg-blue-50/60 ring-2 ring-blue-300 ring-dashed" : ""
         }`}
       >
         {cards.length === 0 && !isOver && (
-          <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center text-zinc-400 text-xs">
+          <div className="border-2 border-dashed border-zinc-200 rounded-xl p-4 text-center text-zinc-400 text-xs">
             Arrastra clientes aquí
           </div>
         )}
