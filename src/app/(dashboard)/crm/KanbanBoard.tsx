@@ -109,7 +109,7 @@ function DroppableColumn({
   const { setNodeRef } = useDroppable({ id: etapa.key });
 
   return (
-    <div className="flex-shrink-0 w-72 flex flex-col gap-3 self-stretch">
+    <div className="flex-1 min-w-[220px] flex flex-col gap-3 self-stretch">
       {/* Header */}
       <div className={`flex items-center justify-between px-4 py-2.5 rounded-xl border ${etapa.border} ${etapa.bg}`}>
         <div className="flex items-center gap-2">
