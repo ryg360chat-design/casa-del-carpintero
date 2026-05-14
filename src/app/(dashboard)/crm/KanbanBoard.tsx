@@ -127,7 +127,7 @@ function DroppableColumn({
         }`}
       >
         {cards.length === 0 && !isOver && (
-          <div className="border-2 border-dashed border-zinc-200 rounded-xl p-4 text-center text-zinc-400 text-xs">
+          <div className="border-2 border-dashed border-zinc-200 rounded-xl flex-1 flex items-center justify-center text-zinc-400 text-xs">
             Arrastra clientes aquí
           </div>
         )}
