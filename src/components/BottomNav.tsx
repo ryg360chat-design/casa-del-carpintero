@@ -96,7 +96,7 @@ const extraItems = [
   },
   {
     label: "Rendimiento",
-    href: "/rendimiento",
+    href: "/produccion/rendimiento",
     adminOnly: false,
     devOnly: false,
     icon: (
@@ -107,7 +107,7 @@ const extraItems = [
   },
   {
     label: "Usuarios",
-    href: "/usuarios",
+    href: "/admin/usuarios",
     adminOnly: true,
     devOnly: false,
     icon: (
@@ -172,9 +172,9 @@ export default function BottomNav({
 
       {/* Slide-up drawer for extra items */}
       {drawerOpen && hasExtras && (
-        <div className="fixed bottom-[57px] left-0 right-0 z-50 md:hidden bg-zinc-900 border-t border-zinc-800 p-4 shadow-xl animate-fade-in-up">
-          <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-4" />
-          <div className="grid grid-cols-3 gap-3">
+        <div className="fixed left-0 right-0 z-50 md:hidden bg-white border-t border-zinc-200 px-4 pt-3 pb-4 shadow-2xl rounded-t-2xl animate-fade-in-up" style={{ bottom: "calc(57px + env(safe-area-inset-bottom))" }}>
+          <div className="w-10 h-1 bg-zinc-200 rounded-full mx-auto mb-3" />
+          <div className="grid grid-cols-3 gap-2">
             {visibleExtras.map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href);
               return (
@@ -183,12 +183,14 @@ export default function BottomNav({
                   href={item.href}
                   onClick={() => setDrawerOpen(false)}
                   className={clsx(
-                    "flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-colors",
-                    isActive ? "bg-blue-500/20 text-blue-400" : "text-zinc-400 hover:bg-white/10"
+                    "flex flex-col items-center gap-2 py-3 px-2 rounded-xl border transition-colors",
+                    isActive
+                      ? "bg-blue-50 border-blue-200 text-blue-600"
+                      : "bg-zinc-50 border-zinc-100 text-zinc-600 active:bg-zinc-100"
                   )}
                 >
                   {item.icon}
-                  <span className="text-[11px] font-medium">{item.label}</span>
+                  <span className="text-[11px] font-semibold">{item.label}</span>
                 </Link>
               );
             })}
@@ -197,7 +199,7 @@ export default function BottomNav({
       )}
 
       {/* Bottom nav bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-zinc-900 border-t border-zinc-800">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-zinc-900 border-t border-zinc-800" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {mainItems.map((item) => {
           const isActive =
             pathname === item.href ||

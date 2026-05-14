@@ -233,7 +233,7 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
       {editando && canEdit && <EditarModal material={editando} onClose={() => setEditando(null)} />}
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900 tracking-tight">Inventario</h1>
           <p className="text-sm text-zinc-500 mt-0.5">
@@ -243,27 +243,29 @@ export default function MaterialesClient({ materiales, movimientos, orgId, role 
               : "stock OK"}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <a href="/api/exportar/inventario" className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 border border-zinc-200 bg-white hover:bg-zinc-50 px-3 py-2 rounded-lg transition-colors">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Inventario CSV
+            <span className="hidden sm:inline">Inventario</span> CSV
           </a>
           <a href="/api/exportar/inventario?tipo=kardex" className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 border border-zinc-200 bg-white hover:bg-zinc-50 px-3 py-2 rounded-lg transition-colors">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Kardex CSV
+            <span className="hidden sm:inline">Kardex</span><span className="sm:hidden">Kárdex</span> CSV
           </a>
           {canEdit && (
             <>
               <button onClick={() => setShowNuevo(true)}
-                className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 shadow-sm">
+                className="flex items-center gap-2 text-sm font-semibold px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 shadow-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Nuevo material
+                <span className="hidden sm:inline">Nuevo material</span>
+                <span className="sm:hidden">Material</span>
               </button>
               <button onClick={() => setShowEntrada(true)}
-                className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl text-white shadow-sm"
+                className="flex items-center gap-2 text-sm font-semibold px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-white shadow-sm"
                 style={{ background: "#10b981" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Registrar entrada
+                <span className="hidden sm:inline">Registrar entrada</span>
+                <span className="sm:hidden">Entrada</span>
               </button>
             </>
           )}
