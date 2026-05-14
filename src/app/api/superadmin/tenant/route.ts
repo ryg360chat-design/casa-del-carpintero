@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendBienvenidaPlanEmail } from "@/lib/send-emails";
 
 function requireSuperAdmin(req: NextRequest) {
   const key = req.headers.get("x-superadmin-key");
@@ -51,7 +52,17 @@ export async function POST(req: NextRequest) {
 
   if (activo !== undefined) update.activo = activo;
 
+  // Obtener nombre de la org para el email
+  const { data: orgRow } = await admin.from("organizations").select("nombre, plan").eq("id", id).single();
+
   const { error } = await admin.from("organizations").update(update).eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Email de bienvenida al plan cuando se activa un plan pagado
+  const planAnterior = orgRow?.plan;
+  if (plan && plan !== "trial" && planAnterior === "trial" && orgRow?.nombre) {
+    sendBienvenidaPlanEmail(id, orgRow.nombre, plan).catch(() => {});
+  }
+
   return NextResponse.json({ success: true });
 }

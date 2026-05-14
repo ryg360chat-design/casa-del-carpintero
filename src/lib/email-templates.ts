@@ -109,6 +109,85 @@ export function emailTrialWarning(orgNombre: string, daysLeft: number) {
   return { subject: `Tu trial de Kuadra vence en ${dayLabel} — ${orgNombre}`, html: wrapper(body) };
 }
 
+const PLAN_LABEL: Record<string, string> = {
+  basico: "Básico",
+  profesional: "Profesional",
+  empresarial: "Empresarial",
+};
+
+const PLAN_PRICE: Record<string, string> = {
+  basico: "$300/mes",
+  profesional: "$500/mes",
+  empresarial: "$900/mes",
+};
+
+const PLAN_FEATURES: Record<string, string[]> = {
+  basico: [
+    "Gestión completa de pedidos y clientes",
+    "Vista de producción en columnas",
+    "Hasta 3 máquinas · 5 usuarios",
+    "Historial completo de pedidos",
+  ],
+  profesional: [
+    "Todo lo del plan Básico",
+    "Dashboard de rendimiento por máquina",
+    "Reporte diario + PDF imprimible",
+    "Calendario de entregas",
+    "Módulo Financiero con márgenes",
+    "5 máquinas · 10 usuarios",
+  ],
+  empresarial: [
+    "Todo lo del plan Profesional",
+    "CRM de clientes con Kanban",
+    "Módulo Inventario de materiales",
+    "Exportar CSV / Excel",
+    "Roles personalizados",
+    "8 máquinas · 20 usuarios",
+  ],
+};
+
+export function emailBienvenidaPlan(orgNombre: string, userName: string, plan: string) {
+  const label = PLAN_LABEL[plan] ?? plan;
+  const price = PLAN_PRICE[plan] ?? "";
+  const features = PLAN_FEATURES[plan] ?? [];
+
+  const featRows = features.map(f => `
+    <tr>
+      <td style="padding:7px 0;">
+        <span style="color:#16a34a;font-size:15px;">✓</span>
+        <span style="font-size:14px;color:#374151;margin-left:8px;">${f}</span>
+      </td>
+    </tr>`).join("");
+
+  const body = `
+    <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#111827;">¡Bienvenido al Plan ${label}, ${orgNombre}!</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#4b5563;">Hola ${userName}, tu cuenta está activa y lista. Aquí tienes todo lo que incluye tu plan.</p>
+
+    <table cellpadding="0" cellspacing="0" style="width:100%;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin-bottom:24px;">
+      ${featRows}
+    </table>
+
+    <table cellpadding="0" cellspacing="0" style="width:100%;background:#f8f9fb;border-radius:10px;padding:16px;margin-bottom:24px;">
+      <tr>
+        <td style="padding:4px 0;">
+          <p style="margin:0;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Plan activo</p>
+          <p style="margin:4px 0 0;font-size:18px;font-weight:700;color:#111827;">Plan ${label} — <span style="color:${BASE_COLOR};">${price}</span></p>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:0 0 24px;text-align:center;">${btn(`${APP_URL}/dashboard`, "Ir al dashboard")}</p>
+
+    <p style="margin:0;font-size:13px;color:#6b7280;">¿Tienes alguna pregunta sobre tu cuenta o facturación? Escríbenos por WhatsApp.</p>
+    <p style="margin:8px 0 0;text-align:center;">${btn(waHref(orgNombre), "Escribir por WhatsApp", "#25d366")}</p>
+  `;
+
+  return {
+    subject: `¡Tu plan ${label} de Kuadra está activo — ${orgNombre}!`,
+    html: wrapper(body),
+  };
+}
+
 export function emailTrialExpired(orgNombre: string) {
   const body = `
     <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111827;">Tu período de prueba terminó</h1>
