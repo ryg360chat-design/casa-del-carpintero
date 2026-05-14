@@ -5,6 +5,9 @@ export default async function TrialExpiradoPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const waText = `Hola, quiero continuar usando Kuadra. Mi cuenta es: ${user?.email ?? ""}`;
+  const waHref = `https://wa.me/593963009901?text=${encodeURIComponent(waText)}`;
+
   return (
     <div className="min-h-screen bg-[#f3eee7] flex items-center justify-center p-6">
       <div className="w-full max-w-md text-center space-y-6">
@@ -26,7 +29,7 @@ export default async function TrialExpiradoPage() {
 
         {/* CTA principal */}
         <a
-          href="https://wa.me/593963009901?text=Hola%2C%20quiero%20continuar%20usando%20Kuadra.%20Mi%20cuenta%20es%3A%20" + encodeURIComponent(user?.email ?? "")
+          href={waHref}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-semibold text-white text-sm transition-all hover:opacity-90 active:scale-95"
