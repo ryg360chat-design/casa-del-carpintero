@@ -177,7 +177,7 @@ export default function Page() {
           <a href="#inicio">Producto</a>
           <a href="#modulos">Módulos</a>
           <a href="#porque">Por qué</a>
-          {/* <a href="#precios">Precios</a> */}
+          <a href="#precios">Precios</a>
           <a href="#ecosistema">Ecosistema</a>
         </div>
         <div className="kl-nav-actions">
@@ -443,27 +443,27 @@ export default function Page() {
       </section>
 
       {/* TESTIMONIOS */}
-      <section style={{ padding: "72px 48px", background: "var(--ink)", overflow: "hidden" }}>
+      <section style={{ padding: "72px 48px", background: "#ede8df", overflow: "hidden" }}>
         <div className="kl-container" style={{ maxWidth: 1100 }}>
-          <div className="kl-eyebrow" style={{ color: "rgba(255,255,255,0.45)", borderColor: "rgba(255,255,255,0.12)" }}>◆ Talleres que ya migraron</div>
-          <h2 className="kl-section-title" style={{ color: "rgba(255,255,255,0.92)", marginBottom: 12 }}>Lo que dicen los<br /><span style={{ color: "var(--accent)" }}>talleres reales.</span></h2>
-          <p className="kl-section-sub" style={{ color: "rgba(255,255,255,0.45)", marginBottom: 40 }}>Carpinterías en Ecuador y Latinoamérica que dejaron el papel y el WhatsApp como sistema de producción.</p>
+          <div className="kl-eyebrow">◆ Talleres que ya migraron</div>
+          <h2 className="kl-section-title" style={{ marginBottom: 12 }}>Lo que dicen los<br /><span style={{ color: "var(--accent)" }}>talleres reales.</span></h2>
+          <p className="kl-section-sub" style={{ marginBottom: 40 }}>Carpinterías en Ecuador y Latinoamérica que dejaron el papel y el WhatsApp como sistema de producción.</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 40 }}>
             {[
               { quote: "Antes yo vivía yendo al taller a preguntar cómo iba cada pedido. Hoy abro la pantalla y sé exactamente qué máquina está libre y qué pedidos van tarde. Cambió todo.", name: "GL Santamaría", cargo: "Gerente, Talleres Santamaría", iniciales: "GS" },
               { quote: "Lo que más me sorprendió fue ver el rendimiento real de mis máquinas. Tenía una que creía que producía bien y Kuadra me mostró que estaba al 68%. Ya la ajustamos.", name: "Marco Villavicencio", cargo: "Propietario, Muebles del Valle", iniciales: "MV" },
               { quote: "Probé otros sistemas antes. Eran para cualquier empresa — llenos de pantallas que no usaba. Kuadra es exactamente lo que necesita un taller de corte. Nada más, nada menos.", name: "Rosa Mendoza", cargo: "Administración, Cocinas Moderna", iniciales: "RM" },
             ].map((t) => (
-              <div key={t.name} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
-                <div style={{ display: "flex", gap: 3 }}>{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "#fbbf24", fontSize: 14 }}>{s}</span>)}</div>
-                <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 15, lineHeight: 1.65, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
+              <div key={t.name} style={{ background: "#fff", border: "1px solid var(--border)", borderRadius: 16, padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
+                <div style={{ display: "flex", gap: 3 }}>{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "#f59e0b", fontSize: 14 }}>{s}</span>)}</div>
+                <p style={{ color: "var(--ink2)", fontSize: 15, lineHeight: 1.65, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
                   <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <span style={{ color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "monospace" }}>{t.iniciales}</span>
                   </div>
                   <div>
-                    <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 14, fontWeight: 600 }}>{t.name}</div>
-                    <div style={{ color: "rgba(255,255,255,0.38)", fontSize: 12 }}>{t.cargo}</div>
+                    <div style={{ color: "var(--ink)", fontSize: 14, fontWeight: 600 }}>{t.name}</div>
+                    <div style={{ color: "var(--ink3)", fontSize: 12 }}>{t.cargo}</div>
                   </div>
                 </div>
               </div>
@@ -518,8 +518,8 @@ export default function Page() {
         </div>
       </section>
 
-      {/* PRICING — suspendido 2026-05-12, reactivar cuando esté lista la estrategia de precios */}
-      {false && <section className="kl-pricing-section" id="precios">
+      {/* PRICING */}
+      {<section className="kl-pricing-section" id="precios">
         <div className="kl-container">
           <div className="kl-eyebrow kl-eyebrow-center">◆ Inversión transparente</div>
           <h2 className="kl-section-title kl-title-center">El plan que se adapta<br /><span className="kl-title-muted">a tu taller.</span></h2>
