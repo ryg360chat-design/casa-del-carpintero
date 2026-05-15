@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendBienvenidaEmail } from "@/lib/send-emails";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limiter";
 
 const REGISTRATION_SECRET = process.env.REGISTRATION_SECRET;
 
 export async function POST(req: NextRequest) {
+  const rl = await checkRateLimit(`registro:${getClientIp(req)}`, 5);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Espera unos minutos antes de volver a intentarlo." },
+      { status: 429 }
+    );
+  }
+
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
 
@@ -56,11 +65,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Error al crear el taller" }, { status: 500 });
   }
 
-  // 2. Crear usuario (sin confirmación de email — acceso inmediato)
+  // 2. Crear usuario (requiere confirmación de email)
   const { data: authData, error: authError } = await admin.auth.admin.createUser({
     email: email.trim(),
     password,
-    email_confirm: true,
     user_metadata: { nombre: nombre.trim() },
   });
 

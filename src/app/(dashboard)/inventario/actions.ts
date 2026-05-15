@@ -3,8 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getOrganization } from "@/lib/org";
+import { getUserRole } from "@/lib/auth";
+
+const INVENTARIO_ROLES = ["developer", "admin", "gerencia", "almacen_tableros"] as const;
 
 export async function registrarEntrada(materialId: string, cantidad: number, notas: string) {
+  const role = await getUserRole();
+  if (!INVENTARIO_ROLES.includes(role as typeof INVENTARIO_ROLES[number])) return { error: "Sin permisos" };
+
   const supabase = await createClient();
   const org = await getOrganization();
   if (!org) return { error: "Sin organización" };
@@ -37,6 +43,9 @@ export async function crearMaterial(
   tipo: string, marca: string, espesor: string,
   stockInicial: number, stockMinimo: number, precioUnitario: number,
 ) {
+  const role = await getUserRole();
+  if (!INVENTARIO_ROLES.includes(role as typeof INVENTARIO_ROLES[number])) return { error: "Sin permisos" };
+
   const supabase = await createClient();
   const org = await getOrganization();
   if (!org) return { error: "Sin organización" };
@@ -68,6 +77,9 @@ export async function crearMaterial(
 }
 
 export async function editarMaterial(materialId: string, stockMinimo: number, precioUnitario: number) {
+  const role = await getUserRole();
+  if (!INVENTARIO_ROLES.includes(role as typeof INVENTARIO_ROLES[number])) return { error: "Sin permisos" };
+
   const supabase = await createClient();
   const org = await getOrganization();
   if (!org) return { error: "Sin organización" };
@@ -82,18 +94,20 @@ export async function editarMaterial(materialId: string, stockMinimo: number, pr
 }
 
 export async function registrarSalidaPedido(
-  orgId: string,
+  _orgId: string,
   pedidoId: string,
   tipoTablero: string,
   marcaMelamina: string,
   cantPlanchas: number,
 ) {
   const supabase = await createClient();
+  const org = await getOrganization();
+  if (!org) return;
 
   const { data: mat } = await supabase
     .from("materiales")
     .select("id, stock_actual")
-    .eq("organization_id", orgId)
+    .eq("organization_id", org.id)
     .ilike("tipo", tipoTablero)
     .ilike("marca", marcaMelamina || "%")
     .eq("activo", true)
@@ -104,7 +118,7 @@ export async function registrarSalidaPedido(
   const nuevoStock = Math.max(mat.stock_actual - cantPlanchas, 0);
   await supabase.from("materiales").update({ stock_actual: nuevoStock, updated_at: new Date().toISOString() }).eq("id", mat.id);
   await supabase.from("movimientos_material").insert({
-    organization_id: orgId,
+    organization_id: org.id,
     material_id: mat.id,
     tipo: "salida",
     cantidad: cantPlanchas,

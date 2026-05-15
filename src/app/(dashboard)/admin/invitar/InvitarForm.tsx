@@ -147,8 +147,8 @@ export default function InvitarForm({ isAdmin }: { isAdmin?: boolean }) {
         <div className="bg-white border border-zinc-200 rounded-2xl p-5">
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-3">Enviados en esta sesión</p>
           <div className="flex flex-col gap-2">
-            {historial.map((e, i) => (
-              <div key={i} className="flex items-center justify-between text-sm text-zinc-700">
+            {historial.map((e) => (
+              <div key={e.email} className="flex items-center justify-between text-sm text-zinc-700">
                 <div className="flex items-center gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3">

@@ -13,7 +13,7 @@ export default async function AjustesPage() {
   const supabase = await createClient();
   const org = await getOrganization();
 
-  const { data: maquinas } = await supabase.from("maquinas").select("*").order("id");
+  const { data: maquinas } = await supabase.from("maquinas").select("id, nombre, activa").order("id");
 
   return (
     <div className="p-8 flex flex-col items-center min-h-full" style={{ background: "linear-gradient(160deg, rgba(226,232,240,0.45) 0%, rgba(244,244,245,0) 32%)" }}>

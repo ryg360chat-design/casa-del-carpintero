@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserRole, IS_ADMIN, IS_DEVELOPER, type UserRole } from "@/lib/auth";
+import { getOrganization } from "@/lib/org";
 
 export type { UserRole };
 
@@ -31,11 +32,24 @@ export async function cambiarRol(targetUserId: string, nuevoRol: UserRole) {
     return { error: "Solo un desarrollador puede asignar ese rol." };
   }
 
+  const org = await getOrganization();
+  if (!org) return { error: "Sin organización." };
+
   const admin = createAdminClient();
+
+  // Verificar que el usuario target pertenece a la misma org
+  const { data: targetProfile } = await admin
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", targetUserId)
+    .single();
+  if (targetProfile?.organization_id !== org.id) return { error: "Usuario no encontrado en tu organización." };
+
   const { error } = await admin
     .from("profiles")
     .update({ rol: nuevoRol })
-    .eq("id", targetUserId);
+    .eq("id", targetUserId)
+    .eq("organization_id", org.id);
 
   if (error) return { error: error.message };
 
@@ -53,7 +67,19 @@ export async function desactivarUsuario(targetUserId: string, banear: boolean) {
 
   if (user.id === targetUserId) return { error: "No podés desactivarte a vos mismo." };
 
+  const org = await getOrganization();
+  if (!org) return { error: "Sin organización." };
+
   const admin = createAdminClient();
+
+  // Verificar que el usuario target pertenece a la misma org
+  const { data: targetProfile } = await admin
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", targetUserId)
+    .single();
+  if (targetProfile?.organization_id !== org.id) return { error: "Usuario no encontrado en tu organización." };
+
   const { error } = await admin.auth.admin.updateUserById(targetUserId, {
     ban_duration: banear ? "876600h" : "none", // 100 años ≈ permanente
   });

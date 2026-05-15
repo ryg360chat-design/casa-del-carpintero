@@ -8,16 +8,7 @@ import CancelarPedidoBtn from "@/components/CancelarPedidoBtn";
 import MarcarListoDirectoBtn from "@/components/MarcarListoDirectoBtn";
 import MarcarVendidoBtn from "@/components/MarcarVendidoBtn";
 
-const ESTADO_STYLE: Record<string, string> = {
-  "En cola":       "bg-slate-100 text-slate-600 border border-slate-200",
-  "En corte":      "bg-blue-500 text-white",
-  "En tapacantos": "bg-violet-500 text-white",
-  "Listo":         "bg-emerald-500 text-white",
-  "Despachado":    "bg-teal-600 text-white",
-  "Vendido":       "bg-teal-600 text-white",
-  "Cancelado":     "bg-red-100 text-red-600 border border-red-200",
-  "Pausado":       "bg-amber-100 text-amber-700 border border-amber-200",
-};
+import { ESTADO_BADGE } from "@/lib/estados";
 
 const AREA_COLORS: Record<string, string> = {
   "Ventas":           "bg-blue-50 text-blue-700 border-blue-200",
@@ -63,7 +54,7 @@ export default async function PedidoDetailPage({ params }: { params: Promise<{ i
   ]);
 
   const estado = pedido.estado as string;
-  const badgeClass = ESTADO_STYLE[estado] ?? "bg-zinc-100 text-zinc-600";
+  const badgeClass = ESTADO_BADGE[estado] ?? "bg-zinc-100 text-zinc-600";
   const prioridad = pedido.prioridad as string;
   const area = pedido.area as string | null;
   const estaActivo = ["En cola", "En corte", "En tapacantos"].includes(estado);

@@ -3,12 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { avanzarEstado } from "@/app/actions";
-
-const SIGUIENTE: Record<string, string> = {
-  "En cola":       "En corte",
-  "En corte":      "En tapacantos",
-  "En tapacantos": "Listo",
-};
+import { SIGUIENTE_ESTADO } from "@/lib/estados";
 
 const LABEL: Record<string, string> = {
   "En cola":       "Iniciar corte",
@@ -48,7 +43,7 @@ export default function AvanzarEstadoBtn({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const siguiente = SIGUIENTE[estadoActual];
+  const siguiente = SIGUIENTE_ESTADO[estadoActual];
   const label = LABEL[estadoActual];
 
   if (!siguiente || !canAdvance) return null;

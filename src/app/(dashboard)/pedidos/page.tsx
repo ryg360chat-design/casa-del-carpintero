@@ -4,16 +4,7 @@ import { Suspense } from "react";
 import PedidosFiltros from "@/components/PedidosFiltros";
 import { limaDate, limaTime, limaStartOfToday, limaEndOfToday, TZ } from "@/lib/time";
 
-const ESTADO_STYLE: Record<string, { bg: string; dot: string }> = {
-  "En cola":       { bg: "bg-slate-100 text-slate-600 border border-slate-200", dot: "bg-slate-400" },
-  "En corte":      { bg: "bg-blue-500 text-white", dot: "bg-blue-200" },
-  "En tapacantos": { bg: "bg-violet-500 text-white", dot: "bg-violet-200" },
-  "Listo":         { bg: "bg-emerald-500 text-white", dot: "bg-emerald-200" },
-  "Despachado":    { bg: "bg-teal-600 text-white", dot: "bg-teal-200" },
-  "Vendido":       { bg: "bg-teal-600 text-white", dot: "bg-teal-200" },
-  "Cancelado":     { bg: "bg-red-100 text-red-600 border border-red-200", dot: "bg-red-400" },
-  "Pausado":       { bg: "bg-amber-100 text-amber-700 border border-amber-200", dot: "bg-amber-400" },
-};
+import { ESTADO_BADGE, ESTADO_DOT } from "@/lib/estados";
 
 const EN_PRODUCCION = ["En cola", "En corte", "En tapacantos"];
 const ENTREGADOS    = ["Listo", "Despachado", "Vendido"];
@@ -58,7 +49,8 @@ type Pedido = Record<string, unknown>;
 // ── Fila de tabla ─────────────────────────────────────────────────
 function PedidoRow({ p, num }: { p: Pedido; num: number }) {
   const estadoPedido = p.estado as string;
-  const style = ESTADO_STYLE[estadoPedido];
+  const badgeBg  = ESTADO_BADGE[estadoPedido] ?? "bg-zinc-100 text-zinc-600";
+  const badgeDot = ESTADO_DOT[estadoPedido]  ?? "bg-zinc-400";
   const entregaDate = p.fecha_entrega_estimada ? new Date(p.fecha_entrega_estimada as string) : null;
   const entrega = entregaDate ? limaDate(entregaDate, { day: "2-digit", month: "2-digit" }) : "—";
   const hora    = entregaDate ? limaTime(entregaDate) : null;
@@ -94,9 +86,9 @@ function PedidoRow({ p, num }: { p: Pedido; num: number }) {
         <span className="text-xs font-bold text-zinc-500 bg-zinc-100 px-2 py-1 rounded-md">{(p.maquina_asignada as string) ?? "—"}</span>
       </td>
       <td className="px-3 py-3">
-        {style ? (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${style.bg}`}>
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} />
+        {badgeBg ? (
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${badgeBg}`}>
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${badgeDot}`} />
             <span className="truncate max-w-[70px] sm:max-w-none">{estadoPedido}</span>
           </span>
         ) : (

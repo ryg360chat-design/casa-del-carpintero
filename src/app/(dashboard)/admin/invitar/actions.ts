@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserRole, IS_ADMIN, IS_DEVELOPER } from "@/lib/auth";
+import { getOrganization } from "@/lib/org";
 
 const ROLES_VALIDOS = [
   "admin", "gerencia", "administracion",
@@ -30,6 +31,9 @@ export async function invitarUsuario(email: string, rolDeseado: RolInvitacion = 
     return { error: "Rol no válido." };
   }
 
+  const org = await getOrganization();
+  if (!org) return { error: "Sin organización." };
+
   try {
     const supabase = createAdminClient();
     const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
@@ -44,11 +48,14 @@ export async function invitarUsuario(email: string, rolDeseado: RolInvitacion = 
       return { error: `Error al enviar invitación: ${error.message}` };
     }
 
-    // Si ya existe un profile (re-invitación), actualizamos el rol directamente
+    // Si ya existe un profile (re-invitación), actualizamos el rol y aseguramos la org
     if (data?.user?.id) {
       await supabase
         .from("profiles")
-        .upsert({ id: data.user.id, rol: rolDeseado }, { onConflict: "id", ignoreDuplicates: false });
+        .upsert(
+          { id: data.user.id, rol: rolDeseado, organization_id: org.id },
+          { onConflict: "id", ignoreDuplicates: false }
+        );
     }
 
     return { success: true };

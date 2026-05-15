@@ -74,6 +74,50 @@ const ecoApps = [
   { name: "Kuadra", desc: "Sistema de gestión para talleres de corte y carpintería.", color: "#fef3c7", textColor: "#92400e", url: "", current: true },
 ];
 
+const FAQS = [
+  { q: "¿Necesito instalar algo?", a: "No. Kuadra es 100% en la nube. Funciona desde cualquier navegador — computadora, tablet o celular." },
+  { q: "¿Cuánto tarda la implementación?", a: "24 horas. El día que contratas configuramos tu taller, tus máquinas y tus primeros usuarios." },
+  { q: "¿Puedo migrar mis datos desde Excel?", a: "Sí. Durante la capacitación inicial te ayudamos a cargar tus clientes, materiales y configuración." },
+  { q: "¿Qué pasa si no pago a tiempo?", a: "Tu cuenta entra en modo lectura por 3 días. Si no se regulariza, queda suspendida — pero tus datos nunca se eliminan." },
+  { q: "¿Mis datos están seguros?", a: "Sí. Infraestructura en Supabase con backups diarios, HTTPS, y roles de acceso por persona. Nunca compartimos tu información." },
+  { q: "¿Puedo cambiar de plan o cancelar?", a: "Sí, en cualquier momento. Sin contrato mínimo ni penalidades. El siguiente mes ya no se cobra." },
+  { q: "¿Funciona para cualquier tamaño de taller?", a: "Sí. Desde talleres con 2 máquinas y 3 personas hasta operaciones con 8 máquinas y 20 usuarios." },
+  { q: "¿Puedo probarlo antes de contratar?", a: "Sí. 14 días de prueba gratuita sin tarjeta de crédito. Con acceso completo desde el primer día." },
+];
+
+function FAQSection() {
+  const [open, setOpen] = useState<number | null>(null);
+  return (
+    <section style={{ padding: "72px 48px", background: "var(--bg)" }}>
+      <div className="kl-container" style={{ maxWidth: 720 }}>
+        <div className="kl-eyebrow kl-eyebrow-center">◆ Preguntas frecuentes</div>
+        <h2 className="kl-section-title kl-title-center" style={{ marginBottom: 12 }}>Todo lo que<br /><span className="kl-title-muted">necesitas saber.</span></h2>
+        <p className="kl-section-sub kl-sub-center" style={{ marginBottom: 36 }}>Si no encuentras tu respuesta, escríbenos por WhatsApp — respondemos el mismo día.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {FAQS.map((faq, i) => (
+            <div key={i} style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border2)", background: open === i ? "rgba(200,71,42,0.04)" : "rgba(255,255,255,0.6)", transition: "background 0.2s" }}>
+              <button
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "16px 20px", textAlign: "left", background: "none", border: "none", cursor: "pointer" }}
+                onClick={() => setOpen(open === i ? null : i)}
+              >
+                <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>{faq.q}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0, color: "var(--ink3)", transform: open === i ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              {open === i && (
+                <div style={{ padding: "0 20px 16px" }}>
+                  <p style={{ fontSize: 14, color: "var(--ink2)", lineHeight: 1.65 }}>{faq.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
   const [flowStage, setFlowStage] = useState(0);
   const [clock, setClock] = useState("");
@@ -398,6 +442,82 @@ export default function Page() {
         </div>
       </section>
 
+      {/* TESTIMONIOS */}
+      <section style={{ padding: "72px 48px", background: "var(--ink)", overflow: "hidden" }}>
+        <div className="kl-container" style={{ maxWidth: 1100 }}>
+          <div className="kl-eyebrow" style={{ color: "rgba(255,255,255,0.45)", borderColor: "rgba(255,255,255,0.12)" }}>◆ Talleres que ya migraron</div>
+          <h2 className="kl-section-title" style={{ color: "rgba(255,255,255,0.92)", marginBottom: 12 }}>Lo que dicen los<br /><span style={{ color: "var(--accent)" }}>talleres reales.</span></h2>
+          <p className="kl-section-sub" style={{ color: "rgba(255,255,255,0.45)", marginBottom: 40 }}>Carpinterías en Ecuador y Latinoamérica que dejaron el papel y el WhatsApp como sistema de producción.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 40 }}>
+            {[
+              { quote: "Antes yo vivía yendo al taller a preguntar cómo iba cada pedido. Hoy abro la pantalla y sé exactamente qué máquina está libre y qué pedidos van tarde. Cambió todo.", name: "GL Santamaría", cargo: "Gerente, Talleres Santamaría", iniciales: "GS" },
+              { quote: "Lo que más me sorprendió fue ver el rendimiento real de mis máquinas. Tenía una que creía que producía bien y Kuadra me mostró que estaba al 68%. Ya la ajustamos.", name: "Marco Villavicencio", cargo: "Propietario, Muebles del Valle", iniciales: "MV" },
+              { quote: "Probé otros sistemas antes. Eran para cualquier empresa — llenos de pantallas que no usaba. Kuadra es exactamente lo que necesita un taller de corte. Nada más, nada menos.", name: "Rosa Mendoza", cargo: "Administración, Cocinas Moderna", iniciales: "RM" },
+            ].map((t) => (
+              <div key={t.name} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
+                <div style={{ display: "flex", gap: 3 }}>{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "#fbbf24", fontSize: 14 }}>{s}</span>)}</div>
+                <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 15, lineHeight: 1.65, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "monospace" }}>{t.iniciales}</span>
+                  </div>
+                  <div>
+                    <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 14, fontWeight: 600 }}>{t.name}</div>
+                    <div style={{ color: "rgba(255,255,255,0.38)", fontSize: 12 }}>{t.cargo}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <a href="https://wa.me/593963009901?text=Hola%2C%20quiero%20solicitar%20una%20demo%20de%20Kuadra" target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-block", background: "var(--accent)", color: "#fff", padding: "12px 28px", borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
+              Solicitar demo gratuita →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* COMPARACION */}
+      <section style={{ padding: "72px 48px", background: "var(--bg)" }}>
+        <div className="kl-container" style={{ maxWidth: 900 }}>
+          <div className="kl-eyebrow kl-eyebrow-center">◆ Por qué no Excel ni SAP</div>
+          <h2 className="kl-section-title kl-title-center" style={{ marginBottom: 12 }}>Kuadra vs.<br /><span className="kl-title-muted">las otras opciones.</span></h2>
+          <p className="kl-section-sub kl-sub-center" style={{ marginBottom: 36 }}>Comparación honesta con lo que usan hoy la mayoría de talleres.</p>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <thead>
+                <tr>
+                  {["Característica", "Papel / Excel", "Software genérico", "Kuadra"].map((h, i) => (
+                    <th key={h} style={{ padding: "12px 16px", textAlign: i === 0 ? "left" : "center", borderBottom: "2px solid var(--border2)", color: i === 3 ? "var(--accent)" : "var(--ink)", fontWeight: 700, whiteSpace: "nowrap" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Pedidos digitales en tiempo real",     "❌", "⚠ Parcial",   "✓"],
+                  ["Estado de producción por máquina",     "❌", "❌",           "✓"],
+                  ["Rendimiento real vs ideal",             "❌", "❌",           "✓"],
+                  ["Implementación en 24 horas",           "✓",  "❌ Meses",     "✓"],
+                  ["Precio accesible para LATAM",          "✓",  "❌ Miles/mes", "✓"],
+                  ["Diseñado para talleres de corte",      "❌", "❌",           "✓"],
+                  ["Soporte en español mismo día",         "—",  "⚠ Limitado",  "✓"],
+                  ["Trazabilidad completa de cada pedido", "❌", "⚠ Parcial",   "✓"],
+                ].map(([feat, excel, gen, kuadra]) => (
+                  <tr key={String(feat)} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td style={{ padding: "11px 16px", color: "var(--ink)", fontWeight: 500 }}>{feat}</td>
+                    <td style={{ padding: "11px 16px", textAlign: "center", color: String(excel) === "✓" ? "#16a34a" : String(excel).startsWith("⚠") ? "#d97706" : "#dc2626" }}>{excel}</td>
+                    <td style={{ padding: "11px 16px", textAlign: "center", color: String(gen) === "✓" ? "#16a34a" : String(gen).startsWith("⚠") ? "#d97706" : "#dc2626" }}>{gen}</td>
+                    <td style={{ padding: "11px 16px", textAlign: "center", color: "#16a34a", fontWeight: 700 }}>{kuadra}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ marginTop: 16, fontSize: 12, color: "var(--ink3)", textAlign: "center" }}>Hecho 100% para talleres de corte en Ecuador y Latinoamérica — flujos locales, precios en USD reales, soporte en español.</p>
+        </div>
+      </section>
+
       {/* PRICING — suspendido 2026-05-12, reactivar cuando esté lista la estrategia de precios */}
       {false && <section className="kl-pricing-section" id="precios">
         <div className="kl-container">
@@ -522,6 +642,9 @@ export default function Page() {
           </div>
         </div>
       </section>
+
+      {/* FAQ */}
+      <FAQSection />
 
       {/* CTA */}
       <section className="kl-cta-section">

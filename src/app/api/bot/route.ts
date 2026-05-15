@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     const rawFrom = getFromEmail();
     const fromEmail = rawFrom.includes("<") ? rawFrom : `Kuadra Bot <${rawFrom}>`;
-    const toEmail = resolveToEmail("rygingenieria1@gmail.com");
+    const toEmail = resolveToEmail(process.env.LEAD_NOTIFICATION_EMAIL ?? "rygingenieria1@gmail.com");
     console.log(`[bot] Resend sending from=${fromEmail} to=${toEmail} lead=${nombre}`);
     try {
       const resendResult = await getResend().emails.send({

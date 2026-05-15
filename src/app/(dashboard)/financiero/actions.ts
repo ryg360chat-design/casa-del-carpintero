@@ -6,11 +6,18 @@ import { getUserRole } from "@/lib/auth";
 import { getOrganization } from "@/lib/org";
 
 export async function setPrecioVenta(pedidoId: string, precio: number) {
+  const role = await getUserRole();
+  if (!["developer", "admin", "gerencia"].includes(role)) return { error: "Sin permisos" };
+
+  const org = await getOrganization();
+  if (!org) return { error: "Sin organización" };
+
   const supabase = await createClient();
   await supabase
     .from("pedidos")
     .update({ precio_venta: precio })
-    .eq("id", pedidoId);
+    .eq("id", pedidoId)
+    .eq("organization_id", org.id);
   revalidatePath("/financiero");
 }
 

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 function RegistroContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
 
@@ -48,12 +47,13 @@ function RegistroContent() {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-zinc-900 rounded-2xl border border-zinc-800 p-8 text-center">
-          <div className="w-14 h-14 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-7 h-7 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <div className="w-14 h-14 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-7 h-7 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
           </div>
           <h2 className="text-xl font-bold text-white mb-2">¡Taller creado!</h2>
-          <p className="text-zinc-400 text-sm mb-1">Tu trial de 14 días comienza ahora.</p>
-          <p className="text-zinc-500 text-xs">Redirigiendo al login…</p>
+          <p className="text-zinc-300 text-sm mb-1">Revisa tu correo y confirma tu cuenta.</p>
+          <p className="text-zinc-500 text-xs mb-4">Te enviamos un enlace de confirmación. Una vez que lo abras, podrás iniciar sesión y comenzar tu trial de 14 días.</p>
+          <Link href="/login" className="inline-block text-sm text-blue-400 hover:text-blue-300 transition-colors">Ir al login →</Link>
         </div>
       </div>
     );
@@ -87,7 +87,6 @@ function RegistroContent() {
     }
 
     setDone(true);
-    setTimeout(() => router.push("/login"), 2500);
   }
 
   return (

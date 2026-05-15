@@ -106,7 +106,7 @@ export default async function ProduccionPage() {
     supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M1").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M2").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
     supabase.from("pedidos").select("*, cliente:clientes(nombre)", { count: "exact" }).eq("maquina_asignada", "M3").in("estado", ACTIVOS).order("prioridad", { ascending: true }).order("fecha_ingreso", { ascending: true }).limit(50),
-    supabase.from("maquinas").select("*").limit(10),
+    supabase.from("maquinas").select("id, nombre, activa").limit(10),
   ]);
 
   const m1 = maquinas?.find((m: { id: string; activa: boolean }) => m.id === "M1");

@@ -5,12 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole, IS_ADMIN, CAN_ADVANCE_STATE, CAN_DESPACHAR } from "@/lib/auth";
 import { getOrganization } from "@/lib/org";
 import { limaTodayKey } from "@/lib/time";
-
-const SIGUIENTE_ESTADO: Record<string, string> = {
-  "En cola": "En corte",
-  "En corte": "En tapacantos",
-  "En tapacantos": "Listo",
-};
+import { SIGUIENTE_ESTADO } from "@/lib/estados";
 
 export async function avanzarEstado(pedidoId: string, estadoActual: string) {
   const role = await getUserRole();

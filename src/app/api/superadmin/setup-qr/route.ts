@@ -16,5 +16,5 @@ export async function POST(req: NextRequest) {
 
   const uri = generateTOTPUri(secret, "Kuadra", "superadmin");
   const qr = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(uri)}`;
-  return NextResponse.json({ qr, secret });
+  return NextResponse.json({ qr });
 }
