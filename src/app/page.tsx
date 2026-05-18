@@ -88,14 +88,14 @@ const FAQS = [
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section style={{ padding: "72px 48px", background: "var(--bg)" }}>
+    <section style={{ padding: "72px 48px", background: "var(--white)", borderTop: "1px solid var(--border)" }}>
       <div className="kl-container" style={{ maxWidth: 720 }}>
         <div className="kl-eyebrow kl-eyebrow-center">◆ Preguntas frecuentes</div>
         <h2 className="kl-section-title kl-title-center" style={{ marginBottom: 12 }}>Todo lo que<br /><span className="kl-title-muted">necesitas saber.</span></h2>
         <p className="kl-section-sub kl-sub-center" style={{ marginBottom: 36 }}>Si no encuentras tu respuesta, escríbenos por WhatsApp — respondemos el mismo día.</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {FAQS.map((faq, i) => (
-            <div key={i} style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border2)", background: open === i ? "rgba(200,71,42,0.04)" : "rgba(255,255,255,0.6)", transition: "background 0.2s" }}>
+            <div key={i} style={{ borderRadius: 12, overflow: "hidden", border: "1px solid var(--border2)", background: open === i ? "rgba(200,71,42,0.06)" : "var(--bg)", transition: "background 0.2s" }}>
               <button
                 style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "16px 20px", textAlign: "left", background: "none", border: "none", cursor: "pointer" }}
                 onClick={() => setOpen(open === i ? null : i)}
@@ -124,6 +124,13 @@ export default function Page() {
   const [rend, setRend] = useState(91);
   const [cola, setCola] = useState(28);
   const [billing, setBilling] = useState<"mensual" | "anual">("mensual");
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const tick = () => {
@@ -168,7 +175,7 @@ export default function Page() {
       <style dangerouslySetInnerHTML={{ __html: css }} />
 
       {/* NAV */}
-      <nav className="kl-nav">
+      <nav className={`kl-nav${scrolled ? " kl-nav-scrolled" : ""}`}>
         <Link href="/" className="kl-logo">
           <span className="kl-logo-name">Kuadra</span>
           <span className="kl-logo-badge">RYG · V2.4</span>
@@ -443,7 +450,7 @@ export default function Page() {
       </section>
 
       {/* TESTIMONIOS */}
-      <section style={{ padding: "72px 48px", background: "#ede8df", overflow: "hidden" }}>
+      <section style={{ padding: "72px 48px", background: "var(--white)", borderTop: "1px solid var(--border)", overflow: "hidden" }}>
         <div className="kl-container" style={{ maxWidth: 1100 }}>
           <div className="kl-eyebrow">◆ Talleres que ya migraron</div>
           <h2 className="kl-section-title" style={{ marginBottom: 12 }}>Lo que dicen los<br /><span style={{ color: "var(--accent)" }}>talleres reales.</span></h2>
@@ -454,7 +461,7 @@ export default function Page() {
               { quote: "Lo que más me sorprendió fue ver el rendimiento real de mis máquinas. Tenía una que creía que producía bien y Kuadra me mostró que estaba al 68%. Ya la ajustamos.", name: "Marco Villavicencio", cargo: "Propietario, Muebles del Valle", iniciales: "MV" },
               { quote: "Probé otros sistemas antes. Eran para cualquier empresa — llenos de pantallas que no usaba. Kuadra es exactamente lo que necesita un taller de corte. Nada más, nada menos.", name: "Rosa Mendoza", cargo: "Administración, Cocinas Moderna", iniciales: "RM" },
             ].map((t) => (
-              <div key={t.name} style={{ background: "#fff", border: "1px solid var(--border)", borderRadius: 16, padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
+              <div key={t.name} style={{ background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 16, padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ display: "flex", gap: 3 }}>{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "#f59e0b", fontSize: 14 }}>{s}</span>)}</div>
                 <p style={{ color: "var(--ink2)", fontSize: 15, lineHeight: 1.65, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
@@ -714,9 +721,11 @@ const css = `
   background: rgba(243,238,231,0.94);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.2s ease;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 48px; height: 60px;
 }
+.kl-nav-scrolled { box-shadow: 0 4px 24px rgba(26,23,20,0.10); }
 .kl-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .kl-logo-mark {
   width: 32px; height: 32px; border-radius: 8px;
@@ -1236,7 +1245,7 @@ const css = `
 
 /* PRICING */
 .kl-pricing-section {
-  background: var(--bg);
+  background: var(--white);
   border-top: 1px solid var(--border);
   padding: 96px 48px;
 }
@@ -1268,7 +1277,7 @@ const css = `
   align-items: start;
 }
 .kl-pricing-card {
-  background: var(--white); border: 1px solid var(--border);
+  background: var(--bg); border: 1px solid var(--border);
   border-radius: 18px; padding: 28px; position: relative;
   transition: box-shadow .2s, border-color .2s;
   cursor: pointer;
