@@ -711,7 +711,7 @@ const css = `
   background: var(--bg);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 .kl-mono { font-family: 'JetBrains Mono', monospace; }
 
