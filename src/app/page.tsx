@@ -682,6 +682,9 @@ export default function Page() {
             <a key={a.name} href={a.url} target={a.url === "/" ? "_self" : "_blank"} rel="noopener noreferrer" className={`kl-footer-app${a.url === "/" ? " kl-footer-app-current" : ""}`}>{a.name}</a>
           ))}
         </div>
+        <div className="kl-footer-legal">
+          <Link href="/legal" className="kl-footer-legal-link">Términos y Privacidad</Link>
+        </div>
         <div className="kl-footer-love kl-mono">
           CONSTRUIDO CON <span className="kl-footer-heart">♥</span> POR RyG SaaS · QUITO, EC · © 2026
         </div>
@@ -715,17 +718,22 @@ const css = `
 }
 .kl-mono { font-family: 'JetBrains Mono', monospace; }
 
-/* NAV */
+/* NAV — liquid glass */
 .kl-nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(243,238,231,0.94);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  transition: box-shadow 0.2s ease;
+  background: rgba(243,238,231,0.55);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.45);
+  box-shadow: 0 1px 0 rgba(26,23,20,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 48px; height: 60px;
 }
-.kl-nav-scrolled { box-shadow: 0 4px 24px rgba(26,23,20,0.10); }
+.kl-nav-scrolled {
+  background: rgba(243,238,231,0.72);
+  box-shadow: 0 8px 32px rgba(26,23,20,0.10), 0 1px 0 rgba(26,23,20,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+}
 .kl-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .kl-logo-mark {
   width: 32px; height: 32px; border-radius: 8px;
@@ -1503,6 +1511,12 @@ const css = `
   letter-spacing: 0.1em; text-transform: uppercase;
 }
 .kl-footer-heart { color: var(--accent); font-size: 12px; }
+.kl-footer-legal { margin-bottom: 12px; }
+.kl-footer-legal-link {
+  font-size: 12px; color: var(--ink3); text-decoration: none;
+  transition: color .15s;
+}
+.kl-footer-legal-link:hover { color: var(--ink); }
 
 /* ── MOBILE RESPONSIVE ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
