@@ -1236,7 +1236,7 @@ const css = `
 
 /* PRICING */
 .kl-pricing-section {
-  background: var(--white);
+  background: var(--bg);
   border-top: 1px solid var(--border);
   padding: 96px 48px;
 }
@@ -1268,7 +1268,7 @@ const css = `
   align-items: start;
 }
 .kl-pricing-card {
-  background: var(--bg); border: 1px solid var(--border);
+  background: var(--white); border: 1px solid var(--border);
   border-radius: 18px; padding: 28px; position: relative;
   transition: box-shadow .2s, border-color .2s;
   cursor: pointer;
